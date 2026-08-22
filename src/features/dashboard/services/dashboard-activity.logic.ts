@@ -8,10 +8,7 @@ export const DASHBOARD_ACTIVITY_LIMIT = 15;
 export const DASHBOARD_PENDING_LIMIT = 15;
 
 export type DashboardPendingKind =
-  | "homework_submitted"
-  | "test_submitted"
-  | "homework_needs_feedback"
-  | "test_needs_feedback";
+  "homework_submitted" | "test_submitted" | "homework_needs_feedback" | "test_needs_feedback";
 
 export type DashboardPendingTask = {
   id: string;
@@ -25,10 +22,7 @@ export type DashboardPendingTask = {
 };
 
 export type DashboardActivityKind =
-  | "homework_submitted"
-  | "test_submitted"
-  | "homework_graded"
-  | "test_graded";
+  "homework_submitted" | "test_submitted" | "homework_graded" | "test_graded";
 
 export type DashboardActivityItem = {
   id: string;
@@ -68,8 +62,7 @@ export function isEmptyFeedback(feedback: string | null | undefined): boolean {
 export function pendingTaskFromInboxItem(item: CorrectionInboxItem): DashboardPendingTask {
   const kind: DashboardPendingKind =
     item.source === "homework" ? "homework_submitted" : "test_submitted";
-  const actionLabel =
-    item.source === "homework" ? "يحتاج تصحيح" : "يحتاج تصحيح تلقائي";
+  const actionLabel = item.source === "homework" ? "يحتاج تصحيح" : "يحتاج تصحيح تلقائي";
 
   return {
     id: `pending:${item.id}`,

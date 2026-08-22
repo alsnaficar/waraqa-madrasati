@@ -11,10 +11,7 @@ import { MOCK_MADRASATI_TEACHER, MOCK_MADRASATI_TIMETABLE } from "../mock/fixtur
 
 describe("Madrasati live verification helpers", () => {
   it("omits empty optional teacher fields and requires a displayName", () => {
-    assert.equal(
-      sanitizeTeacherSnapshot({ displayName: "   " }),
-      null,
-    );
+    assert.equal(sanitizeTeacherSnapshot({ displayName: "   " }), null);
 
     assert.deepEqual(
       sanitizeTeacherSnapshot({

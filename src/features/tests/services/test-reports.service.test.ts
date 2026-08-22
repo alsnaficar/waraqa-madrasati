@@ -217,10 +217,7 @@ describe("TASK 22.6 test reports", () => {
   });
 
   it("2. null due_date exclusion", () => {
-    assert.equal(
-      isTestDueInRange(null, { from: "2026-08-01", to: "2026-08-31" }),
-      false,
-    );
+    assert.equal(isTestDueInRange(null, { from: "2026-08-01", to: "2026-08-31" }), false);
   });
 
   it("3. completionRate", () => {
@@ -277,8 +274,14 @@ describe("TASK 22.6 test reports", () => {
     assert.equal(report.summary.totalSubmissions, 2);
     assert.equal(report.summary.gradedSubmissions, 1);
     assert.equal(report.summary.submittedSubmissions, 1);
-    assert.equal(report.tests.every((row) => row.id !== "test-null-due"), true);
-    assert.equal(report.tests.every((row) => row.id !== "test-out"), true);
+    assert.equal(
+      report.tests.every((row) => row.id !== "test-null-due"),
+      true,
+    );
+    assert.equal(
+      report.tests.every((row) => row.id !== "test-out"),
+      true,
+    );
   });
 
   it("7. test detail", async () => {
@@ -349,7 +352,10 @@ describe("TASK 22.6 test reports", () => {
       { kind: "today", today: "2026-08-14" },
       authFor(db, TEACHER_A),
     );
-    assert.equal(report.tests.every((row) => row.id !== TEST_B), true);
+    assert.equal(
+      report.tests.every((row) => row.id !== TEST_B),
+      true,
+    );
     assert.equal(report.summary.averageScore, 8);
 
     assert.equal(await TestReportsService.getTestDetail(TEST_B, authFor(db, TEACHER_A)), null);

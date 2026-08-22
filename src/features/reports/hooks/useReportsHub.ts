@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import {
-  REPORTS_HUB_DEFAULT_FILTER,
-} from "../services/reports-hub.logic";
+import { REPORTS_HUB_DEFAULT_FILTER } from "../services/reports-hub.logic";
 import { ReportsHubService } from "../services/reports-hub.service";
 import type { ReportsDateFilter } from "../services/reports.service";
 

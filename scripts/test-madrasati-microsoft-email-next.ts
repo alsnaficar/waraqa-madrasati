@@ -53,14 +53,10 @@ async function main(): Promise<void> {
       return isMicrosoftLoginHostname(inspection.url);
     });
 
-    const microsoftHost = publicLocation(
-      (await adapter.inspectAuthenticationPage()).url,
-    ).hostname;
+    const microsoftHost = publicLocation((await adapter.inspectAuthenticationPage()).url).hostname;
 
     if (microsoftHost !== "login.microsoftonline.com") {
-      throw new Error(
-        `Expected login.microsoftonline.com, received ${microsoftHost || "(empty)"}`,
-      );
+      throw new Error(`Expected login.microsoftonline.com, received ${microsoftHost || "(empty)"}`);
     }
 
     const emailFocus = await waitForEditableEmailField(adapter);
@@ -150,9 +146,7 @@ function readOptionalTestEmail(): string | null {
   return raw;
 }
 
-async function waitForEditableEmailField(
-  adapter: MadrasatiBrowserAdapter,
-) {
+async function waitForEditableEmailField(adapter: MadrasatiBrowserAdapter) {
   const started = Date.now();
   let lastFocus = await adapter.inspectAuthenticationFocus();
 
@@ -174,14 +168,8 @@ async function waitForEditableEmailField(
   throw new Error("Timed out waiting for an editable Microsoft email field.");
 }
 
-function isUsableEmailFocus(focus: {
-  isEditable: boolean;
-  inputType: string;
-}): boolean {
-  return (
-    focus.isEditable &&
-    (focus.inputType === "email" || focus.inputType === "text")
-  );
+function isUsableEmailFocus(focus: { isEditable: boolean; inputType: string }): boolean {
+  return focus.isEditable && (focus.inputType === "email" || focus.inputType === "text");
 }
 
 async function waitUntil(
@@ -202,9 +190,7 @@ async function waitUntil(
   throw new Error(`Timed out waiting for ${label}.`);
 }
 
-async function waitForPostEmailMicrosoftPage(
-  adapter: MadrasatiBrowserAdapter,
-) {
+async function waitForPostEmailMicrosoftPage(adapter: MadrasatiBrowserAdapter) {
   const started = Date.now();
   let latest = await adapter.inspectAuthenticationPage();
 

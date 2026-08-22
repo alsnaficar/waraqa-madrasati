@@ -3,10 +3,7 @@ import type { Student } from "@/features/homework/services/student.service";
 import type { TestStatus } from "./test.service";
 import type { TestQuestion } from "./test-question.service";
 import type { TestAnswer } from "./test-answer.service";
-import type {
-  TestSubmission,
-  TestSubmissionStatus,
-} from "./test-submission.service";
+import type { TestSubmission, TestSubmissionStatus } from "./test-submission.service";
 
 export const TEST_SUBMISSION_STATUS_LABELS: Record<TestSubmissionStatus, string> = {
   pending: "لم يبدأ",
@@ -14,10 +11,7 @@ export const TEST_SUBMISSION_STATUS_LABELS: Record<TestSubmissionStatus, string>
   graded: "مُصحّح",
 };
 
-export function formatTestScoreLabel(
-  score: number | null,
-  maxScore?: number | null,
-): string {
+export function formatTestScoreLabel(score: number | null, maxScore?: number | null): string {
   if (score == null) return "—";
   if (maxScore != null && Number.isFinite(maxScore)) {
     return `${score}/${maxScore}`;
@@ -82,10 +76,7 @@ export function autoGradeActionLabel(status: TestSubmissionStatus): string {
   return status === "graded" ? "إعادة التصحيح التلقائي" : "تصحيح تلقائي";
 }
 
-export function canEnterTestAnswers(
-  status: TestSubmissionStatus,
-  testStatus: TestStatus,
-): boolean {
+export function canEnterTestAnswers(status: TestSubmissionStatus, testStatus: TestStatus): boolean {
   return testStatus === "published" && status === "pending";
 }
 

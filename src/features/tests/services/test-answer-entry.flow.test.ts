@@ -6,12 +6,7 @@ import { TestGradingService } from "./test-grading.service.ts";
 import { TestQuestionService } from "./test-question.service.ts";
 import { TestService } from "./test.service.ts";
 import { TestSubmissionService } from "./test-submission.service.ts";
-import {
-  STUDENT_A,
-  TEACHER_A,
-  authFor,
-  createEmptyTestsDb,
-} from "./tests-mock.ts";
+import { STUDENT_A, TEACHER_A, authFor, createEmptyTestsDb } from "./tests-mock.ts";
 
 describe("TASK 22.7 answer entry → submit → grade flow", () => {
   it("17-22. pending → answers → submitted → graded with score", async () => {
@@ -55,11 +50,7 @@ describe("TASK 22.7 answer entry → submit → grade flow", () => {
       active: true,
     });
 
-    const pending = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const pending = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(pending);
     assert.equal(pending.status, "pending");
 

@@ -365,13 +365,7 @@ export class LessonSessionService {
       if (error) throw error;
     }
 
-    await this.refreshUnlockedSessionCurriculum(
-      date,
-      dayOfWeek,
-      slots,
-      plannedForDate,
-      resolved,
-    );
+    await this.refreshUnlockedSessionCurriculum(date, dayOfWeek, slots, plannedForDate, resolved);
 
     const sessions = await this.getSessionViewsByDate(date, resolved);
 
@@ -428,13 +422,7 @@ export class LessonSessionService {
     const plannedForDate = schedule.filter((entry) => entry.lessonId);
     if (plannedForDate.length === 0) return;
 
-    await this.refreshUnlockedSessionCurriculum(
-      date,
-      dayOfWeek,
-      slots,
-      plannedForDate,
-      resolved,
-    );
+    await this.refreshUnlockedSessionCurriculum(date, dayOfWeek, slots, plannedForDate, resolved);
   }
 
   /**
@@ -698,10 +686,8 @@ export class LessonSessionService {
 
     const catalog = await this.loadOwnedGradeClassCatalog(resolved);
 
-    let nextGradeId =
-      input.gradeId !== undefined ? input.gradeId : existing.gradeId;
-    let nextClassId =
-      input.classId !== undefined ? input.classId : existing.classId;
+    let nextGradeId = input.gradeId !== undefined ? input.gradeId : existing.gradeId;
+    let nextClassId = input.classId !== undefined ? input.classId : existing.classId;
 
     if (nextGradeId?.trim()) {
       const grade = catalog.grades.find((item) => item.id === nextGradeId!.trim());
@@ -796,10 +782,7 @@ export class LessonSessionService {
   }> {
     const [{ data: grades }, { data: classes }] = await Promise.all([
       context.client.from("grades").select("id, name").eq("user_id", context.userId),
-      context.client
-        .from("classes")
-        .select("id, name, grade_id")
-        .eq("user_id", context.userId),
+      context.client.from("classes").select("id, name, grade_id").eq("user_id", context.userId),
     ]);
 
     return {

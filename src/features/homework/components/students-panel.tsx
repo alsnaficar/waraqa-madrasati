@@ -17,13 +17,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/shared/utils/utils";
 
@@ -85,8 +79,7 @@ export function StudentsPanel() {
   }, [classes, gradeFilter]);
 
   const selectedClass = classes.find((item) => item.id === classFilter) ?? null;
-  const selectedGradeId =
-    selectedClass?.gradeId ?? (gradeFilter !== ALL ? gradeFilter : null);
+  const selectedGradeId = selectedClass?.gradeId ?? (gradeFilter !== ALL ? gradeFilter : null);
 
   const filtered = useMemo(
     () =>
@@ -203,10 +196,7 @@ export function StudentsPanel() {
             ))}
           </SelectContent>
         </Select>
-        <Select
-          value={classFilter}
-          onValueChange={setClassFilter}
-        >
+        <Select value={classFilter} onValueChange={setClassFilter}>
           <SelectTrigger className="min-h-11 w-full sm:w-48" aria-label="تصفية حسب الفصل">
             <SelectValue placeholder="كل الفصول" />
           </SelectTrigger>

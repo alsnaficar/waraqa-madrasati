@@ -158,10 +158,7 @@ const SAMPLE_CONTENT = `# واجب الوحدة
 1. السؤال الأول
 2. السؤال الثاني`;
 
-function seedOwnedWorksheet(
-  db: ImportMockDb,
-  overrides: Partial<Row> = {},
-): string {
+function seedOwnedWorksheet(db: ImportMockDb, overrides: Partial<Row> = {}): string {
   const id = (overrides.id as string) ?? GEN_A;
   db.ai_generations.push({
     id,
@@ -240,7 +237,10 @@ describe("TASK 24 HomeworkAiImportService", () => {
     // source must not import / call AI providers or entitlement
     const here = path.dirname(fileURLToPath(import.meta.url));
     const serviceSrc = readFileSync(path.join(here, "homework-ai-import.service.ts"), "utf8");
-    assert.equal(/requireEntitlement|runSessionBoundGeneration|@google\/genai|aiOrchestrator/.test(serviceSrc), false);
+    assert.equal(
+      /requireEntitlement|runSessionBoundGeneration|@google\/genai|aiOrchestrator/.test(serviceSrc),
+      false,
+    );
     assert.match(serviceSrc, /HomeworkService\.create/);
     assert.match(serviceSrc, /from\(["']ai_generations["']\)/);
   });
@@ -249,8 +249,7 @@ describe("TASK 24 HomeworkAiImportService", () => {
     const db = createEmptyDb();
     const generationId = seedOwnedWorksheet(db, { user_id: TEACHER_B });
     await assert.rejects(
-      () =>
-        HomeworkAiImportService.createDraftFromWorksheetGeneration(generationId, authFor(db)),
+      () => HomeworkAiImportService.createDraftFromWorksheetGeneration(generationId, authFor(db)),
       /لا تملك صلاحية/,
     );
     assert.equal(db.homework.length, 0);
@@ -260,8 +259,7 @@ describe("TASK 24 HomeworkAiImportService", () => {
     const db = createEmptyDb();
     const generationId = seedOwnedWorksheet(db, { kind: "quiz" });
     await assert.rejects(
-      () =>
-        HomeworkAiImportService.createDraftFromWorksheetGeneration(generationId, authFor(db)),
+      () => HomeworkAiImportService.createDraftFromWorksheetGeneration(generationId, authFor(db)),
       /worksheet/,
     );
     assert.equal(db.homework.length, 0);

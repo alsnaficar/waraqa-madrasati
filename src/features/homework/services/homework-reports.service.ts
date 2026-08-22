@@ -138,7 +138,9 @@ export function ratePercent(numerator: number, denominator: number): number {
 }
 
 export function averageNumericScores(scores: Array<number | null | undefined>): number {
-  const values = scores.filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const values = scores.filter(
+    (value): value is number => typeof value === "number" && Number.isFinite(value),
+  );
   if (values.length === 0) return 0;
   const sum = values.reduce((acc, value) => acc + value, 0);
   return Math.round((sum / values.length) * 100) / 100;

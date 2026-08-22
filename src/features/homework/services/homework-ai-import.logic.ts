@@ -36,8 +36,7 @@ export function mapWorksheetContentToHomeworkDraft(
   const title = resolveTitle(meta.title);
   const subject =
     typeof meta.subject === "string" && meta.subject.trim() ? meta.subject.trim() : null;
-  const grade =
-    typeof meta.grade === "string" && meta.grade.trim() ? meta.grade.trim() : null;
+  const grade = typeof meta.grade === "string" && meta.grade.trim() ? meta.grade.trim() : null;
   const lessonSessionId =
     typeof meta.lessonSessionId === "string" && meta.lessonSessionId.trim()
       ? meta.lessonSessionId.trim()

@@ -6,10 +6,7 @@ import {
 } from "@/features/reports/services/reports-ui.logic";
 
 import { TEST_STATUS_LABELS } from "./tests-ui.logic";
-import {
-  formatTestScoreLabel,
-  TEST_SUBMISSION_STATUS_LABELS,
-} from "./tests-submissions-ui.logic";
+import { formatTestScoreLabel, TEST_SUBMISSION_STATUS_LABELS } from "./tests-submissions-ui.logic";
 import type { TestReportSummary } from "./test-reports.service";
 
 export { formatTestScoreLabel };

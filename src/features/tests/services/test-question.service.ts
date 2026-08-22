@@ -160,10 +160,7 @@ function assertPosition(position: number): void {
  * Ownership resolved through the parent test.
  */
 export class TestQuestionService {
-  static async listByTest(
-    testId: string,
-    context?: SupabaseUserContext,
-  ): Promise<TestQuestion[]> {
+  static async listByTest(testId: string, context?: SupabaseUserContext): Promise<TestQuestion[]> {
     const resolved = await resolveUserContext(context);
     if (!resolved) return [];
 
@@ -197,10 +194,7 @@ export class TestQuestionService {
     return questions.map((row) => toQuestion(row, byQuestion.get(row.id) ?? []));
   }
 
-  static async getById(
-    id: string,
-    context?: SupabaseUserContext,
-  ): Promise<TestQuestion | null> {
+  static async getById(id: string, context?: SupabaseUserContext): Promise<TestQuestion | null> {
     const resolved = await resolveUserContext(context);
     if (!resolved) return null;
 

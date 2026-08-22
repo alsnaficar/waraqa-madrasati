@@ -119,11 +119,7 @@ describe("TASK 22.2 TestService", () => {
     });
 
     await assert.rejects(
-      () =>
-        TestService.create(
-          { title: "اختبار", lessonSessionId: SESSION_B },
-          authFor(db),
-        ),
+      () => TestService.create({ title: "اختبار", lessonSessionId: SESSION_B }, authFor(db)),
       /الحصة المرتبطة/,
     );
 

@@ -293,8 +293,7 @@ export function GradesClassesPanel() {
                 if (!deleteGrade) return;
                 void removeGrade.mutateAsync(deleteGrade.id).then(
                   () => toast.success("تم حذف الصف."),
-                  (err) =>
-                    toast.error(err instanceof Error ? err.message : "تعذر حذف الصف."),
+                  (err) => toast.error(err instanceof Error ? err.message : "تعذر حذف الصف."),
                 );
               }}
             >
@@ -325,8 +324,7 @@ export function GradesClassesPanel() {
                 if (!deleteClass) return;
                 void removeClass.mutateAsync(deleteClass.id).then(
                   () => toast.success("تم حذف الفصل."),
-                  (err) =>
-                    toast.error(err instanceof Error ? err.message : "تعذر حذف الفصل."),
+                  (err) => toast.error(err instanceof Error ? err.message : "تعذر حذف الفصل."),
                 );
               }}
             >

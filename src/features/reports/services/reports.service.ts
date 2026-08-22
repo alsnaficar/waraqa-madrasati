@@ -145,8 +145,7 @@ export function calculateLessonSessionStats(
     stats[session.status] += 1;
   }
 
-  stats.completionRate =
-    stats.total === 0 ? 0 : Math.round((stats.completed / stats.total) * 100);
+  stats.completionRate = stats.total === 0 ? 0 : Math.round((stats.completed / stats.total) * 100);
 
   return stats;
 }

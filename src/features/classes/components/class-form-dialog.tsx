@@ -12,13 +12,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 
 import type { ClassCreateInput } from "../services/class.service";
 import type { TeacherClass } from "../services/class.service";
@@ -82,9 +76,7 @@ export function ClassFormDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "إضافة فصل" : "تعديل الفصل"}</DialogTitle>
-          <DialogDescription>
-            الفصل (مثل 1/أ) يمكن ربطه بصف دراسي. الربط اختياري.
-          </DialogDescription>
+          <DialogDescription>الفصل (مثل 1/أ) يمكن ربطه بصف دراسي. الربط اختياري.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={(event) => void handleSubmit(event)}>

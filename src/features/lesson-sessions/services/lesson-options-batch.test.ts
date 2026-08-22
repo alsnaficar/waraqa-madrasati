@@ -415,10 +415,7 @@ describe("TASK 25.36 batched weekly lesson options", () => {
     const counters = emptyCounters();
     const ids = tenMathSessions().map((row) => String(row.id));
 
-    const result = await loadLessonOptionsForOwnedSessions(
-      ids,
-      authFor(db, counters, TEACHER_B),
-    );
+    const result = await loadLessonOptionsForOwnedSessions(ids, authFor(db, counters, TEACHER_B));
 
     assert.deepEqual(result, {});
     assert.equal(counters.lesson_sessions, 1);
@@ -431,10 +428,7 @@ describe("TASK 25.36 batched weekly lesson options", () => {
     const db = seedDb([makeSessionRow()]);
     const counters = emptyCounters();
 
-    const result = await loadLessonOptionsForOwnedSessions(
-      [sessionId(1)],
-      authFor(db, counters),
-    );
+    const result = await loadLessonOptionsForOwnedSessions([sessionId(1)], authFor(db, counters));
 
     assert.equal(counters.lesson_sessions, 1);
     assert.equal(counters.curriculum_files, 1);

@@ -18,8 +18,7 @@ export const DELETE_PREPARATION_CONFIRM_LABEL = "حذف التحضير";
 
 export const DELETE_PREPARATION_CANCEL_LABEL = "إلغاء";
 
-export const DELETE_PREPARATION_SUCCESS_TOAST =
-  "تم حذف التحضير وإعادة الحصة إلى الحالة المجدولة.";
+export const DELETE_PREPARATION_SUCCESS_TOAST = "تم حذف التحضير وإعادة الحصة إلى الحالة المجدولة.";
 
 export interface DeletePreparationDialogProps {
   open: boolean;

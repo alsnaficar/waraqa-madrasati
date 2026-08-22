@@ -106,7 +106,8 @@ function createMockClient(db: Db) {
                   data: null,
                   error: {
                     code: "23505",
-                    message: "duplicate key value violates unique constraint idx_students_teacher_code_unique",
+                    message:
+                      "duplicate key value violates unique constraint idx_students_teacher_code_unique",
                   },
                 };
               }
@@ -189,7 +190,10 @@ function emptyDb(overrides: Partial<Db> = {}): Db {
 describe("StudentCodeConflictError helpers", () => {
   it("detects unique violation codes", () => {
     assert.equal(isStudentCodeUniqueViolation({ code: "23505" }), true);
-    assert.equal(isStudentCodeUniqueViolation({ message: "idx_students_teacher_code_unique" }), true);
+    assert.equal(
+      isStudentCodeUniqueViolation({ message: "idx_students_teacher_code_unique" }),
+      true,
+    );
     assert.equal(isStudentCodeUniqueViolation({ code: "42501" }), false);
   });
 });
@@ -277,7 +281,11 @@ describe("TASK 20.5-B StudentService", () => {
         },
       ],
     });
-    const updated = await StudentService.update("s1", { fullName: "جديد", active: false }, authFor(db));
+    const updated = await StudentService.update(
+      "s1",
+      { fullName: "جديد", active: false },
+      authFor(db),
+    );
     assert.equal(updated?.fullName, "جديد");
     assert.equal(updated?.active, false);
   });
@@ -512,7 +520,10 @@ describe("TASK 20.5-B StudentService", () => {
     const { readFileSync } = await import("node:fs");
     const { fileURLToPath } = await import("node:url");
     const { dirname, join } = await import("node:path");
-    const source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "student.service.ts"), "utf8");
+    const source = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "student.service.ts"),
+      "utf8",
+    );
     assert.match(source, /resolveUserContext/);
     assert.match(source, /if\s*\(\s*!resolved\s*\)\s*return\s*\[\]/);
     assert.match(source, /bulkCreate/);

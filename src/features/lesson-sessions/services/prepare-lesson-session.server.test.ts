@@ -591,10 +591,7 @@ describe("P3 Step 4 preparing-state claim", () => {
     assert.equal(sessionState.current?.id, SESSION_A);
     assert.equal(deletedGenerations.count, 0);
     assert.equal(
-      await getCurrentLessonPlanPreparation(
-        { id: SESSION_A, status: "scheduled" },
-        auth,
-      ),
+      await getCurrentLessonPlanPreparation({ id: SESSION_A, status: "scheduled" }, auth),
       null,
     );
   });

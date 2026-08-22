@@ -15,9 +15,7 @@ describe("TASK 25.36 weekly Family C uses batched lesson options", () => {
   const selector = readSrc(
     "../../teacher-timetable/components/teacher-timetable-lesson-controls.tsx",
   );
-  const provider = readSrc(
-    "../../teacher-timetable/components/weekly-lesson-options-context.tsx",
-  );
+  const provider = readSrc("../../teacher-timetable/components/weekly-lesson-options-context.tsx");
   const serverFns = readSrc("../../../platform/lesson-sessions/get-lesson-options.functions.ts");
   const loader = readSrc("../../lesson-sessions/services/lesson-options.ts");
 

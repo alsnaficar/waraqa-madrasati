@@ -69,19 +69,15 @@ function SettingsPage() {
   const [preview, setPreview] = useState<MadrasatiDryRunPreviewResult | null>(null);
   const [madrasatiStatus, setMadrasatiStatus] =
     useState<MadrasatiAuthenticationStatusResult | null>(null);
-  const [teacherProfile, setTeacherProfile] =
-    useState<MadrasatiTeacherProfileResult | null>(null);
-  const [madrasatiClasses, setMadrasatiClasses] = useState<MadrasatiClassResult[] | null>(
-    null,
-  );
-  const [madrasatiSubjects, setMadrasatiSubjects] = useState<MadrasatiSubjectResult[] | null>(
-    null,
-  );
+  const [teacherProfile, setTeacherProfile] = useState<MadrasatiTeacherProfileResult | null>(null);
+  const [madrasatiClasses, setMadrasatiClasses] = useState<MadrasatiClassResult[] | null>(null);
+  const [madrasatiSubjects, setMadrasatiSubjects] = useState<MadrasatiSubjectResult[] | null>(null);
   const [madrasatiTimetable, setMadrasatiTimetable] = useState<
     MadrasatiTimetableEntryResult[] | null
   >(null);
-  const [liveVerification, setLiveVerification] =
-    useState<MadrasatiLiveVerificationResult | null>(null);
+  const [liveVerification, setLiveVerification] = useState<MadrasatiLiveVerificationResult | null>(
+    null,
+  );
   const [liveVerificationLoading, setLiveVerificationLoading] = useState(false);
   const previewFn = useServerFn(previewMadrasatiSync);
   const madrasatiStatusFn = useServerFn(getMadrasatiAuthenticationStatus);
@@ -187,7 +183,13 @@ function SettingsPage() {
     return () => {
       active = false;
     };
-  }, [madrasatiStatusFn, teacherProfileFn, madrasatiClassesFn, madrasatiSubjectsFn, madrasatiTimetableFn]);
+  }, [
+    madrasatiStatusFn,
+    teacherProfileFn,
+    madrasatiClassesFn,
+    madrasatiSubjectsFn,
+    madrasatiTimetableFn,
+  ]);
 
   const set = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -219,10 +221,7 @@ function SettingsPage() {
 
   return (
     <PageShell>
-      <SectionHeader
-        title="الإعدادات"
-        description="حدّث بيانات ملفك الشخصي وأدر صفوفك وفصولك."
-      />
+      <SectionHeader title="الإعدادات" description="حدّث بيانات ملفك الشخصي وأدر صفوفك وفصولك." />
       <div className="space-y-6">
         {/* Madrasati Integration Card — status only; no credential collection */}
         <Card className="shadow-sm border-amber-100 bg-amber-50/40">
@@ -243,8 +242,7 @@ function SettingsPage() {
                         ? "جلسة تسجيل الدخول إلى مدرستي ما زالت مفتوحة على الخادم."
                         : `مزامنة مدرستي ستتم عبر المتصفح عند توفر المنصة. ${MADRASATI_DRY_RUN_DISCLAIMER}`}
                   </p>
-                  {madrasatiStatus?.authenticationState === "authenticated" &&
-                  madrasatiClasses ? (
+                  {madrasatiStatus?.authenticationState === "authenticated" && madrasatiClasses ? (
                     <p className="mt-2 text-xs leading-relaxed text-amber-900/80">
                       {madrasatiClasses.length > 0
                         ? `الفصول المقروءة: ${madrasatiClasses
@@ -253,8 +251,7 @@ function SettingsPage() {
                         : "لم يُعثر على فصول مسندة في مدرستي."}
                     </p>
                   ) : null}
-                  {madrasatiStatus?.authenticationState === "authenticated" &&
-                  madrasatiSubjects ? (
+                  {madrasatiStatus?.authenticationState === "authenticated" && madrasatiSubjects ? (
                     <p className="mt-2 text-xs leading-relaxed text-amber-900/80">
                       {madrasatiSubjects.length > 0
                         ? `المواد المكتشفة من مدرستي: ${madrasatiSubjects
@@ -313,11 +310,10 @@ function SettingsPage() {
                           : "فشل"}
                       </p>
                       <p>
-                        الجلسة: قبل{" "}
-                        {liveVerification.session.existedBefore ? "نعم" : "لا"} · بقيت{" "}
+                        الجلسة: قبل {liveVerification.session.existedBefore ? "نعم" : "لا"} · بقيت{" "}
                         {liveVerification.session.remainedAlive ? "نعم" : "لا"} · موثّقة{" "}
-                        {liveVerification.session.remainedAuthenticated ? "نعم" : "لا"} · جلسة
-                        ثانية {liveVerification.session.secondSessionCreated ? "نعم" : "لا"}
+                        {liveVerification.session.remainedAuthenticated ? "نعم" : "لا"} · جلسة ثانية{" "}
+                        {liveVerification.session.secondSessionCreated ? "نعم" : "لا"}
                       </p>
                       <p>كتابة قاعدة البيانات: {liveVerification.databaseWrites}</p>
                     </div>
@@ -355,9 +351,7 @@ function SettingsPage() {
                     })();
                   }}
                 >
-                  {liveVerificationLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : null}
+                  {liveVerificationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   تحقق من استخراج مدرستي
                 </Button>
               </div>
@@ -374,9 +368,7 @@ function SettingsPage() {
                       setPreview(await previewFn());
                     } catch (error) {
                       const text =
-                        error instanceof Error
-                          ? error.message
-                          : "تعذر تنفيذ معاينة مزامنة مدرستي.";
+                        error instanceof Error ? error.message : "تعذر تنفيذ معاينة مزامنة مدرستي.";
                       toast.error(text);
                     } finally {
                       setPreviewLoading(false);
@@ -384,9 +376,7 @@ function SettingsPage() {
                   })();
                 }}
               >
-                {previewLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : null}
+                {previewLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 معاينة مزامنة مدرستي
               </Button>
 
@@ -493,7 +483,6 @@ function SettingsPage() {
           </CardContent>
         </Card>
       </div>
-
     </PageShell>
   );
 }

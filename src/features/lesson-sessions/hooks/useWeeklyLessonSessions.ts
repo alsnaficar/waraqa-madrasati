@@ -6,7 +6,11 @@ import { prepareLessonSession } from "@/platform/lesson-sessions/prepare-lesson-
 import { lessonSessionsQueryKey } from "./useLessonSessions";
 import { LessonSessionService } from "../services/lesson-session.service";
 import { schoolWeekDatesFromSunday } from "../services/weekly-preparation.logic";
-import type { LessonSessionGenerationResult, LessonSessionSkipReason, LessonSessionView } from "../types";
+import type {
+  LessonSessionGenerationResult,
+  LessonSessionSkipReason,
+  LessonSessionView,
+} from "../types";
 
 export type WeeklyLessonDayState = {
   date: string;
@@ -81,8 +85,7 @@ export function useWeeklyLessonSessions(weekStartIso: string) {
 
   // Match daily hook: disable actions only while a mutation is in flight,
   // not during background refetch (avoids locking the whole week UI).
-  const busy =
-    prepare.isPending || resetPreparation.isPending || complete.isPending;
+  const busy = prepare.isPending || resetPreparation.isPending || complete.isPending;
 
   return {
     weekStartIso,

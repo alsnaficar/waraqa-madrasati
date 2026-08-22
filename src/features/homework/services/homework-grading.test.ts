@@ -255,7 +255,9 @@ describe("TASK 20.7 manual homework grading", () => {
 
   it("10. foreign teacher cannot grade submission", async () => {
     const db = emptyDb({
-      homework_submissions: [submittedRow({ teacher_id: TEACHER_B, homework_id: HW_B, student_id: STU_B })],
+      homework_submissions: [
+        submittedRow({ teacher_id: TEACHER_B, homework_id: HW_B, student_id: STU_B }),
+      ],
     });
     await assert.rejects(
       () => HomeworkSubmissionService.grade("sub-1", { score: 5 }, authFor(db, TEACHER_A)),

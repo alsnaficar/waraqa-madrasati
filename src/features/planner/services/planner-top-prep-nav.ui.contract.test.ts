@@ -18,7 +18,7 @@ describe("TASK 25.13 planner top navigation has no duplicate preparation buttons
   it("top planner area keeps only الجدول الأسبوعي and خطة الفصل", () => {
     const top = planner.slice(
       planner.indexOf("الخطة والجدول الدراسي"),
-      planner.indexOf("view === \"semester\""),
+      planner.indexOf('view === "semester"'),
     );
     assert.match(top, /الجدول الأسبوعي/);
     assert.match(top, /خطة الفصل/);

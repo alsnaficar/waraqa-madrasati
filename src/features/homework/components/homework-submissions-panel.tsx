@@ -16,13 +16,7 @@ import {
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/shared/utils/utils";
 
@@ -192,9 +186,7 @@ export function HomeworkSubmissionsPanel({
                       </td>
                       <td className="px-3 py-3">{view.submittedAtLabel}</td>
                       <td className="px-3 py-3">{view.scoreLabel}</td>
-                      <td className="max-w-[12rem] truncate px-3 py-3">
-                        {view.feedbackLabel}
-                      </td>
+                      <td className="max-w-[12rem] truncate px-3 py-3">{view.feedbackLabel}</td>
                       <td className="px-3 py-3">
                         <div className="flex flex-wrap gap-2">
                           {submission.status === "pending" ? (
@@ -258,9 +250,7 @@ export function HomeworkSubmissionsPanel({
                         </p>
                         <p className="text-xs text-muted-foreground">
                           الدرجة: {view.scoreLabel}
-                          {view.feedbackLabel !== "—"
-                            ? ` · ملاحظات: ${view.feedbackLabel}`
-                            : ""}
+                          {view.feedbackLabel !== "—" ? ` · ملاحظات: ${view.feedbackLabel}` : ""}
                         </p>
                       </div>
                       <Badge variant="outline">{view.statusLabel}</Badge>
@@ -328,9 +318,7 @@ export function HomeworkSubmissionsPanel({
         open={Boolean(gradeTarget)}
         submission={gradeTarget}
         studentName={
-          gradeTarget
-            ? (studentById.get(gradeTarget.studentId)?.fullName ?? "الطالب")
-            : ""
+          gradeTarget ? (studentById.get(gradeTarget.studentId)?.fullName ?? "الطالب") : ""
         }
         maxScore={maxScore}
         busy={grade.isPending}

@@ -44,11 +44,7 @@ export function buildSessionInsertsForTimetableSlots(
   for (const slot of input.slots) {
     if (input.takenPeriods.has(slot.period)) continue;
 
-    const planned = matchPlanEntryToTimetableSlot(
-      slot,
-      input.plannedForDate,
-      input.dayOfWeek,
-    );
+    const planned = matchPlanEntryToTimetableSlot(slot, input.plannedForDate, input.dayOfWeek);
 
     if (!planned?.lessonId) continue;
 
@@ -60,13 +56,9 @@ export function buildSessionInsertsForTimetableSlots(
     });
 
     const gradeId =
-      resolved.status === "resolved" || resolved.status === "unresolved"
-        ? resolved.gradeId
-        : null;
+      resolved.status === "resolved" || resolved.status === "unresolved" ? resolved.gradeId : null;
     const classId =
-      resolved.status === "resolved" || resolved.status === "unresolved"
-        ? resolved.classId
-        : null;
+      resolved.status === "resolved" || resolved.status === "unresolved" ? resolved.classId : null;
 
     // ambiguous / mismatch / foreign → leave nulls (do not guess)
     const safeGradeId =

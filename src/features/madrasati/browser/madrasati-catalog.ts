@@ -66,7 +66,14 @@ const GRADE_ORDINALS = [
   "الثاني عشر",
 ] as const;
 
-const STAGE_WORDS = ["الابتدائي", "الابتدائية", "المتوسط", "المتوسطة", "الثانوي", "الثانوية"] as const;
+const STAGE_WORDS = [
+  "الابتدائي",
+  "الابتدائية",
+  "المتوسط",
+  "المتوسطة",
+  "الثانوي",
+  "الثانوية",
+] as const;
 
 const GRADE_PATTERN = new RegExp(
   `(?:الصف\\s+)?(?:${GRADE_ORDINALS.join("|")})(?:\\s+(?:${STAGE_WORDS.join("|")}))?`,
@@ -117,8 +124,8 @@ export function isCourseCatalogPage(landmarks: MadrasatiPageLandmarks): boolean 
     return true;
   }
 
-  return (landmarks.tableRows ?? []).some((row) =>
-    hasAnyHeader(row.headers, GRADE_HEADERS) && hasAnyHeader(row.headers, CLASS_HEADERS),
+  return (landmarks.tableRows ?? []).some(
+    (row) => hasAnyHeader(row.headers, GRADE_HEADERS) && hasAnyHeader(row.headers, CLASS_HEADERS),
   );
 }
 
@@ -188,9 +195,7 @@ export function isClassNameValue(value: string): boolean {
     return false;
   }
 
-  return /^(?:\d{1,3}|[أ-ي]|[أ-ي]\s*[/\-]\s*\d{1,3}|\d{1,3}\s*[/\-]\s*[أ-ي0-9]+)$/.test(
-    trimmed,
-  );
+  return /^(?:\d{1,3}|[أ-ي]|[أ-ي]\s*[/\-]\s*\d{1,3}|\d{1,3}\s*[/\-]\s*[أ-ي0-9]+)$/.test(trimmed);
 }
 
 function collectFromTableRows(
@@ -287,7 +292,10 @@ function collectFromLabeledValues(
       } else if (isHeader(row.label, GRADE_HEADERS)) {
         record.grade = collapse(row.value);
         used.add(cursor);
-      } else if (isHeader(row.label, CLASS_HEADERS) && normalizeHeader(row.label) !== "الفصل الدراسي") {
+      } else if (
+        isHeader(row.label, CLASS_HEADERS) &&
+        normalizeHeader(row.label) !== "الفصل الدراسي"
+      ) {
         record.className = collapse(row.value);
         used.add(cursor);
       } else if (isHeader(row.label, STAGE_HEADERS)) {
@@ -329,9 +337,7 @@ function cellForHeaders(
   wanted: readonly string[],
 ): string | undefined {
   for (const header of wanted) {
-    const index = headers.findIndex(
-      (item) => normalizeHeader(item) === normalizeHeader(header),
-    );
+    const index = headers.findIndex((item) => normalizeHeader(item) === normalizeHeader(header));
     if (index >= 0) {
       const value = cells[index];
       if (value?.trim()) {

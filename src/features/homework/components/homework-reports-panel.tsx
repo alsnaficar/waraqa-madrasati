@@ -11,10 +11,7 @@ import { Label } from "@/shared/ui/label";
 import { Skeleton } from "@/shared/ui/skeleton";
 import type { ReportsDateFilter } from "@/features/reports/services/reports.service";
 
-import {
-  useHomeworkDetailReport,
-  useHomeworkPeriodReport,
-} from "../hooks/useHomeworkReports";
+import { useHomeworkDetailReport, useHomeworkPeriodReport } from "../hooks/useHomeworkReports";
 import {
   buildHomeworkSummaryItems,
   buildReportsDateFilter,
@@ -240,9 +237,7 @@ export function HomeworkReportsPanel() {
                       return (
                         <tr key={row.id} className="border-t">
                           <td className="px-3 py-3 font-medium">{row.title}</td>
-                          <td className="px-3 py-3 text-muted-foreground">
-                            {row.subject ?? "—"}
-                          </td>
+                          <td className="px-3 py-3 text-muted-foreground">{row.subject ?? "—"}</td>
                           <td className="px-3 py-3">
                             {row.dueDate ? formatDisplayDate(row.dueDate) : "—"}
                           </td>
@@ -254,9 +249,7 @@ export function HomeworkReportsPanel() {
                               type="button"
                               variant={selected ? "default" : "outline"}
                               className="min-h-11"
-                              onClick={() =>
-                                setSelectedHomeworkId(selected ? null : row.id)
-                              }
+                              onClick={() => setSelectedHomeworkId(selected ? null : row.id)}
                             >
                               {selected ? "إخفاء" : "عرض"}
                             </Button>
@@ -339,15 +332,10 @@ export function HomeworkReportsPanel() {
                 <Metric
                   label="الموعد"
                   value={
-                    detailQuery.data.dueDate
-                      ? formatDisplayDate(detailQuery.data.dueDate)
-                      : "—"
+                    detailQuery.data.dueDate ? formatDisplayDate(detailQuery.data.dueDate) : "—"
                   }
                 />
-                <Metric
-                  label="الحالة"
-                  value={homeworkStatusLabel(detailQuery.data.status)}
-                />
+                <Metric label="الحالة" value={homeworkStatusLabel(detailQuery.data.status)} />
                 <Metric label="عدد الطلاب" value={String(detailQuery.data.numberOfStudents)} />
                 <Metric label="مُسلّم" value={String(detailQuery.data.submittedCount)} />
                 <Metric label="مُصحّح" value={String(detailQuery.data.gradedCount)} />
@@ -412,9 +400,7 @@ export function HomeworkReportsPanel() {
                             الدرجة: {row.score == null ? "—" : String(row.score)}
                           </p>
                           {row.feedback?.trim() ? (
-                            <p className="text-xs text-muted-foreground">
-                              ملاحظات: {row.feedback}
-                            </p>
+                            <p className="text-xs text-muted-foreground">ملاحظات: {row.feedback}</p>
                           ) : null}
                           <p className="text-xs text-muted-foreground">
                             التسليم: {formatDateTime(row.submittedAt)} · التصحيح:{" "}

@@ -99,7 +99,10 @@ describe("TASK 22.4/22.6/22.7 tests submissions UI logic", () => {
       filterAssignableStudents(pool, {}).every((s) => s.active),
       true,
     );
-    assert.equal(filterAssignableStudents(pool, {}).some((s) => s.id === "s3"), false);
+    assert.equal(
+      filterAssignableStudents(pool, {}).some((s) => s.id === "s3"),
+      false,
+    );
   });
 
   it("3. assigned students excluded; selection toggle", () => {
@@ -259,10 +262,7 @@ describe("TASK 22.4/22.6/22.7 tests submissions UI logic", () => {
     assert.match(hook, /TestGradingService\.gradeSubmission/);
     assert.equal(/TestSubmissionService\.create\(/.test(hook), false);
 
-    const panel = readFileSync(
-      path.join(here, "../components/test-submissions-panel.tsx"),
-      "utf8",
-    );
+    const panel = readFileSync(path.join(here, "../components/test-submissions-panel.tsx"), "utf8");
     assert.match(panel, /إسناد للطلاب/);
     assert.match(panel, /TestAnswerEntryDialog/);
     assert.match(panel, /TestFeedbackDialog/);

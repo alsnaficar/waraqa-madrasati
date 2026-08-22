@@ -1,7 +1,4 @@
-import {
-  sanitizePageLandmarks,
-  type MadrasatiPageLandmarks,
-} from "./madrasati-teacher-profile.ts";
+import { sanitizePageLandmarks, type MadrasatiPageLandmarks } from "./madrasati-teacher-profile.ts";
 
 export type MadrasatiHomework = {
   id?: string;
@@ -15,10 +12,7 @@ export type MadrasatiHomework = {
   status?: string;
 };
 
-export type MadrasatiHomeworkExtractionStatus =
-  | "found"
-  | "empty"
-  | "unavailable";
+export type MadrasatiHomeworkExtractionStatus = "found" | "empty" | "unavailable";
 
 export type MadrasatiHomeworkExtraction = {
   readonly status: MadrasatiHomeworkExtractionStatus;
@@ -32,64 +26,23 @@ const EMPTY_MARKERS = [
   "لا يوجد بيانات",
 ] as const;
 
-const HOMEWORK_PAGE_MARKERS = [
-  "الواجبات",
-  "الواجبات المنزلية",
-  "قائمة الواجبات",
-] as const;
+const HOMEWORK_PAGE_MARKERS = ["الواجبات", "الواجبات المنزلية", "قائمة الواجبات"] as const;
 
-const TITLE_HEADERS = [
-  "اسم الواجب",
-  "الواجب",
-  "عنوان الواجب",
-  "اسم المهمة",
-  "المهمة",
-] as const;
+const TITLE_HEADERS = ["اسم الواجب", "الواجب", "عنوان الواجب", "اسم المهمة", "المهمة"] as const;
 
-const SUBJECT_HEADERS = [
-  "المادة",
-  "اسم المادة",
-  "المقرر",
-  "اسم المقرر",
-] as const;
+const SUBJECT_HEADERS = ["المادة", "اسم المادة", "المقرر", "اسم المقرر"] as const;
 
-const GRADE_HEADERS = [
-  "الصف",
-  "اسم الصف",
-  "الصف الدراسي",
-] as const;
+const GRADE_HEADERS = ["الصف", "اسم الصف", "الصف الدراسي"] as const;
 
-const CLASS_HEADERS = [
-  "الشعبة",
-  "اسم الشعبة",
-  "الفصل",
-  "اسم الفصل",
-] as const;
+const CLASS_HEADERS = ["الشعبة", "اسم الشعبة", "الفصل", "اسم الفصل"] as const;
 
-const DESCRIPTION_HEADERS = [
-  "الوصف",
-  "وصف الواجب",
-  "تفاصيل الواجب",
-  "التفاصيل",
-] as const;
+const DESCRIPTION_HEADERS = ["الوصف", "وصف الواجب", "تفاصيل الواجب", "التفاصيل"] as const;
 
-const START_HEADERS = [
-  "تاريخ البداية",
-  "بداية الواجب",
-  "تاريخ الإتاحة",
-] as const;
+const START_HEADERS = ["تاريخ البداية", "بداية الواجب", "تاريخ الإتاحة"] as const;
 
-const DUE_HEADERS = [
-  "تاريخ التسليم",
-  "موعد التسليم",
-  "آخر موعد",
-  "تاريخ الانتهاء",
-] as const;
+const DUE_HEADERS = ["تاريخ التسليم", "موعد التسليم", "آخر موعد", "تاريخ الانتهاء"] as const;
 
-const STATUS_HEADERS = [
-  "الحالة",
-  "حالة الواجب",
-] as const;
+const STATUS_HEADERS = ["الحالة", "حالة الواجب"] as const;
 
 export function extractMadrasatiHomework(
   snapshot: MadrasatiPageLandmarks,
@@ -117,22 +70,10 @@ export function extractMadrasatiHomework(
       ...optional("subject", valueForHeaders(row.headers, row.cells, SUBJECT_HEADERS)),
       ...optional("grade", valueForHeaders(row.headers, row.cells, GRADE_HEADERS)),
       ...optional("className", valueForHeaders(row.headers, row.cells, CLASS_HEADERS)),
-      ...optional(
-        "description",
-        valueForHeaders(row.headers, row.cells, DESCRIPTION_HEADERS),
-      ),
-      ...optional(
-        "startsAt",
-        valueForHeaders(row.headers, row.cells, START_HEADERS),
-      ),
-      ...optional(
-        "dueAt",
-        valueForHeaders(row.headers, row.cells, DUE_HEADERS),
-      ),
-      ...optional(
-        "status",
-        valueForHeaders(row.headers, row.cells, STATUS_HEADERS),
-      ),
+      ...optional("description", valueForHeaders(row.headers, row.cells, DESCRIPTION_HEADERS)),
+      ...optional("startsAt", valueForHeaders(row.headers, row.cells, START_HEADERS)),
+      ...optional("dueAt", valueForHeaders(row.headers, row.cells, DUE_HEADERS)),
+      ...optional("status", valueForHeaders(row.headers, row.cells, STATUS_HEADERS)),
     };
 
     collected.push(item);
@@ -160,18 +101,10 @@ export function extractMadrasatiHomework(
   };
 }
 
-function isHomeworkPage(
-  landmarks: MadrasatiPageLandmarks,
-): boolean {
-  const haystack = [
-    landmarks.title,
-    landmarks.text,
-    ...landmarks.accessibleNames,
-  ].join("\n");
+function isHomeworkPage(landmarks: MadrasatiPageLandmarks): boolean {
+  const haystack = [landmarks.title, landmarks.text, ...landmarks.accessibleNames].join("\n");
 
-  return HOMEWORK_PAGE_MARKERS.some((marker) =>
-    haystack.includes(marker),
-  );
+  return HOMEWORK_PAGE_MARKERS.some((marker) => haystack.includes(marker));
 }
 
 function valueForHeaders(
@@ -199,9 +132,7 @@ function optional(
   return value ? { [key]: value } : {};
 }
 
-function dedupe(
-  items: readonly MadrasatiHomework[],
-): MadrasatiHomework[] {
+function dedupe(items: readonly MadrasatiHomework[]): MadrasatiHomework[] {
   const seen = new Set<string>();
   const result: MadrasatiHomework[] = [];
 
@@ -227,8 +158,5 @@ function dedupe(
 }
 
 function normalize(value: string): string {
-  return value
-    .replace(/[:：]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return value.replace(/[:：]/g, "").replace(/\s+/g, " ").trim();
 }

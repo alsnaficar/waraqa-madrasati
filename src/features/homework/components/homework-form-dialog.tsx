@@ -2,7 +2,10 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { LessonSessionService, todayIso } from "@/features/lesson-sessions/services/lesson-session.service";
+import {
+  LessonSessionService,
+  todayIso,
+} from "@/features/lesson-sessions/services/lesson-session.service";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,
@@ -14,13 +17,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Textarea } from "@/shared/ui/textarea";
 
 import type { Homework, HomeworkCreateInput } from "../services/homework.service";
@@ -60,9 +57,7 @@ export function HomeworkFormDialog({
   useEffect(() => {
     if (!open) return;
     if (mode === "edit" && initial) {
-      setForm(
-        homeworkToFormState(initial, initial.dueDate || todayIso()),
-      );
+      setForm(homeworkToFormState(initial, initial.dueDate || todayIso()));
       return;
     }
     setForm(emptyHomeworkForm({ sessionPickerDate: todayIso() }));

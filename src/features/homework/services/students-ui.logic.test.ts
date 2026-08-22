@@ -129,8 +129,16 @@ describe("TASK 20.6 students + submissions UI logic", () => {
     assert.equal(SUBMISSION_STATUS_LABELS.pending, "لم يسلّم");
     assert.equal(SUBMISSION_STATUS_LABELS.submitted, "مُسلّم");
     assert.equal(SUBMISSION_STATUS_LABELS.graded, "مُصحّح");
-    assert.equal(toSubmissionListItemView({ ...sampleSubmission, status: "pending" }, sampleStudent).statusLabel, "لم يسلّم");
-    assert.equal(toSubmissionListItemView({ ...sampleSubmission, status: "graded" }, sampleStudent).statusLabel, "مُصحّح");
+    assert.equal(
+      toSubmissionListItemView({ ...sampleSubmission, status: "pending" }, sampleStudent)
+        .statusLabel,
+      "لم يسلّم",
+    );
+    assert.equal(
+      toSubmissionListItemView({ ...sampleSubmission, status: "graded" }, sampleStudent)
+        .statusLabel,
+      "مُصحّح",
+    );
   });
 
   it("9. ownership/security: UI helpers reject client teacher_id", () => {

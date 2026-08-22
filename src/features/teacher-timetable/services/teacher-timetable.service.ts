@@ -47,10 +47,7 @@ function toEntry(row: TimetableRow): TeacherTimetableEntry {
   };
 }
 
-function toInsertRow(
-  teacherId: string,
-  entry: TeacherTimetableSlotInput,
-): TimetableInsert {
+function toInsertRow(teacherId: string, entry: TeacherTimetableSlotInput): TimetableInsert {
   return {
     teacher_id: teacherId,
     day_of_week: entry.dayOfWeek,

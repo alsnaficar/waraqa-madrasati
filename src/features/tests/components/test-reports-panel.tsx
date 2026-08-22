@@ -238,9 +238,7 @@ export function TestReportsPanel() {
                       return (
                         <tr key={row.id} className="border-t">
                           <td className="px-3 py-3 font-medium">{row.title}</td>
-                          <td className="px-3 py-3 text-muted-foreground">
-                            {row.subject ?? "—"}
-                          </td>
+                          <td className="px-3 py-3 text-muted-foreground">{row.subject ?? "—"}</td>
                           <td className="px-3 py-3">
                             {row.dueDate ? formatDisplayDate(row.dueDate) : "—"}
                           </td>
@@ -335,9 +333,7 @@ export function TestReportsPanel() {
                 <Metric
                   label="الموعد"
                   value={
-                    detailQuery.data.dueDate
-                      ? formatDisplayDate(detailQuery.data.dueDate)
-                      : "—"
+                    detailQuery.data.dueDate ? formatDisplayDate(detailQuery.data.dueDate) : "—"
                   }
                 />
                 <Metric label="الحالة" value={testStatusLabel(detailQuery.data.status)} />
@@ -401,17 +397,13 @@ export function TestReportsPanel() {
                                 {row.studentCode ?? "بدون رمز"}
                               </p>
                             </div>
-                            <Badge variant="outline">
-                              {testSubmissionStatusLabel(row.status)}
-                            </Badge>
+                            <Badge variant="outline">{testSubmissionStatusLabel(row.status)}</Badge>
                           </div>
                           <p className="text-xs text-muted-foreground">
                             الدرجة: {formatTestScoreLabel(row.score, row.maxScore)}
                           </p>
                           {row.feedback?.trim() ? (
-                            <p className="text-xs text-muted-foreground">
-                              ملاحظات: {row.feedback}
-                            </p>
+                            <p className="text-xs text-muted-foreground">ملاحظات: {row.feedback}</p>
                           ) : null}
                           <p className="text-xs text-muted-foreground">
                             التسليم: {formatDateTime(row.submittedAt)} · التصحيح:{" "}

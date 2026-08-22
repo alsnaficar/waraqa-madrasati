@@ -23,9 +23,7 @@ class InspectionAutomation implements BrowserAutomation {
 
   async assertAvailable(): Promise<void> {}
 
-  async openSession(
-    _options?: BrowserSessionOpenOptions,
-  ): Promise<BrowserSessionHandle> {
+  async openSession(_options?: BrowserSessionOpenOptions): Promise<BrowserSessionHandle> {
     return this.session;
   }
 
@@ -55,21 +53,11 @@ class InspectionAutomation implements BrowserAutomation {
     return new Uint8Array([137, 80, 78, 71]);
   }
 
-  async clickPage(
-    _page: BrowserPageHandle,
-    _x: number,
-    _y: number,
-  ): Promise<void> {}
+  async clickPage(_page: BrowserPageHandle, _x: number, _y: number): Promise<void> {}
 
-  async typePage(
-    _page: BrowserPageHandle,
-    _text: string,
-  ): Promise<void> {}
+  async typePage(_page: BrowserPageHandle, _text: string): Promise<void> {}
 
-  async pressPageKey(
-    _page: BrowserPageHandle,
-    _key: string,
-  ): Promise<void> {}
+  async pressPageKey(_page: BrowserPageHandle, _key: string): Promise<void> {}
 
   async focusEditableControl(_page: BrowserPageHandle): Promise<void> {}
 
@@ -86,9 +74,7 @@ class InspectionAutomation implements BrowserAutomation {
     };
   }
 
-  async inspectFocusedControl(
-    _page: BrowserPageHandle,
-  ): Promise<MadrasatiFocusedControl> {
+  async inspectFocusedControl(_page: BrowserPageHandle): Promise<MadrasatiFocusedControl> {
     return { isEditable: false, inputType: "none" };
   }
 

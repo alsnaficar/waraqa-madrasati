@@ -1,4 +1,7 @@
-import type { CatalogClass, CatalogGrade } from "@/features/lesson-sessions/services/resolve-grade-class.logic";
+import type {
+  CatalogClass,
+  CatalogGrade,
+} from "@/features/lesson-sessions/services/resolve-grade-class.logic";
 import {
   filterClassesByGradeId,
   normalizeCatalogName,
@@ -54,10 +57,8 @@ export function timetableEntryToFormState(
     classes,
   });
 
-  const gradeId =
-    resolved.status === "resolved" && resolved.gradeId ? resolved.gradeId : "";
-  const classId =
-    resolved.status === "resolved" && resolved.classId ? resolved.classId : "";
+  const gradeId = resolved.status === "resolved" && resolved.gradeId ? resolved.gradeId : "";
+  const classId = resolved.status === "resolved" && resolved.classId ? resolved.classId : "";
 
   return emptyTimetableSlotForm({
     dayOfWeek: entry.dayOfWeek,

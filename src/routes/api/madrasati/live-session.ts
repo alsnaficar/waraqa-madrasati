@@ -6,9 +6,7 @@ export const Route = createFileRoute("/api/madrasati/live-session")({
     handlers: {
       GET: async ({ request }) => {
         const { createOwnedMadrasatiLiveSseResponse, resolveAuthenticatedUserIdFromRequest } =
-          await import(
-            "../../../features/madrasati/browser/madrasati-live-stream.server.ts"
-          );
+          await import("../../../features/madrasati/browser/madrasati-live-stream.server.ts");
 
         try {
           const userId = await resolveAuthenticatedUserIdFromRequest(request);
@@ -26,11 +24,8 @@ export const Route = createFileRoute("/api/madrasati/live-session")({
             signal: request.signal,
           });
         } catch (error) {
-          const message =
-            error instanceof Error ? error.message : "Unauthorized";
-          const status = /Unauthorized|does not belong|not found|expired/i.test(
-            message,
-          )
+          const message = error instanceof Error ? error.message : "Unauthorized";
+          const status = /Unauthorized|does not belong|not found|expired/i.test(message)
             ? 401
             : 500;
 

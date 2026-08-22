@@ -43,10 +43,7 @@ import {
   MADRASATI_TIMETABLE_UNAVAILABLE_CODE,
   MADRASATI_TIMETABLE_UNAVAILABLE_MESSAGE,
 } from "./madrasati-timetable.ts";
-import {
-  extractMadrasatiHomework,
-  type MadrasatiHomework,
-} from "./madrasati-homework.ts";
+import { extractMadrasatiHomework, type MadrasatiHomework } from "./madrasati-homework.ts";
 
 const MADRASATI_URL = "https://schools.madrasati.sa/";
 
@@ -60,13 +57,7 @@ const MADRASATI_MICROSOFT_LOGIN_NAMES = [
   "Sign in with Microsoft",
 ] as const;
 
-const MICROSOFT_EMAIL_NEXT_NAMES = [
-  "Next",
-  "التالي",
-  "Suivant",
-  "Weiter",
-  "Siguiente",
-] as const;
+const MICROSOFT_EMAIL_NEXT_NAMES = ["Next", "التالي", "Suivant", "Weiter", "Siguiente"] as const;
 
 export class MadrasatiBrowserAdapter implements MadrasatiProvider {
   private readonly automation: BrowserAutomation;
@@ -188,10 +179,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
     return this.automation.getPageScreenshot(this.page!);
   }
 
-  async clickAuthentication(
-    x: number,
-    y: number,
-  ): Promise<void> {
+  async clickAuthentication(x: number, y: number): Promise<void> {
     this.requireReadySession();
     await this.automation.clickPage(this.page!, x, y);
   }
@@ -225,9 +213,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
     return this.inspectAuthenticationFocus();
   }
 
-  async clickAuthenticationByAccessibleName(
-    names: readonly string[],
-  ): Promise<boolean> {
+  async clickAuthenticationByAccessibleName(names: readonly string[]): Promise<boolean> {
     this.requireReadySession();
 
     const needles = names.map((name) => name.trim()).filter(Boolean);
@@ -299,9 +285,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
     return this.automation.inspectFocusedControl(this.page!);
   }
 
-  subscribeAuthenticationLiveFrame(
-    listener: (frame: MadrasatiLiveFrame) => void,
-  ): () => void {
+  subscribeAuthenticationLiveFrame(listener: (frame: MadrasatiLiveFrame) => void): () => void {
     this.requireReadySession();
 
     return this.automation.subscribePageLiveFrame(this.page!, listener);
@@ -366,25 +350,22 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
       );
     }
 
-    const fromHome = extractMadrasatiTeacher(
-      await this.automation.readPageLandmarks(this.page!),
-    );
+    const fromHome = extractMadrasatiTeacher(await this.automation.readPageLandmarks(this.page!));
 
     if (fromHome) {
       return fromHome;
     }
 
-    const openedProfile = await this.automation.clickControlByAccessibleName(
-      this.page!,
-      ["الملف الشخصي", "حسابي", "تعديل بياناتي", "بياناتي"],
-    );
+    const openedProfile = await this.automation.clickControlByAccessibleName(this.page!, [
+      "الملف الشخصي",
+      "حسابي",
+      "تعديل بياناتي",
+      "بياناتي",
+    ]);
 
     if (openedProfile) {
       await this.automation.waitForPageText(this.page!, "تعديل بياناتي", 4000);
-      await this.automation.clickControlByAccessibleName(this.page!, [
-        "تعديل بياناتي",
-        "بياناتي",
-      ]);
+      await this.automation.clickControlByAccessibleName(this.page!, ["تعديل بياناتي", "بياناتي"]);
       await this.automation.waitForPageText(this.page!, "الاسم", 8000);
     }
 
@@ -392,10 +373,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
       await this.automation.readPageLandmarks(this.page!),
     );
 
-    await this.automation.clickControlByAccessibleName(this.page!, [
-      "الرئيسية",
-      "الصفحة الرئيسية",
-    ]);
+    await this.automation.clickControlByAccessibleName(this.page!, ["الرئيسية", "الصفحة الرئيسية"]);
 
     if (fromProfile) {
       return fromProfile;
@@ -443,10 +421,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
       await this.automation.readPageLandmarks(this.page!),
     );
 
-    await this.automation.clickControlByAccessibleName(this.page!, [
-      "الرئيسية",
-      "الصفحة الرئيسية",
-    ]);
+    await this.automation.clickControlByAccessibleName(this.page!, ["الرئيسية", "الصفحة الرئيسية"]);
 
     const after = await this.inspectAuthenticationPage();
 
@@ -506,10 +481,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
       await this.automation.readPageLandmarks(this.page!),
     );
 
-    await this.automation.clickControlByAccessibleName(this.page!, [
-      "الرئيسية",
-      "الصفحة الرئيسية",
-    ]);
+    await this.automation.clickControlByAccessibleName(this.page!, ["الرئيسية", "الصفحة الرئيسية"]);
 
     const after = await this.inspectAuthenticationPage();
 
@@ -569,10 +541,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
       await this.automation.readPageLandmarks(this.page!),
     );
 
-    await this.automation.clickControlByAccessibleName(this.page!, [
-      "الرئيسية",
-      "الصفحة الرئيسية",
-    ]);
+    await this.automation.clickControlByAccessibleName(this.page!, ["الرئيسية", "الصفحة الرئيسية"]);
 
     const after = await this.inspectAuthenticationPage();
 
@@ -632,10 +601,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
       await this.automation.readPageLandmarks(this.page!),
     );
 
-    await this.automation.clickControlByAccessibleName(this.page!, [
-      "الرئيسية",
-      "الصفحة الرئيسية",
-    ]);
+    await this.automation.clickControlByAccessibleName(this.page!, ["الرئيسية", "الصفحة الرئيسية"]);
 
     const after = await this.inspectAuthenticationPage();
     if (after.authenticationState !== "authenticated") {
@@ -653,10 +619,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
       return [];
     }
 
-    throw new MadrasatiProviderError(
-      "HOMEWORK_UNAVAILABLE",
-      "تعذر قراءة الواجبات من منصة مدرستي.",
-    );
+    throw new MadrasatiProviderError("HOMEWORK_UNAVAILABLE", "تعذر قراءة الواجبات من منصة مدرستي.");
   }
 
   private requireReadySession(): void {
@@ -694,14 +657,7 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
   }
 
   private async waitForTimetable(): Promise<void> {
-    const needles = [
-      "الأحد",
-      "الحصة",
-      "لا يوجد جدول",
-      "لا توجد حصص",
-      "لا يوجد حصص",
-      "الجدول فارغ",
-    ];
+    const needles = ["الأحد", "الحصة", "لا يوجد جدول", "لا توجد حصص", "لا يوجد حصص", "الجدول فارغ"];
 
     for (const needle of needles) {
       if (await this.automation.waitForPageText(this.page!, needle, 4000)) {

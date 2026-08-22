@@ -14,9 +14,7 @@ function readSrc(relativeFromThisFile: string): string {
 describe("TASK 25.16 Family C filled weekly planner", () => {
   const planner = readSrc("../../../routes/_authenticated/planner.tsx");
   const weekly = readSrc("../components/filled-weekly-timetable.tsx");
-  const mobile = readSrc(
-    "../../teacher-timetable/components/teacher-weekly-timetable-mobile.tsx",
-  );
+  const mobile = readSrc("../../teacher-timetable/components/teacher-weekly-timetable-mobile.tsx");
   const card = readSrc("../../teacher-timetable/components/teacher-timetable-lesson-card.tsx");
   const hook = readSrc("../../teacher-timetable/hooks/useTeacherTimetable.ts");
   const toolbar = readSrc("../components/planner-toolbar.tsx");
@@ -45,10 +43,7 @@ describe("TASK 25.16 Family C filled weekly planner", () => {
     assert.match(weekly, /date\.getMonth\(\)/);
     assert.match(weekly, /date\.getDate\(\)/);
     assert.doesNotMatch(weekly, /toISOString\(\)\.slice\(0, 10\)/);
-    assert.match(
-      weekly,
-      /session\.dayOfWeek\}-\$\{session\.periodNumber\}/,
-    );
+    assert.match(weekly, /session\.dayOfWeek\}-\$\{session\.periodNumber\}/);
     assert.match(weekly, /getEntry\(day\.value, period\)/);
   });
 

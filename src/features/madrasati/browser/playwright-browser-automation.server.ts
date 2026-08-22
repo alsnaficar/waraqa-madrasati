@@ -21,10 +21,7 @@ import {
   type MadrasatiFocusedControl,
   type MadrasatiLiveFrame,
 } from "./madrasati-browser-live-session.ts";
-import {
-  sanitizePageLandmarks,
-  type MadrasatiPageLandmarks,
-} from "./madrasati-teacher-profile.ts";
+import { sanitizePageLandmarks, type MadrasatiPageLandmarks } from "./madrasati-teacher-profile.ts";
 
 type SessionRecord = {
   readonly context: BrowserContext;
@@ -60,9 +57,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     await this.ensureBrowser();
   }
 
-  async openSession(
-    options: BrowserSessionOpenOptions = {},
-  ): Promise<BrowserSessionHandle> {
+  async openSession(options: BrowserSessionOpenOptions = {}): Promise<BrowserSessionHandle> {
     await this.ensureBrowser();
 
     const context = await this.browser!.newContext({
@@ -182,11 +177,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     return new Uint8Array(buffer);
   }
 
-  async clickPage(
-    page: BrowserPageHandle,
-    x: number,
-    y: number,
-  ): Promise<void> {
+  async clickPage(page: BrowserPageHandle, x: number, y: number): Promise<void> {
     const pageObject = this.requirePage(page);
 
     if (!Number.isFinite(x) || !Number.isFinite(y)) {
@@ -200,10 +191,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     await pageObject.mouse.click(x, y);
   }
 
-  async typePage(
-    page: BrowserPageHandle,
-    text: string,
-  ): Promise<void> {
+  async typePage(page: BrowserPageHandle, text: string): Promise<void> {
     const pageObject = this.requirePage(page);
 
     if (typeof text !== "string") {
@@ -230,10 +218,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     await target.locator.pressSequentially(text, { timeout: 5000 });
   }
 
-  async pressPageKey(
-    page: BrowserPageHandle,
-    key: string,
-  ): Promise<void> {
+  async pressPageKey(page: BrowserPageHandle, key: string): Promise<void> {
     const pageObject = this.requirePage(page);
 
     const normalizedKey = key?.trim();
@@ -371,9 +356,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     });
   }
 
-  async inspectFocusedControl(
-    page: BrowserPageHandle,
-  ): Promise<MadrasatiFocusedControl> {
+  async inspectFocusedControl(page: BrowserPageHandle): Promise<MadrasatiFocusedControl> {
     const pageObject = this.requirePage(page);
 
     for (const frame of pageObject.frames()) {
@@ -471,9 +454,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     return { isEditable: false, inputType: "none" };
   }
 
-  async readPageLandmarks(
-    page: BrowserPageHandle,
-  ): Promise<MadrasatiPageLandmarks> {
+  async readPageLandmarks(page: BrowserPageHandle): Promise<MadrasatiPageLandmarks> {
     const pageObject = this.requirePage(page);
     const labeledValues: Array<{ label: string; value: string }> = [];
     const accessibleNames: string[] = [];
@@ -610,13 +591,8 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     });
   }
 
-  private async dismissMadrasatiSplashModal(
-    pageObject: Page,
-    timeoutMs = 2000,
-  ): Promise<boolean> {
-    const modal = pageObject.locator(
-      '.splash-modal:visible',
-    ).first();
+  private async dismissMadrasatiSplashModal(pageObject: Page, timeoutMs = 2000): Promise<boolean> {
+    const modal = pageObject.locator(".splash-modal:visible").first();
 
     try {
       await modal.waitFor({
@@ -627,9 +603,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
       return false;
     }
 
-    const closeButton = modal.locator(
-      'button.btn-close[aria-label="Close"]',
-    ).first();
+    const closeButton = modal.locator('button.btn-close[aria-label="Close"]').first();
 
     try {
       if ((await closeButton.count()) === 0) {
@@ -638,10 +612,12 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
 
       await closeButton.click({ timeout: 4000 });
 
-      await modal.waitFor({
-        state: "hidden",
-        timeout: 4000,
-      }).catch(() => undefined);
+      await modal
+        .waitFor({
+          state: "hidden",
+          timeout: 4000,
+        })
+        .catch(() => undefined);
 
       return true;
     } catch {
@@ -678,7 +654,6 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
         }
       }
 
-
       for (const frame of pageObject.frames()) {
         for (const role of roles) {
           try {
@@ -698,8 +673,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
               // The delayed splash may have appeared between the initial
               // dismissal and the click. Dismiss the known modal and retry once.
               if (frame === pageObject.mainFrame()) {
-                const dismissed =
-                  await this.dismissMadrasatiSplashModal(pageObject);
+                const dismissed = await this.dismissMadrasatiSplashModal(pageObject);
 
                 if (dismissed) {
                   try {
@@ -814,11 +788,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     throw new Error("تعذر اكتشاف عنوان خادم منصة مدرستي تلقائيًا.");
   }
 
-  private emitLiveFrame(
-    page: BrowserPageHandle,
-    record: LiveViewRecord,
-    force = false,
-  ): void {
+  private emitLiveFrame(page: BrowserPageHandle, record: LiveViewRecord, force = false): void {
     if (!record.latestJpegBase64 || record.listeners.size === 0) {
       return;
     }
@@ -858,17 +828,11 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     }
   }
 
-  private rememberTypingTarget(
-    pageId: string,
-    locator: Locator,
-    kind: TypingTarget["kind"],
-  ): void {
+  private rememberTypingTarget(pageId: string, locator: Locator, kind: TypingTarget["kind"]): void {
     this.typingTargets.set(pageId, { locator, kind });
   }
 
-  private async resolveTypingTarget(
-    page: BrowserPageHandle,
-  ): Promise<TypingTarget> {
+  private async resolveTypingTarget(page: BrowserPageHandle): Promise<TypingTarget> {
     const existing = this.typingTargets.get(page.id);
 
     if (existing) {
@@ -879,9 +843,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
           return existing;
         }
 
-        const password = await this.findVisiblePasswordLocator(
-          this.requirePage(page),
-        );
+        const password = await this.findVisiblePasswordLocator(this.requirePage(page));
 
         if (!password) {
           return existing;
@@ -993,9 +955,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     return null;
   }
 
-  private async findVisibleTextLocator(
-    pageObject: Page,
-  ): Promise<Locator | null> {
+  private async findVisibleTextLocator(pageObject: Page): Promise<Locator | null> {
     const fallbackSelectors = [
       'input[type="email"]',
       'input[name="loginfmt"]',
@@ -1047,9 +1007,7 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     return null;
   }
 
-  private async isVisibleNonPasswordTextControl(
-    locator: Locator,
-  ): Promise<boolean> {
+  private async isVisibleNonPasswordTextControl(locator: Locator): Promise<boolean> {
     try {
       if (!(await locator.isVisible())) {
         return false;

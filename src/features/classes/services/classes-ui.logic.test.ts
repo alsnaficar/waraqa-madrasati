@@ -74,10 +74,7 @@ describe("TASK 25.1 classes UI logic", () => {
 
   it("UI sources never write teacher_id or touch Supabase directly", () => {
     const here = path.dirname(fileURLToPath(import.meta.url));
-    const panel = readFileSync(
-      path.join(here, "../components/grades-classes-panel.tsx"),
-      "utf8",
-    );
+    const panel = readFileSync(path.join(here, "../components/grades-classes-panel.tsx"), "utf8");
     const gradeDialog = readFileSync(
       path.join(here, "../components/grade-form-dialog.tsx"),
       "utf8",

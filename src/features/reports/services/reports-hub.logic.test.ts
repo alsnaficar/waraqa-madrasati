@@ -67,7 +67,17 @@ const homeworkOk: HomeworkPeriodReport = {
     gradingRate: 50,
     averageScore: 8.5,
   },
-  homework: [{ id: "hw-1", title: "واجب", subject: null, grade: null, className: null, dueDate: "2026-08-12", status: "assigned" }],
+  homework: [
+    {
+      id: "hw-1",
+      title: "واجب",
+      subject: null,
+      grade: null,
+      className: null,
+      dueDate: "2026-08-12",
+      status: "assigned",
+    },
+  ],
 };
 
 const testsOk: TestPeriodReport = {
@@ -87,7 +97,17 @@ const testsOk: TestPeriodReport = {
     gradingRate: 60,
     averageScore: 7,
   },
-  tests: [{ id: "t-1", title: "اختبار", subject: null, grade: null, className: null, dueDate: "2026-08-13", status: "published" }],
+  tests: [
+    {
+      id: "t-1",
+      title: "اختبار",
+      subject: null,
+      grade: null,
+      className: null,
+      dueDate: "2026-08-13",
+      status: "published",
+    },
+  ],
 };
 
 describe("TASK 25.8 reports hub logic", () => {
@@ -130,18 +150,37 @@ describe("TASK 25.8 reports hub logic", () => {
   it("empty states detect zero rows without inventing data", () => {
     const emptyLessons: LessonSessionReportView = {
       ...lessonOk,
-      stats: { ...lessonOk.stats, total: 0, completionRate: 0, prepared: 0, completed: 0, scheduled: 0 },
+      stats: {
+        ...lessonOk.stats,
+        total: 0,
+        completionRate: 0,
+        prepared: 0,
+        completed: 0,
+        scheduled: 0,
+      },
       sessions: [],
     };
     const emptyHw: HomeworkPeriodReport = {
       ...homeworkOk,
       homework: [],
-      summary: { ...homeworkOk.summary, totalHomework: 0, totalSubmissions: 0, completionRate: 0, gradingRate: 0 },
+      summary: {
+        ...homeworkOk.summary,
+        totalHomework: 0,
+        totalSubmissions: 0,
+        completionRate: 0,
+        gradingRate: 0,
+      },
     };
     const emptyTests: TestPeriodReport = {
       ...testsOk,
       tests: [],
-      summary: { ...testsOk.summary, totalTests: 0, totalSubmissions: 0, completionRate: 0, gradingRate: 0 },
+      summary: {
+        ...testsOk.summary,
+        totalTests: 0,
+        totalSubmissions: 0,
+        completionRate: 0,
+        gradingRate: 0,
+      },
     };
 
     assert.equal(isLessonHubEmpty(emptyLessons), true);

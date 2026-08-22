@@ -98,7 +98,10 @@ function createMockClient(db: { teacher_timetable: Row[]; lesson_sessions: Row[]
               if (clash) {
                 return {
                   data: null,
-                  error: { code: "23505", message: "duplicate key value violates unique constraint" },
+                  error: {
+                    code: "23505",
+                    message: "duplicate key value violates unique constraint",
+                  },
                 };
               }
             }
@@ -136,7 +139,10 @@ function createMockClient(db: { teacher_timetable: Row[]; lesson_sessions: Row[]
               if (clash) {
                 return {
                   data: null,
-                  error: { code: "23505", message: "duplicate key value violates unique constraint" },
+                  error: {
+                    code: "23505",
+                    message: "duplicate key value violates unique constraint",
+                  },
                 };
               }
             }
@@ -231,7 +237,10 @@ function slotInput(overrides: Partial<Parameters<typeof TeacherTimetableService.
 describe("TimetableSlotConflictError helpers", () => {
   it("detects Postgres unique violation codes and messages", () => {
     assert.equal(isTimetableUniqueViolation({ code: "23505" }), true);
-    assert.equal(isTimetableUniqueViolation({ message: "idx_teacher_timetable_unique_slot" }), true);
+    assert.equal(
+      isTimetableUniqueViolation({ message: "idx_teacher_timetable_unique_slot" }),
+      true,
+    );
     assert.equal(isTimetableUniqueViolation({ code: "42501" }), false);
   });
 
@@ -377,8 +386,7 @@ describe("TASK 18.2 TeacherTimetableService slot CRUD", () => {
     await assert.rejects(
       () => TeacherTimetableService.addSlot(slotInput({ dayOfWeek: 0, period: 1 }), auth),
       (err: unknown) =>
-        err instanceof TimetableSlotConflictError &&
-        /نفس اليوم ونفس رقم الحصة/.test(err.message),
+        err instanceof TimetableSlotConflictError && /نفس اليوم ونفس رقم الحصة/.test(err.message),
     );
   });
 
@@ -423,8 +431,7 @@ describe("TASK 18.2 TeacherTimetableService slot CRUD", () => {
     await assert.rejects(
       () => TeacherTimetableService.updateSlot("slot-2", { period: 1 }, auth),
       (err: unknown) =>
-        err instanceof TimetableSlotConflictError &&
-        /نفس اليوم ونفس رقم الحصة/.test(err.message),
+        err instanceof TimetableSlotConflictError && /نفس اليوم ونفس رقم الحصة/.test(err.message),
     );
   });
 
@@ -502,7 +509,11 @@ describe("TASK 18.2 TeacherTimetableService slot CRUD", () => {
     const auth = authFor(db);
     const before = structuredClone(db.lesson_sessions);
 
-    await TeacherTimetableService.updateSlot("slot-1", { subject: "علوم", classroom: "مختبر" }, auth);
+    await TeacherTimetableService.updateSlot(
+      "slot-1",
+      { subject: "علوم", classroom: "مختبر" },
+      auth,
+    );
 
     assert.equal(db.teacher_timetable[0]?.subject, "علوم");
     assert.deepEqual(db.lesson_sessions, before);

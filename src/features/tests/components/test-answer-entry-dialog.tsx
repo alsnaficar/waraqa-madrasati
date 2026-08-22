@@ -91,9 +91,7 @@ export function TestAnswerEntryDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl" dir="rtl">
         <DialogHeader>
-          <DialogTitle>
-            {readOnly ? "عرض إجابات التسليم" : "تسجيل إجابات التسليم"}
-          </DialogTitle>
+          <DialogTitle>{readOnly ? "عرض إجابات التسليم" : "تسجيل إجابات التسليم"}</DialogTitle>
           <DialogDescription>
             الطالب: {studentName || "—"}.{" "}
             {readOnly
@@ -142,9 +140,7 @@ export function TestAnswerEntryDialog({
                               )}
                               onClick={() => {
                                 if (readOnly) return;
-                                setDraft((current) =>
-                                  setMcqDraft(current, question.id, option.id),
-                                );
+                                setDraft((current) => setMcqDraft(current, question.id, option.id));
                               }}
                             >
                               {option.label}

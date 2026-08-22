@@ -5,10 +5,7 @@ import type {
   MadrasatiTimetableEntry,
 } from "../provider/models.ts";
 import { MadrasatiProviderError } from "../provider/madrasati-provider.ts";
-import {
-  MOCK_MADRASATI_TEACHER,
-  MOCK_MADRASATI_TIMETABLE,
-} from "../mock/fixtures.ts";
+import { MOCK_MADRASATI_TEACHER, MOCK_MADRASATI_TIMETABLE } from "../mock/fixtures.ts";
 
 export type MadrasatiExtractionSuccess<T> = {
   readonly success: true;
@@ -23,8 +20,7 @@ export type MadrasatiExtractionFailure = {
 };
 
 export type MadrasatiExtractionResult<T> =
-  | MadrasatiExtractionSuccess<T>
-  | MadrasatiExtractionFailure;
+  MadrasatiExtractionSuccess<T> | MadrasatiExtractionFailure;
 
 export type MadrasatiLiveTeacherSnapshot = {
   readonly displayName: string;
@@ -112,9 +108,7 @@ export function toExtractionFailure(error: unknown): MadrasatiExtractionFailure 
 
   if (error instanceof Error) {
     const message = collapse(error.message);
-    const code = /not found|expired/i.test(message)
-      ? "SESSION_NOT_FOUND"
-      : "EXTRACTION_FAILED";
+    const code = /not found|expired/i.test(message) ? "SESSION_NOT_FOUND" : "EXTRACTION_FAILED";
     return {
       success: false,
       code,
@@ -140,9 +134,7 @@ export function sanitizeTeacherSnapshot(
   return {
     displayName,
     ...(collapse(teacher.schoolName) ? { schoolName: collapse(teacher.schoolName) } : {}),
-    ...(collapse(teacher.academicYear)
-      ? { academicYear: collapse(teacher.academicYear) }
-      : {}),
+    ...(collapse(teacher.academicYear) ? { academicYear: collapse(teacher.academicYear) } : {}),
     ...(collapse(teacher.semester) ? { semester: collapse(teacher.semester) } : {}),
   };
 }
@@ -205,8 +197,7 @@ export function validateTimetableSnapshots(
 
   return {
     invalidDayCount: entries.filter(
-      (entry) =>
-        !Number.isInteger(entry.dayOfWeek) || entry.dayOfWeek < 0 || entry.dayOfWeek > 6,
+      (entry) => !Number.isInteger(entry.dayOfWeek) || entry.dayOfWeek < 0 || entry.dayOfWeek > 6,
     ).length,
     invalidPeriodCount: entries.filter(
       (entry) => !Number.isInteger(entry.period) || entry.period < 1 || entry.period > 12,
@@ -215,9 +206,8 @@ export function validateTimetableSnapshots(
     missingGradeCount: entries.filter((entry) => !entry.grade).length,
     missingClassCount: entries.filter((entry) => !entry.className).length,
     duplicateCount,
-    semesterAsClassNameCount: entries.filter((entry) =>
-      /الفصل الدراسي/.test(entry.className),
-    ).length,
+    semesterAsClassNameCount: entries.filter((entry) => /الفصل الدراسي/.test(entry.className))
+      .length,
   };
 }
 
@@ -232,17 +222,12 @@ export function matchesMockFixtures(input: {
   const timetableIsMock =
     (input.timetable?.length ?? 0) === MOCK_MADRASATI_TIMETABLE.length &&
     JSON.stringify(input.timetable) ===
-      JSON.stringify(
-        sanitizeTimetableSnapshots(MOCK_MADRASATI_TIMETABLE),
-      );
+      JSON.stringify(sanitizeTimetableSnapshots(MOCK_MADRASATI_TIMETABLE));
 
   return Boolean(teacherIsMock || timetableIsMock);
 }
 
-export function extractionFromValue<T>(
-  data: T,
-  isEmpty: boolean,
-): MadrasatiExtractionSuccess<T> {
+export function extractionFromValue<T>(data: T, isEmpty: boolean): MadrasatiExtractionSuccess<T> {
   return isEmpty ? { success: true, data, empty: true } : { success: true, data };
 }
 
@@ -273,7 +258,9 @@ export function buildMissingSessionReport(): MadrasatiLiveVerificationReport {
   };
 }
 
-export function buildMockSessionStopReport(existedBefore: boolean): MadrasatiLiveVerificationReport {
+export function buildMockSessionStopReport(
+  existedBefore: boolean,
+): MadrasatiLiveVerificationReport {
   const stopped: MadrasatiExtractionFailure = {
     success: false,
     code: "MOCK_SESSION",
@@ -308,8 +295,7 @@ export function logLiveVerificationSummary(report: MadrasatiLiveVerificationRepo
     stoppedBecauseMock: report.stoppedBecauseMock,
     teacher: {
       success: report.teacher.success,
-      displayNamePresent:
-        report.teacher.success && Boolean(report.teacher.data.displayName),
+      displayNamePresent: report.teacher.success && Boolean(report.teacher.data.displayName),
       schoolPresent: report.teacher.success && Boolean(report.teacher.data.schoolName),
     },
     classes: {

@@ -85,8 +85,7 @@ export function StudentBulkImportDialog({
 
       const summary = summarizeStudentImport(preview.plan, result.created.length);
       // Runtime failures (e.g. code conflict) count toward invalid-ish messaging
-      const failureNote =
-        result.failures.length > 0 ? ` · فشل ${result.failures.length}` : "";
+      const failureNote = result.failures.length > 0 ? ` · فشل ${result.failures.length}` : "";
       toast.success(`${formatStudentImportSummary(summary)}${failureNote}`);
       setText("");
       onOpenChange(false);

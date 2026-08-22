@@ -1,9 +1,6 @@
 import type { LessonSessionStatus } from "@/features/lesson-sessions/types";
 
-import type {
-  LessonSessionReportStats,
-  ReportsDateFilter,
-} from "./reports.service";
+import type { LessonSessionReportStats, ReportsDateFilter } from "./reports.service";
 
 export type ReportsFilterKind = "today" | "week" | "month" | "custom";
 

@@ -14,9 +14,7 @@ import {
  * Aggregates submitted homework + test submissions without N+1 per parent.
  */
 export class CorrectionsInboxService {
-  static async listNeedsAction(
-    context?: SupabaseUserContext,
-  ): Promise<CorrectionInboxItem[]> {
+  static async listNeedsAction(context?: SupabaseUserContext): Promise<CorrectionInboxItem[]> {
     const resolved = await resolveUserContext(context);
     if (!resolved) return [];
 

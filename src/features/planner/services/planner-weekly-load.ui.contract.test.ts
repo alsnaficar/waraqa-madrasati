@@ -32,10 +32,7 @@ describe("TASK 25.23 weekly timetable initial load", () => {
       weekly,
       /entries\.length > 0 && sessionsPending && existingSessionsQuery\.data === undefined/,
     );
-    assert.doesNotMatch(
-      weekly.slice(emptyIdx),
-      /if \(entries\.length === 0\) \{\s*return/,
-    );
+    assert.doesNotMatch(weekly.slice(emptyIdx), /if \(entries\.length === 0\) \{\s*return/);
   });
 
   it("fetches the timetable once and reads the five week dates in one session query", () => {
@@ -80,16 +77,11 @@ describe("TASK 25.28 week switch keeps previous timetable visible", () => {
 
 describe("TASK 25.29 week spinner only for uncached week transition", () => {
   const weekly = readSrc("../components/filled-weekly-timetable.tsx");
-  const mobile = readSrc(
-    "../../teacher-timetable/components/teacher-weekly-timetable-mobile.tsx",
-  );
+  const mobile = readSrc("../../teacher-timetable/components/teacher-weekly-timetable-mobile.tsx");
 
   it("new uncached week can show the indicator via isPlaceholderData", () => {
     assert.match(weekly, /placeholderData: keepPreviousData/);
-    assert.match(
-      weekly,
-      /const weekSwitchPending = existingSessionsQuery\.isPlaceholderData/,
-    );
+    assert.match(weekly, /const weekSwitchPending = existingSessionsQuery\.isPlaceholderData/);
     assert.match(weekly, /switching=\{weekSwitchPending\}/);
     assert.match(weekly, /aria-label="جاري تحميل الأسبوع"/);
   });
@@ -143,15 +135,9 @@ describe("TASK 25.30 adjacent week session prefetch", () => {
   });
 
   it("does not recursively prefetch and keeps 25.29 spinner on isPlaceholderData only", () => {
-    assert.match(
-      weekly,
-      /for \(const adjacentOffset of \[weekOffset - 1, weekOffset \+ 1\]\)/,
-    );
+    assert.match(weekly, /for \(const adjacentOffset of \[weekOffset - 1, weekOffset \+ 1\]\)/);
     assert.doesNotMatch(weekly, /weekOffset - 2|weekOffset \+ 2/);
-    assert.match(
-      weekly,
-      /const weekSwitchPending = existingSessionsQuery\.isPlaceholderData/,
-    );
+    assert.match(weekly, /const weekSwitchPending = existingSessionsQuery\.isPlaceholderData/);
     const spinnerBlock = weekly.slice(
       weekly.indexOf("const weekSwitchPending"),
       weekly.indexOf("const sessionBySlot"),

@@ -252,9 +252,9 @@ function authFor(db: Record<string, Row[]>): SupabaseUserContext {
   return { client: createMockClient(db), userId: TEACHER_ID };
 }
 
-function planEntriesForTest(
-  entries: PlanEntryForTimetableMatch[],
-): { planEntries: CalculatedLessonEntry[] } {
+function planEntriesForTest(entries: PlanEntryForTimetableMatch[]): {
+  planEntries: CalculatedLessonEntry[];
+} {
   return { planEntries: entries };
 }
 
@@ -365,9 +365,7 @@ describe("generateSessionsForDate slot-aware plan matching", () => {
     const CLASS_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
     const db = seedDb();
     db.grades = [{ id: GRADE_ID, user_id: TEACHER_ID, name: "الأول متوسط" }];
-    db.classes = [
-      { id: CLASS_ID, user_id: TEACHER_ID, name: "1/A", grade_id: GRADE_ID },
-    ];
+    db.classes = [{ id: CLASS_ID, user_id: TEACHER_ID, name: "1/A", grade_id: GRADE_ID }];
 
     await LessonSessionService.generateSessionsForDate(
       SUNDAY_ISO,

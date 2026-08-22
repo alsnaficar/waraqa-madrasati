@@ -10,8 +10,7 @@ import { sanitizePageLandmarks, type MadrasatiPageLandmarks } from "./madrasati-
 
 export const MADRASATI_TIMETABLE_UNAVAILABLE_CODE = "TIMETABLE_UNAVAILABLE" as const;
 
-export const MADRASATI_TIMETABLE_UNAVAILABLE_MESSAGE =
-  "تعذر قراءة الجدول من صفحة جدولي في مدرستي.";
+export const MADRASATI_TIMETABLE_UNAVAILABLE_MESSAGE = "تعذر قراءة الجدول من صفحة جدولي في مدرستي.";
 
 export type MadrasatiTimetableExtractionStatus = "found" | "empty" | "unavailable";
 
@@ -81,9 +80,7 @@ function headerMatches(header: string, needle: string): boolean {
     return normalizedHeader === normalizedNeedle;
   }
 
-  return (
-    normalizedHeader === normalizedNeedle || normalizedHeader.includes(normalizedNeedle)
-  );
+  return normalizedHeader === normalizedNeedle || normalizedHeader.includes(normalizedNeedle);
 }
 
 function headerIndex(headers: readonly string[], needles: readonly string[]): number {
@@ -295,14 +292,14 @@ function parseLessonFields(raw: string): {
   const subject =
     labeledSubject && isSubjectName(labeledSubject)
       ? labeledSubject
-      : trailing.subject ??
+      : (trailing.subject ??
         tokens.find(
           (token) =>
             isSubjectName(token) &&
             !isGradeValue(token) &&
             !isSemesterText(token) &&
             !parseClassName(token),
-        );
+        ));
 
   const grade =
     labeledGrade && isGradeValue(labeledGrade)
@@ -414,9 +411,7 @@ function parseListRow(
   const ignored = new Set(
     [dayIndex, periodIndex, startIndex, endIndex, timeIndex].filter((index) => index >= 0),
   );
-  const lesson = parseLessonFields(
-    cells.filter((_, index) => !ignored.has(index)).join(" / "),
-  );
+  const lesson = parseLessonFields(cells.filter((_, index) => !ignored.has(index)).join(" / "));
   const subjectFromHeader =
     subjectIndex >= 0 && isSubjectName(cells[subjectIndex] ?? "")
       ? collapse(cells[subjectIndex] ?? "")
@@ -432,7 +427,8 @@ function parseListRow(
       : undefined;
 
   return toEntry({
-    dayOfWeek: dayIndex >= 0 ? parseDayOfWeek(cells[dayIndex] ?? "") : parseDayOfWeek(cells[0] ?? ""),
+    dayOfWeek:
+      dayIndex >= 0 ? parseDayOfWeek(cells[dayIndex] ?? "") : parseDayOfWeek(cells[0] ?? ""),
     period: periodIndex >= 0 ? parsePeriod(cells[periodIndex] ?? "") : null,
     subject: subjectFromHeader ?? lesson.subject,
     grade: gradeFromHeader ?? lesson.grade,

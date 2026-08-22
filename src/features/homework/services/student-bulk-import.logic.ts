@@ -43,10 +43,7 @@ export type StudentBulkImportSummary = {
  * Does NOT treat full_name as globally unique — callers scope by class.
  */
 export function normalizeStudentName(value: string): string {
-  return value
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLocaleLowerCase("en");
+  return value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
 }
 
 /**

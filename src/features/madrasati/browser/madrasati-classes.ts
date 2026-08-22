@@ -34,7 +34,14 @@ const GRADE_ORDINALS = [
   "الثاني عشر",
 ] as const;
 
-const STAGE_WORDS = ["الابتدائي", "الابتدائية", "المتوسط", "المتوسطة", "الثانوي", "الثانوية"] as const;
+const STAGE_WORDS = [
+  "الابتدائي",
+  "الابتدائية",
+  "المتوسط",
+  "المتوسطة",
+  "الثانوي",
+  "الثانوية",
+] as const;
 
 const EMPTY_MARKERS = [
   "لا توجد مقررات",
@@ -144,9 +151,7 @@ function collectFromLabeledPairs(
 
     const combined = parseCombined(current.value);
     if (combined) {
-      collected.push(
-        toClass(combined.grade, combined.className, nextStage?.value) ?? combined,
-      );
+      collected.push(toClass(combined.grade, combined.className, nextStage?.value) ?? combined);
       continue;
     }
 
@@ -201,8 +206,7 @@ function collectFromText(text: string, collected: MadrasatiClass[]): void {
     const stageLineIndex = lines
       .slice(index + 2, index + 8)
       .findIndex((candidate) => isStageHeader(candidate));
-    const stage =
-      stageLineIndex >= 0 ? lines[index + 2 + stageLineIndex + 1] : undefined;
+    const stage = stageLineIndex >= 0 ? lines[index + 2 + stageLineIndex + 1] : undefined;
 
     const mapped = toClass(grade, className ?? "", stage);
     if (mapped) {
@@ -218,10 +222,7 @@ function collectFromText(text: string, collected: MadrasatiClass[]): void {
   }
 }
 
-function collectFromAccessibleNames(
-  names: readonly string[],
-  collected: MadrasatiClass[],
-): void {
+function collectFromAccessibleNames(names: readonly string[], collected: MadrasatiClass[]): void {
   for (const name of names) {
     const combined = parseCombined(name);
     if (combined) {
@@ -251,11 +252,7 @@ function parseCombined(source: string): MadrasatiClass | null {
   return toClass(match[1], match[2]);
 }
 
-function toClass(
-  gradeRaw: string,
-  classRaw: string,
-  stageRaw?: string,
-): MadrasatiClass | null {
+function toClass(gradeRaw: string, classRaw: string, stageRaw?: string): MadrasatiClass | null {
   const grade = normalizeGrade(gradeRaw);
   const className = normalizeClassName(classRaw);
 
@@ -284,7 +281,7 @@ function normalizeGrade(value: string): string | undefined {
 }
 
 function normalizeClassName(value: string): string | undefined {
-  let trimmed = value
+  const trimmed = value
     .replace(/^(?:الشعبة|شعبة|الفصل|فصل)\s*/u, "")
     .replace(/[.|•]+$/g, "")
     .replace(/\s+/g, " ")
@@ -323,9 +320,7 @@ function isClassNameValue(value: string): boolean {
     return false;
   }
 
-  return /^(?:\d{1,3}|[أ-ي]|[أ-ي]\s*[/\-]\s*\d{1,3}|\d{1,3}\s*[/\-]\s*[أ-ي0-9]+)$/.test(
-    trimmed,
-  );
+  return /^(?:\d{1,3}|[أ-ي]|[أ-ي]\s*[/\-]\s*\d{1,3}|\d{1,3}\s*[/\-]\s*[أ-ي0-9]+)$/.test(trimmed);
 }
 
 function isGradeHeader(label: string): boolean {
@@ -347,10 +342,7 @@ function isStageHeader(label: string): boolean {
   return STAGE_HEADERS.some((header) => normalizeHeader(header) === normalized);
 }
 
-function cellForHeaders(
-  row: MadrasatiTableRow,
-  headers: readonly string[],
-): string | undefined {
+function cellForHeaders(row: MadrasatiTableRow, headers: readonly string[]): string | undefined {
   for (const wanted of headers) {
     const index = row.headers.findIndex(
       (header) => normalizeHeader(header) === normalizeHeader(wanted),
@@ -406,12 +398,8 @@ function isCourseCatalogPage(landmarks: MadrasatiPageLandmarks): boolean {
 
 function hasCatalogHeaders(headers: readonly string[]): boolean {
   const normalized = headers.map(normalizeHeader);
-  const hasGrade = GRADE_HEADERS.some((header) =>
-    normalized.includes(normalizeHeader(header)),
-  );
-  const hasClass = CLASS_HEADERS.some((header) =>
-    normalized.includes(normalizeHeader(header)),
-  );
+  const hasGrade = GRADE_HEADERS.some((header) => normalized.includes(normalizeHeader(header)));
+  const hasClass = CLASS_HEADERS.some((header) => normalized.includes(normalizeHeader(header)));
 
   return hasGrade && hasClass;
 }

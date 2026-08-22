@@ -94,9 +94,7 @@ class FakeInteractiveAdapter {
     };
   }
 
-  async inspectAuthenticationFocus(): Promise<
-    MadrasatiFocusedControl & { value?: string }
-  > {
+  async inspectAuthenticationFocus(): Promise<MadrasatiFocusedControl & { value?: string }> {
     return {
       isEditable: true,
       inputType: "text",
@@ -160,9 +158,7 @@ class FakeInteractiveAdapter {
 
   async pressAuthenticationKey(_key: string) {}
 
-  subscribeAuthenticationLiveFrame(
-    _listener: (frame: MadrasatiLiveFrame) => void,
-  ) {
+  subscribeAuthenticationLiveFrame(_listener: (frame: MadrasatiLiveFrame) => void) {
     return () => undefined;
   }
 
@@ -197,10 +193,7 @@ describe("Madrasati browser session manager — lifecycle and ownership", () => 
     const { manager } = createManager();
 
     await assert.rejects(() => manager.startAuthentication("  "), /user id/i);
-    await assert.rejects(
-      () => manager.inspectAuthentication(USER_A, ""),
-      /session id/i,
-    );
+    await assert.rejects(() => manager.inspectAuthentication(USER_A, ""), /session id/i);
   });
 
   it("does not allow another user to inspect, stream, type, or close a session", async () => {
@@ -212,23 +205,19 @@ describe("Madrasati browser session manager — lifecycle and ownership", () => 
       /does not belong/,
     );
     await assert.rejects(
-      () =>
-        manager.getAuthenticationLiveFrame(USER_B, started.session.sessionId),
+      () => manager.getAuthenticationLiveFrame(USER_B, started.session.sessionId),
       /does not belong/,
     );
     await assert.rejects(
-      () =>
-        manager.inspectAuthenticationFocus(USER_B, started.session.sessionId),
+      () => manager.inspectAuthenticationFocus(USER_B, started.session.sessionId),
       /does not belong/,
     );
     await assert.rejects(
-      () =>
-        manager.clickAuthentication(USER_B, started.session.sessionId, 10, 10),
+      () => manager.clickAuthentication(USER_B, started.session.sessionId, 10, 10),
       /does not belong/,
     );
     await assert.rejects(
-      () =>
-        manager.typeAuthentication(USER_B, started.session.sessionId, "abc"),
+      () => manager.typeAuthentication(USER_B, started.session.sessionId, "abc"),
       /does not belong/,
     );
     await assert.rejects(
@@ -241,14 +230,8 @@ describe("Madrasati browser session manager — lifecycle and ownership", () => 
     const { manager } = createManager();
     const started = await manager.startAuthentication(USER_A);
 
-    const frame = await manager.getAuthenticationLiveFrame(
-      USER_A,
-      started.session.sessionId,
-    );
-    const focus = await manager.inspectAuthenticationFocus(
-      USER_A,
-      started.session.sessionId,
-    );
+    const frame = await manager.getAuthenticationLiveFrame(USER_A, started.session.sessionId);
+    const focus = await manager.inspectAuthenticationFocus(USER_A, started.session.sessionId);
 
     assert.deepEqual(Object.keys(frame).sort(), [
       "base64",
@@ -303,13 +286,7 @@ describe("Madrasati browser session manager — lifecycle and ownership", () => 
     const started = await manager.startAuthentication(USER_A);
 
     await assert.rejects(
-      () =>
-        manager.waitForAuthenticationLiveFrame(
-          USER_B,
-          started.session.sessionId,
-          0,
-          250,
-        ),
+      () => manager.waitForAuthenticationLiveFrame(USER_B, started.session.sessionId, 0, 250),
       /does not belong/,
     );
     assert.throws(
@@ -361,10 +338,7 @@ describe("Madrasati browser session manager — lifecycle and ownership", () => 
       hasSession: true,
       authenticationState: "not_authenticated",
     });
-    assert.deepEqual(Object.keys(owned).sort(), [
-      "authenticationState",
-      "hasSession",
-    ]);
+    assert.deepEqual(Object.keys(owned).sort(), ["authenticationState", "hasSession"]);
 
     const other = await manager.peekAuthentication(USER_B);
     assert.deepEqual(other, {
@@ -446,8 +420,7 @@ describe("Madrasati browser session manager — lifecycle and ownership", () => 
 
   it("gives each Waraqa user a different session id", async () => {
     const manager = new MadrasatiBrowserSessionManager({
-      createProvider: () =>
-        new FakeInteractiveAdapter() as unknown as MadrasatiBrowserAdapter,
+      createProvider: () => new FakeInteractiveAdapter() as unknown as MadrasatiBrowserAdapter,
     });
 
     const first = await manager.startAuthentication(USER_A);

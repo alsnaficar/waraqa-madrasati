@@ -1,14 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import {
-  extractMadrasatiHomework,
-  type MadrasatiHomework,
-} from "./madrasati-homework.ts";
+import { extractMadrasatiHomework, type MadrasatiHomework } from "./madrasati-homework.ts";
 import type { MadrasatiPageLandmarks } from "./madrasati-teacher-profile.ts";
 
-function snapshot(
-  overrides: Partial<MadrasatiPageLandmarks> = {},
-): MadrasatiPageLandmarks {
+function snapshot(overrides: Partial<MadrasatiPageLandmarks> = {}): MadrasatiPageLandmarks {
   return {
     url: "https://schools.madrasati.sa/",
     title: "الواجبات",
@@ -26,22 +21,8 @@ describe("extractMadrasatiHomework", () => {
       snapshot({
         tableRows: [
           {
-            headers: [
-              "اسم الواجب",
-              "المادة",
-              "الصف الدراسي",
-              "الشعبة",
-              "تاريخ التسليم",
-              "الحالة",
-            ],
-            cells: [
-              "تدريب حروف الجر",
-              "لغتي",
-              "الأول المتوسط",
-              "أ",
-              "2026-08-25",
-              "مفتوح",
-            ],
+            headers: ["اسم الواجب", "المادة", "الصف الدراسي", "الشعبة", "تاريخ التسليم", "الحالة"],
+            cells: ["تدريب حروف الجر", "لغتي", "الأول المتوسط", "أ", "2026-08-25", "مفتوح"],
           },
         ],
       }),

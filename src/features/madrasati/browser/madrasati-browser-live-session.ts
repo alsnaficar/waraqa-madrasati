@@ -33,8 +33,7 @@ export const MADRASATI_REMOTE_INPUT_TYPES = [
   "none",
 ] as const;
 
-export type MadrasatiRemoteInputType =
-  (typeof MADRASATI_REMOTE_INPUT_TYPES)[number];
+export type MadrasatiRemoteInputType = (typeof MADRASATI_REMOTE_INPUT_TYPES)[number];
 
 export type MadrasatiFocusedControl = {
   readonly isEditable: boolean;
@@ -78,9 +77,7 @@ const FORBIDDEN_FOCUS_KEYS = [
   "innerText",
 ] as const;
 
-export function canEmbedThirdPartyLogin(
-  headers: MadrasatiLoginEmbedHeaders = {},
-): boolean {
+export function canEmbedThirdPartyLogin(headers: MadrasatiLoginEmbedHeaders = {}): boolean {
   const xFrame = headers.xFrameOptions?.trim().toLowerCase() ?? "";
 
   if (xFrame === "deny" || xFrame === "sameorigin") {
@@ -98,9 +95,7 @@ export function canEmbedThirdPartyLogin(
   return false;
 }
 
-export function sanitizeFocusedControl(
-  raw: unknown,
-): MadrasatiFocusedControl {
+export function sanitizeFocusedControl(raw: unknown): MadrasatiFocusedControl {
   if (!raw || typeof raw !== "object") {
     return { isEditable: false, inputType: "none" };
   }
@@ -131,9 +126,7 @@ export function sanitizeLiveFrame(raw: unknown): MadrasatiLiveFrame {
 
   const record = raw as Record<string, unknown>;
   const mimeType =
-    record.mimeType === "image/jpeg" || record.mimeType === "image/png"
-      ? record.mimeType
-      : null;
+    record.mimeType === "image/jpeg" || record.mimeType === "image/png" ? record.mimeType : null;
   const base64 = typeof record.base64 === "string" ? record.base64.trim() : "";
   const viewportWidth = Number(record.viewportWidth);
   const viewportHeight = Number(record.viewportHeight);
@@ -166,9 +159,7 @@ export function encodeMadrasatiLiveSseEvent(
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 }
 
-export function parseMadrasatiLiveSseBlock(
-  block: string,
-): { event: string; data: unknown } | null {
+export function parseMadrasatiLiveSseBlock(block: string): { event: string; data: unknown } | null {
   const lines = block.split("\n");
   let event = "message";
   const dataLines: string[] = [];

@@ -14,17 +14,13 @@ export const STUDENTS_EMPTY_TITLE = "لا يوجد طلاب بعد";
 export const STUDENTS_EMPTY_DESCRIPTION =
   "أضف طلابك يدوياً أو الصق قائمة أسماء بعد اختيار الفصل. الطلاب سجلات يملكها المعلم وليست حسابات دخول.";
 export const STUDENTS_ERROR_TITLE = "تعذر تحميل الطلاب";
-export const STUDENTS_SELECT_CLASS_HINT =
-  "اختر الصف ثم الفصل لعرض الطلاب أو استيراد قائمة.";
+export const STUDENTS_SELECT_CLASS_HINT = "اختر الصف ثم الفصل لعرض الطلاب أو استيراد قائمة.";
 export const SUBMISSIONS_EMPTY_TITLE = "لا توجد تسليمات لهذا الواجب";
 export const SUBMISSIONS_EMPTY_DESCRIPTION =
   "أنشئ سجلات تسليم للطلاب، أو اختر واجباً آخر. يمكنك تصحيح التسليمات المُسلَّمة يدوياً.";
 export const SUBMISSIONS_ERROR_TITLE = "تعذر تحميل التسليمات";
 
-export function formatScoreLabel(
-  score: number | null,
-  maxScore?: number | null,
-): string {
+export function formatScoreLabel(score: number | null, maxScore?: number | null): string {
   if (score == null) return "—";
   if (maxScore != null && Number.isFinite(maxScore)) {
     return `${score}/${maxScore}`;

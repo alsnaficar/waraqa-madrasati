@@ -52,10 +52,7 @@ export type MadrasatiAuthenticationStartResult = {
  * The client only receives the fail-closed authentication state.
  */
 export type MadrasatiAuthenticationInspectionResult = {
-  authenticationState:
-    | "not_authenticated"
-    | "authenticated"
-    | "unknown";
+  authenticationState: "not_authenticated" | "authenticated" | "unknown";
 };
 
 export type MadrasatiAuthenticationStatusResult = {
@@ -93,8 +90,7 @@ export type MadrasatiTimetableEntryResult = {
 };
 
 export type MadrasatiLiveExtractionResult<T> =
-  | { success: true; data: T; empty?: boolean }
-  | { success: false; code: string; message: string };
+  { success: true; data: T; empty?: boolean } | { success: false; code: string; message: string };
 
 export type MadrasatiLiveVerificationResult = {
   authenticated: boolean;
@@ -137,14 +133,7 @@ export type MadrasatiAuthenticationLiveFrameUpdateResult = {
 
 export type MadrasatiAuthenticationFocusResult = {
   isEditable: boolean;
-  inputType:
-    | "text"
-    | "email"
-    | "search"
-    | "tel"
-    | "url"
-    | "protected"
-    | "none";
+  inputType: "text" | "email" | "search" | "tel" | "url" | "protected" | "none";
 };
 
 /**
@@ -170,9 +159,8 @@ export const syncMadrasatiSchedule = createServerFn({ method: "POST" })
 export const startMadrasatiAuthentication = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MadrasatiAuthenticationStartResult> => {
-    const { startAuthenticatedMadrasatiAuthentication } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { startAuthenticatedMadrasatiAuthentication } =
+      await import("./madrasati-auth.server.ts");
 
     return startAuthenticatedMadrasatiAuthentication(context.userId);
   });
@@ -189,14 +177,10 @@ export const inspectMadrasatiAuthentication = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }): Promise<MadrasatiAuthenticationInspectionResult> => {
-    const { inspectAuthenticatedMadrasatiAuthentication } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { inspectAuthenticatedMadrasatiAuthentication } =
+      await import("./madrasati-auth.server.ts");
 
-    const page = await inspectAuthenticatedMadrasatiAuthentication(
-      context.userId,
-      data.sessionId,
-    );
+    const page = await inspectAuthenticatedMadrasatiAuthentication(context.userId, data.sessionId);
 
     return {
       authenticationState: page.authenticationState,
@@ -215,14 +199,10 @@ export const screenshotMadrasatiAuthentication = createServerFn({ method: "POST"
     }),
   )
   .handler(async ({ context, data }): Promise<string> => {
-    const { getAuthenticatedMadrasatiAuthenticationScreenshot } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { getAuthenticatedMadrasatiAuthenticationScreenshot } =
+      await import("./madrasati-auth.server.ts");
 
-    return getAuthenticatedMadrasatiAuthenticationScreenshot(
-      context.userId,
-      data.sessionId,
-    );
+    return getAuthenticatedMadrasatiAuthenticationScreenshot(context.userId, data.sessionId);
   });
 
 /**
@@ -232,9 +212,7 @@ export const screenshotMadrasatiAuthentication = createServerFn({ method: "POST"
 export const getMadrasatiAuthenticationStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MadrasatiAuthenticationStatusResult> => {
-    const { peekAuthenticatedMadrasatiAuthentication } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { peekAuthenticatedMadrasatiAuthentication } = await import("./madrasati-auth.server.ts");
 
     return peekAuthenticatedMadrasatiAuthentication(context.userId);
   });
@@ -246,9 +224,7 @@ export const getMadrasatiAuthenticationStatus = createServerFn({ method: "POST" 
 export const getMadrasatiTeacherProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MadrasatiTeacherProfileResult> => {
-    const { readAuthenticatedMadrasatiTeacherProfile } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { readAuthenticatedMadrasatiTeacherProfile } = await import("./madrasati-auth.server.ts");
 
     const teacher = await readAuthenticatedMadrasatiTeacherProfile(context.userId);
 
@@ -267,9 +243,7 @@ export const getMadrasatiTeacherProfile = createServerFn({ method: "POST" })
 export const getMadrasatiClasses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MadrasatiClassResult[]> => {
-    const { readAuthenticatedMadrasatiClasses } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { readAuthenticatedMadrasatiClasses } = await import("./madrasati-auth.server.ts");
 
     const classes = await readAuthenticatedMadrasatiClasses(context.userId);
 
@@ -287,9 +261,7 @@ export const getMadrasatiClasses = createServerFn({ method: "POST" })
 export const getMadrasatiSubjects = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MadrasatiSubjectResult[]> => {
-    const { readAuthenticatedMadrasatiSubjects } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { readAuthenticatedMadrasatiSubjects } = await import("./madrasati-auth.server.ts");
 
     const subjects = await readAuthenticatedMadrasatiSubjects(context.userId);
 
@@ -306,9 +278,7 @@ export const getMadrasatiSubjects = createServerFn({ method: "POST" })
 export const getMadrasatiTimetable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MadrasatiTimetableEntryResult[]> => {
-    const { readAuthenticatedMadrasatiTimetable } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { readAuthenticatedMadrasatiTimetable } = await import("./madrasati-auth.server.ts");
 
     const timetable = await readAuthenticatedMadrasatiTimetable(context.userId);
 
@@ -332,9 +302,8 @@ export const getMadrasatiTimetable = createServerFn({ method: "POST" })
 export const verifyMadrasatiLiveExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MadrasatiLiveVerificationResult> => {
-    const { verifyAuthenticatedMadrasatiLiveExtraction } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { verifyAuthenticatedMadrasatiLiveExtraction } =
+      await import("./madrasati-auth.server.ts");
 
     return verifyAuthenticatedMadrasatiLiveExtraction(context.userId);
   });
@@ -350,14 +319,10 @@ export const closeMadrasatiAuthentication = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }): Promise<void> => {
-    const { closeAuthenticatedMadrasatiAuthentication } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { closeAuthenticatedMadrasatiAuthentication } =
+      await import("./madrasati-auth.server.ts");
 
-    await closeAuthenticatedMadrasatiAuthentication(
-      context.userId,
-      data.sessionId,
-    );
+    await closeAuthenticatedMadrasatiAuthentication(context.userId, data.sessionId);
   });
 
 /**
@@ -366,16 +331,13 @@ export const closeMadrasatiAuthentication = createServerFn({ method: "POST" })
 export const applyMockMadrasatiTimetable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { runAuthenticatedMadrasatiMockApply } = await import(
-      "./madrasati-apply.server.ts"
-    );
+    const { runAuthenticatedMadrasatiMockApply } = await import("./madrasati-apply.server.ts");
 
     return runAuthenticatedMadrasatiMockApply({
       userId: context.userId,
       client: context.supabase,
     });
   });
-
 
 /**
  * Click inside the authenticated user's server-side Madrasati session.
@@ -390,16 +352,10 @@ export const clickMadrasatiAuthentication = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }): Promise<void> => {
-    const { clickAuthenticatedMadrasatiAuthentication } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { clickAuthenticatedMadrasatiAuthentication } =
+      await import("./madrasati-auth.server.ts");
 
-    await clickAuthenticatedMadrasatiAuthentication(
-      context.userId,
-      data.sessionId,
-      data.x,
-      data.y,
-    );
+    await clickAuthenticatedMadrasatiAuthentication(context.userId, data.sessionId, data.x, data.y);
   });
 
 /**
@@ -414,15 +370,9 @@ export const typeMadrasatiAuthentication = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }): Promise<void> => {
-    const { typeAuthenticatedMadrasatiAuthentication } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { typeAuthenticatedMadrasatiAuthentication } = await import("./madrasati-auth.server.ts");
 
-    await typeAuthenticatedMadrasatiAuthentication(
-      context.userId,
-      data.sessionId,
-      data.text,
-    );
+    await typeAuthenticatedMadrasatiAuthentication(context.userId, data.sessionId, data.text);
   });
 
 /**
@@ -439,15 +389,10 @@ export const pressMadrasatiAuthenticationKey = createServerFn({
     }),
   )
   .handler(async ({ context, data }): Promise<void> => {
-    const { pressAuthenticatedMadrasatiAuthenticationKey } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { pressAuthenticatedMadrasatiAuthenticationKey } =
+      await import("./madrasati-auth.server.ts");
 
-    await pressAuthenticatedMadrasatiAuthenticationKey(
-      context.userId,
-      data.sessionId,
-      data.key,
-    );
+    await pressAuthenticatedMadrasatiAuthenticationKey(context.userId, data.sessionId, data.key);
   });
 
 /**
@@ -463,14 +408,10 @@ export const getMadrasatiAuthenticationLiveFrame = createServerFn({
     }),
   )
   .handler(async ({ context, data }): Promise<MadrasatiAuthenticationLiveFrameResult> => {
-    const { getAuthenticatedMadrasatiAuthenticationLiveFrame } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { getAuthenticatedMadrasatiAuthenticationLiveFrame } =
+      await import("./madrasati-auth.server.ts");
 
-    return getAuthenticatedMadrasatiAuthenticationLiveFrame(
-      context.userId,
-      data.sessionId,
-    );
+    return getAuthenticatedMadrasatiAuthenticationLiveFrame(context.userId, data.sessionId);
   });
 
 /**
@@ -486,17 +427,18 @@ export const waitForMadrasatiAuthenticationLiveFrame = createServerFn({
       sinceSeq: z.number().int().min(0).max(1_000_000_000),
     }),
   )
-  .handler(async ({ context, data }): Promise<MadrasatiAuthenticationLiveFrameUpdateResult | null> => {
-    const { waitForAuthenticatedMadrasatiAuthenticationLiveFrame } = await import(
-      "./madrasati-auth.server.ts"
-    );
+  .handler(
+    async ({ context, data }): Promise<MadrasatiAuthenticationLiveFrameUpdateResult | null> => {
+      const { waitForAuthenticatedMadrasatiAuthenticationLiveFrame } =
+        await import("./madrasati-auth.server.ts");
 
-    return waitForAuthenticatedMadrasatiAuthenticationLiveFrame(
-      context.userId,
-      data.sessionId,
-      data.sinceSeq,
-    );
-  });
+      return waitForAuthenticatedMadrasatiAuthenticationLiveFrame(
+        context.userId,
+        data.sessionId,
+        data.sinceSeq,
+      );
+    },
+  );
 
 /**
  * Focus metadata for the authenticated user's Madrasati session.
@@ -512,14 +454,10 @@ export const inspectMadrasatiAuthenticationFocus = createServerFn({
     }),
   )
   .handler(async ({ context, data }): Promise<MadrasatiAuthenticationFocusResult> => {
-    const { inspectAuthenticatedMadrasatiAuthenticationFocus } = await import(
-      "./madrasati-auth.server.ts"
-    );
+    const { inspectAuthenticatedMadrasatiAuthenticationFocus } =
+      await import("./madrasati-auth.server.ts");
 
-    return inspectAuthenticatedMadrasatiAuthenticationFocus(
-      context.userId,
-      data.sessionId,
-    );
+    return inspectAuthenticatedMadrasatiAuthenticationFocus(context.userId, data.sessionId);
   });
 
 /**
@@ -528,9 +466,8 @@ export const inspectMadrasatiAuthenticationFocus = createServerFn({
 export const previewMadrasatiSync = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { runAuthenticatedMadrasatiDryRunPreview } = await import(
-      "./madrasati-preview.server.ts"
-    );
+    const { runAuthenticatedMadrasatiDryRunPreview } =
+      await import("./madrasati-preview.server.ts");
 
     return runAuthenticatedMadrasatiDryRunPreview(context.userId);
   });

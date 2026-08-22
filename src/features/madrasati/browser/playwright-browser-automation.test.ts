@@ -200,10 +200,7 @@ test("PlaywrightBrowserAutomation — captures a page screenshot", async () => {
   assert.ok(screenshot.length > 100);
 
   // PNG signature.
-  assert.deepEqual(
-    [...screenshot.slice(0, 8)],
-    [137, 80, 78, 71, 13, 10, 26, 10],
-  );
+  assert.deepEqual([...screenshot.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
 
   await automation.close();
 });
@@ -318,10 +315,7 @@ test("PlaywrightBrowserAutomation — focuses a local email field then clicks Ne
   assert.equal(await pageObject.locator("#email").inputValue(), "teacher@example.com");
   assert.equal(await pageObject.locator("#secret").inputValue(), "");
 
-  const clicked = await automation.clickControlByAccessibleName(page, [
-    "Next",
-    "التالي",
-  ]);
+  const clicked = await automation.clickControlByAccessibleName(page, ["Next", "التالي"]);
   assert.equal(clicked, true);
   assert.equal(await pageObject.locator("#status").innerText(), "next");
 
@@ -492,9 +486,7 @@ test("PlaywrightBrowserAutomation — hidden leftover email does not steal visib
 
     await automation.typePage(page, "dummy-secret");
 
-    const typedLength = Number(
-      await pageObject.locator("#typed-length").innerText(),
-    );
+    const typedLength = Number(await pageObject.locator("#typed-length").innerText());
     assert.ok(typedLength > 0);
     assert.equal(await pageObject.locator("#email").inputValue(), leftoverEmail);
 
@@ -781,12 +773,12 @@ test("PlaywrightBrowserAutomation — مقرراتي table landmarks normalize t
 
   try {
     const dir = mkdtempSync(join(tmpdir(), "madrasati-classes-"));
-  const home = join(dir, "home.html");
-  const courses = join(dir, "courses.html");
+    const home = join(dir, "home.html");
+    const courses = join(dir, "courses.html");
 
-  writeFileSync(
-    home,
-    `<!doctype html><html lang="ar" dir="rtl"><body>
+    writeFileSync(
+      home,
+      `<!doctype html><html lang="ar" dir="rtl"><body>
       <nav>
         <a href="courses.html">المقررات والمصادر</a>
         <a href="courses.html">مقرراتي</a>
@@ -796,11 +788,11 @@ test("PlaywrightBrowserAutomation — مقرراتي table landmarks normalize t
       </nav>
       <p>مرحباً، معلم الاختبار</p>
     </body></html>`,
-    "utf8",
-  );
-  writeFileSync(
-    courses,
-    `<!doctype html><html lang="ar" dir="rtl"><body>
+      "utf8",
+    );
+    writeFileSync(
+      courses,
+      `<!doctype html><html lang="ar" dir="rtl"><body>
       <nav>
         <a href="home.html">الرئيسية</a>
         <a href="courses.html">مقرراتي</a>
@@ -816,36 +808,36 @@ test("PlaywrightBrowserAutomation — مقرراتي table landmarks normalize t
         </tbody>
       </table>
     </body></html>`,
-    "utf8",
-  );
+      "utf8",
+    );
 
-  await automation.goto(page, `file://${home}`, { waitUntil: "domcontentloaded" });
-  const opened = await automation.clickControlByAccessibleName(page, [
-    "المقررات والمصادر",
-    "مقرراتي",
-  ]);
-  assert.equal(opened, true);
+    await automation.goto(page, `file://${home}`, { waitUntil: "domcontentloaded" });
+    const opened = await automation.clickControlByAccessibleName(page, [
+      "المقررات والمصادر",
+      "مقرراتي",
+    ]);
+    assert.equal(opened, true);
 
-  const appeared = await automation.waitForPageText(page, "الشعبة", 5000);
-  assert.equal(appeared, true);
+    const appeared = await automation.waitForPageText(page, "الشعبة", 5000);
+    assert.equal(appeared, true);
 
-  const landmarks = await automation.readPageLandmarks(page);
-  assert.equal("html" in landmarks, false);
-  assert.ok((landmarks.tableRows ?? []).length >= 2);
+    const landmarks = await automation.readPageLandmarks(page);
+    assert.equal("html" in landmarks, false);
+    assert.ok((landmarks.tableRows ?? []).length >= 2);
 
-  const extracted = extractMadrasatiClasses(landmarks);
-  assert.equal(extracted.status, "found");
-  assert.deepEqual(
-    extracted.classes.map((item) => `${item.grade}/${item.className}`),
-    ["الصف الأول المتوسط/1", "الصف الأول المتوسط/2"],
-  );
+    const extracted = extractMadrasatiClasses(landmarks);
+    assert.equal(extracted.status, "found");
+    assert.deepEqual(
+      extracted.classes.map((item) => `${item.grade}/${item.className}`),
+      ["الصف الأول المتوسط/1", "الصف الأول المتوسط/2"],
+    );
 
-  const subjects = extractMadrasatiSubjects(landmarks);
-  assert.equal(subjects.status, "found");
-  assert.deepEqual(
-    subjects.subjects.map((item) => item.name),
-    ["الرياضيات", "العلوم"],
-  );
+    const subjects = extractMadrasatiSubjects(landmarks);
+    assert.equal(subjects.status, "found");
+    assert.deepEqual(
+      subjects.subjects.map((item) => item.name),
+      ["الرياضيات", "العلوم"],
+    );
 
     const returned = await automation.clickControlByAccessibleName(page, ["الرئيسية"]);
     assert.equal(returned, true);

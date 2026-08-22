@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import {
-  extractMadrasatiTeacher,
-  sanitizePageLandmarks,
-} from "./madrasati-teacher-profile.ts";
+import { extractMadrasatiTeacher, sanitizePageLandmarks } from "./madrasati-teacher-profile.ts";
 
 describe("Madrasati teacher profile extraction", () => {
   it("reads teacher identity from the authenticated home greeting and labels", () => {

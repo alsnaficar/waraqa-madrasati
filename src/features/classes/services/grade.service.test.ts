@@ -232,7 +232,10 @@ describe("TASK 25.1 GradeService", () => {
     const { readFileSync } = await import("node:fs");
     const { fileURLToPath } = await import("node:url");
     const { dirname, join } = await import("node:path");
-    const source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "grade.service.ts"), "utf8");
+    const source = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "grade.service.ts"),
+      "utf8",
+    );
     assert.match(source, /resolveUserContext/);
     assert.match(source, /if\s*\(\s*!resolved\s*\)\s*return\s*\[\]/);
     assert.match(source, /if\s*\(\s*!resolved\s*\)\s*return\s*null/);
@@ -275,7 +278,10 @@ describe("TASK 25.1 GradeService", () => {
     const { readFileSync } = await import("node:fs");
     const { fileURLToPath } = await import("node:url");
     const { dirname, join } = await import("node:path");
-    const source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "grade.service.ts"), "utf8");
+    const source = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "grade.service.ts"),
+      "utf8",
+    );
     assert.match(source, /create\(\s*input:\s*GradeCreateInput,\s*context\?:/);
     assert.match(source, /user_id:\s*teacherId/);
     assert.equal(/GradeCreateInput\s*=\s*\{[^}]*teacher/s.test(source), false);

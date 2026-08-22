@@ -52,10 +52,7 @@ function quizContent(): StructuredQuizAndAssignmentData {
   };
 }
 
-function seedOwnedQuiz(
-  db: TestsMockDb,
-  overrides: Partial<Record<string, unknown>> = {},
-): string {
+function seedOwnedQuiz(db: TestsMockDb, overrides: Partial<Record<string, unknown>> = {}): string {
   const id = (overrides.id as string) ?? GEN_A;
   db.ai_generations.push({
     id,

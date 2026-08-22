@@ -8,10 +8,7 @@ describe("TASK 25.2 student roster UI contracts", () => {
   const here = path.dirname(fileURLToPath(import.meta.url));
 
   it("panel exposes grade→class filters, bulk paste, activate; no teacher_id writes", () => {
-    const panel = readFileSync(
-      path.join(here, "../components/students-panel.tsx"),
-      "utf8",
-    );
+    const panel = readFileSync(path.join(here, "../components/students-panel.tsx"), "utf8");
     const bulk = readFileSync(
       path.join(here, "../components/student-bulk-import-dialog.tsx"),
       "utf8",

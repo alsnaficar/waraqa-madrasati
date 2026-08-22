@@ -6,10 +6,7 @@ import {
   assertCurriculumLessonAuthorized,
 } from "./lesson-curriculum-authorization.ts";
 import { LessonSessionService } from "./lesson-session.service.ts";
-import {
-  LessonSessionLockedError,
-  LessonSessionPreparingError,
-} from "../types.ts";
+import { LessonSessionLockedError, LessonSessionPreparingError } from "../types.ts";
 import type { SupabaseUserContext } from "@/platform/database/supabase/context";
 
 const TEACHER_A = "11111111-1111-4111-8111-111111111111";
@@ -173,7 +170,10 @@ function matchesEq(row: Row, filters: Record<string, unknown>): boolean {
   return Object.entries(filters).every(([column, value]) => row[column] === value);
 }
 
-function createMockClient(db: Record<string, Row[]>, userId: string): SupabaseUserContext["client"] {
+function createMockClient(
+  db: Record<string, Row[]>,
+  userId: string,
+): SupabaseUserContext["client"] {
   const client = {
     from(table: string) {
       const state: {

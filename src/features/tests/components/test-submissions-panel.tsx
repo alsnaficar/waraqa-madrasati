@@ -27,13 +27,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/shared/utils/utils";
 
@@ -111,8 +105,7 @@ export function TestSubmissionsPanel({
     toTestSubmissionListItemView(row, studentById.get(row.studentId), testStatus),
   );
 
-  const answerBusy =
-    saveAnswersAndSubmit.isPending || saveAnswersSubmitAndGrade.isPending;
+  const answerBusy = saveAnswersAndSubmit.isPending || saveAnswersSubmitAndGrade.isPending;
 
   function openAssign() {
     setSearch("");
@@ -237,9 +230,7 @@ export function TestSubmissionsPanel({
                   return (
                     <tr key={submission.id} className="border-t">
                       <td className="px-3 py-3 font-medium">{view.studentName}</td>
-                      <td className="px-3 py-3 text-muted-foreground">
-                        {view.studentCodeLabel}
-                      </td>
+                      <td className="px-3 py-3 text-muted-foreground">{view.studentCodeLabel}</td>
                       <td className="px-3 py-3">
                         <Badge variant="outline">{view.statusLabel}</Badge>
                       </td>
@@ -319,9 +310,7 @@ export function TestSubmissionsPanel({
                         </p>
                         <p className="text-xs text-muted-foreground">
                           الدرجة: {view.scoreLabel}
-                          {view.feedbackLabel !== "—"
-                            ? ` · ملاحظات: ${view.feedbackLabel}`
-                            : ""}
+                          {view.feedbackLabel !== "—" ? ` · ملاحظات: ${view.feedbackLabel}` : ""}
                         </p>
                       </div>
                       <Badge variant="outline">{view.statusLabel}</Badge>
@@ -423,9 +412,7 @@ export function TestSubmissionsPanel({
 
             <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl border p-2">
               {assignable.length === 0 ? (
-                <p className="p-3 text-sm text-muted-foreground">
-                  لا يوجد طلاب مطابقون للإسناد.
-                </p>
+                <p className="p-3 text-sm text-muted-foreground">لا يوجد طلاب مطابقون للإسناد.</p>
               ) : (
                 assignable.map((student) => {
                   const checked = selectedIds.includes(student.id);
@@ -437,9 +424,7 @@ export function TestSubmissionsPanel({
                       <Checkbox
                         checked={checked}
                         onCheckedChange={() =>
-                          setSelectedIds((current) =>
-                            toggleStudentSelection(current, student.id),
-                          )
+                          setSelectedIds((current) => toggleStudentSelection(current, student.id))
                         }
                       />
                       <span className="min-w-0 flex-1 truncate text-sm font-medium">
@@ -482,7 +467,7 @@ export function TestSubmissionsPanel({
         submission={answerTarget}
         studentName={
           answerTarget
-            ? studentById.get(answerTarget.studentId)?.fullName ?? "طالب غير معروف"
+            ? (studentById.get(answerTarget.studentId)?.fullName ?? "طالب غير معروف")
             : ""
         }
         questions={questions}
@@ -516,7 +501,7 @@ export function TestSubmissionsPanel({
         }
         studentName={
           feedbackTarget
-            ? studentById.get(feedbackTarget.studentId)?.fullName ?? "طالب غير معروف"
+            ? (studentById.get(feedbackTarget.studentId)?.fullName ?? "طالب غير معروف")
             : ""
         }
         testTitle={testTitle}

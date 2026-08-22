@@ -496,7 +496,11 @@ function AdminAcademicCalendarPage() {
                       تفعيل هذه السنة بعد الإنشاء
                     </label>
                     <div className="sm:col-span-2 flex flex-wrap gap-2">
-                      <Button type="submit" disabled={savingYear} className="h-11 font-bold text-xs">
+                      <Button
+                        type="submit"
+                        disabled={savingYear}
+                        className="h-11 font-bold text-xs"
+                      >
                         {savingYear ? "جارٍ الحفظ…" : "حفظ السنة"}
                       </Button>
                       <Button
@@ -539,7 +543,9 @@ function AdminAcademicCalendarPage() {
                               onClick={() => setSelectedYearId(year.id)}
                             >
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-sm font-bold text-slate-800">{year.label}</span>
+                                <span className="text-sm font-bold text-slate-800">
+                                  {year.label}
+                                </span>
                                 {year.isActive && (
                                   <Badge className="text-[10px] font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
                                     نشطة

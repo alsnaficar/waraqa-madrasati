@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type { LessonSessionView } from "../types.ts";
-import {
-  resolveTodayLessonDisplay,
-  type TodayLessonDisplay,
-} from "./today-lessons-display.ts";
+import { resolveTodayLessonDisplay, type TodayLessonDisplay } from "./today-lessons-display.ts";
 
 const LESSON_A = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const LESSON_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -117,7 +114,17 @@ describe("TASK 17 resolveTodayLessonDisplay", () => {
 
     const empty = resolveTodayLessonDisplay({
       sessions: [],
-      timetableSlots: [{ id: "other-day", dayOfWeek: 0, period: 1, grade: "g", className: "c", subject: "s", active: true }],
+      timetableSlots: [
+        {
+          id: "other-day",
+          dayOfWeek: 0,
+          period: 1,
+          grade: "g",
+          className: "c",
+          subject: "s",
+          active: true,
+        },
+      ],
       todayDayOfWeek: 5,
     });
     assert.equal(empty.length, 0);

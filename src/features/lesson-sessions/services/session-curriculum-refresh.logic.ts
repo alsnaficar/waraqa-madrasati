@@ -42,11 +42,7 @@ export function collectUnlockedSessionCurriculumRefreshMatches(input: {
     if (!slot) continue;
     if (slot.dayOfWeek !== session.dayOfWeek) continue;
 
-    const planned = matchPlanEntryToTimetableSlot(
-      slot,
-      input.plannedForDate,
-      input.dayOfWeek,
-    );
+    const planned = matchPlanEntryToTimetableSlot(slot, input.plannedForDate, input.dayOfWeek);
 
     if (!planned?.lessonId) continue;
     if (planned.lessonId === session.curriculumLessonId) continue;

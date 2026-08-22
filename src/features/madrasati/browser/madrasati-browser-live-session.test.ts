@@ -146,10 +146,7 @@ describe("Madrasati live-session transport policy", () => {
     assert.equal(/setInterval\(\s*\(\)\s*=>\s*\{\s*void pullLiveFrame/s.test(modal), false);
     assert.equal(/LIVE_FRAME_INTERVAL_MS/.test(modal), false);
     assert.equal(/socket\.io|new WebSocket/.test(modal), false);
-    assert.match(
-      modal,
-      /Keep the authenticated Playwright session on the server for sync/,
-    );
+    assert.match(modal, /Keep the authenticated Playwright session on the server for sync/);
   });
 
   it("opens the native keyboard by focusing a real overlay input during the tap gesture", () => {
@@ -161,10 +158,7 @@ describe("Madrasati live-session transport policy", () => {
       "utf8",
     );
 
-    assert.match(
-      page,
-      /function focusNativeInput\(\) \{\s*inputRef\.current\?\.focus\(\);\s*\}/s,
-    );
+    assert.match(page, /function focusNativeInput\(\) \{\s*inputRef\.current\?\.focus\(\);\s*\}/s);
     assert.equal(/requestAnimationFrame\s*\(\s*\(\)\s*=>\s*\{\s*inputRef/.test(page), false);
     assert.equal(/pointer-events-none/.test(page), false);
     assert.match(page, /onPointerDown=\{\(\) => \{\s*focusNativeInput\(\);/s);
@@ -258,10 +252,7 @@ describe("Madrasati live-session transport policy", () => {
     assert.equal(/socket\.io|ws"|websocket/i.test(pkg), false);
 
     const client = readFileSync(
-      join(
-        ROOT,
-        "src/platform/integration/connectors/madrasati/madrasati-live-frame-client.ts",
-      ),
+      join(ROOT, "src/platform/integration/connectors/madrasati/madrasati-live-frame-client.ts"),
       "utf8",
     );
     assert.match(client, /text\/event-stream/);
@@ -270,10 +261,7 @@ describe("Madrasati live-session transport policy", () => {
 
   it("server functions keep live-frame and focus calls behind requireSupabaseAuth", () => {
     const source = readFileSync(
-      join(
-        ROOT,
-        "src/platform/integration/connectors/madrasati/madrasati.functions.ts",
-      ),
+      join(ROOT, "src/platform/integration/connectors/madrasati/madrasati.functions.ts"),
       "utf8",
     );
 

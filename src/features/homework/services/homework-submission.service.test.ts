@@ -410,11 +410,7 @@ describe("TASK 20.5-B HomeworkSubmissionService", () => {
     });
 
     await assert.rejects(
-      () =>
-        HomeworkSubmissionService.create(
-          { homeworkId: HW_A, studentId: STU_A },
-          authFor(db),
-        ),
+      () => HomeworkSubmissionService.create({ homeworkId: HW_A, studentId: STU_A }, authFor(db)),
       (err: unknown) => err instanceof HomeworkSubmissionConflictError,
     );
   });
@@ -642,15 +638,9 @@ describe("TASK 25.3 HomeworkSubmissionService.assignToClass", () => {
       "utf8",
     );
     // create: if (!resolved) return null;
-    assert.match(
-      source,
-      /static async create[\s\S]*?if \(!resolved\) return null;/,
-    );
+    assert.match(source, /static async create[\s\S]*?if \(!resolved\) return null;/);
     // assignToClass: same early-return (not throw)
-    assert.match(
-      source,
-      /static async assignToClass[\s\S]*?if \(!resolved\) return null;/,
-    );
+    assert.match(source, /static async assignToClass[\s\S]*?if \(!resolved\) return null;/);
   });
 
   it("11–13. lifecycle preserved; created pending; existing unchanged", async () => {

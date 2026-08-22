@@ -145,11 +145,7 @@ export async function assertCurriculumLessonAuthorized(
   context: SupabaseUserContext,
   params: { grade: string; subject: string; curriculumLessonId: string },
 ): Promise<void> {
-  const fileId = await resolvePublishedCurriculumFileId(
-    context,
-    params.grade,
-    params.subject,
-  );
+  const fileId = await resolvePublishedCurriculumFileId(context, params.grade, params.subject);
 
   if (!fileId) {
     throw new LessonCurriculumAuthorizationError();

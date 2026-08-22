@@ -343,9 +343,9 @@ function authFor(db: Record<string, Row[]>, counters?: UpdateCounters): Supabase
   return { client: createMockClient(db, counters), userId: TEACHER_ID };
 }
 
-function planEntriesForTest(
-  entries: PlanEntryForTimetableMatch[],
-): { planEntries: CalculatedLessonEntry[] } {
+function planEntriesForTest(entries: PlanEntryForTimetableMatch[]): {
+  planEntries: CalculatedLessonEntry[];
+} {
   return { planEntries: entries };
 }
 

@@ -9,11 +9,7 @@ type SubmissionUpdate = Database["public"]["Tables"]["homework_submissions"]["Up
 
 export type HomeworkSubmissionStatus = "pending" | "submitted" | "graded";
 
-const SUBMISSION_STATUSES: readonly HomeworkSubmissionStatus[] = [
-  "pending",
-  "submitted",
-  "graded",
-];
+const SUBMISSION_STATUSES: readonly HomeworkSubmissionStatus[] = ["pending", "submitted", "graded"];
 
 export function toHomeworkSubmissionStatus(value: string): HomeworkSubmissionStatus {
   return (SUBMISSION_STATUSES as readonly string[]).includes(value)
@@ -325,10 +321,7 @@ export class HomeworkSubmissionService {
     await assertOwnedHomework(resolved, homeworkId.trim());
     await assertOwnedClass(resolved, classId.trim());
 
-    const eligible = await StudentService.list(
-      { classId: classId.trim(), active: true },
-      resolved,
-    );
+    const eligible = await StudentService.list({ classId: classId.trim(), active: true }, resolved);
 
     // Defense: only owned active students in the selected class.
     const students = eligible.filter(
@@ -455,10 +448,7 @@ async function assertOwnedHomework(
   }
 }
 
-async function assertOwnedClass(
-  context: SupabaseUserContext,
-  classId: string,
-): Promise<void> {
+async function assertOwnedClass(context: SupabaseUserContext, classId: string): Promise<void> {
   const { data, error } = await context.client
     .from("classes")
     .select("id")
@@ -472,10 +462,7 @@ async function assertOwnedClass(
   }
 }
 
-async function assertOwnedStudent(
-  context: SupabaseUserContext,
-  studentId: string,
-): Promise<void> {
+async function assertOwnedStudent(context: SupabaseUserContext, studentId: string): Promise<void> {
   const { data, error } = await context.client
     .from("students")
     .select("id")

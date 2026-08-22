@@ -44,7 +44,10 @@ describe("resolveSupabaseAdminEnv", () => {
     delete process.env.SUPABASE_URL;
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    assert.throws(() => resolveSupabaseAdminEnv(), /Missing required server environment configuration/);
+    assert.throws(
+      () => resolveSupabaseAdminEnv(),
+      /Missing required server environment configuration/,
+    );
   });
 
   it("throws in production when admin env uses placeholder values", () => {
@@ -53,7 +56,10 @@ describe("resolveSupabaseAdminEnv", () => {
     process.env.SUPABASE_URL = "https://placeholder.supabase.co";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "placeholder-key";
 
-    assert.throws(() => resolveSupabaseAdminEnv(), /Missing required server environment configuration/);
+    assert.throws(
+      () => resolveSupabaseAdminEnv(),
+      /Missing required server environment configuration/,
+    );
   });
 
   it("returns configured credentials in production when env is valid", () => {
@@ -93,7 +99,10 @@ describe("supabaseAdmin proxy", () => {
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
     resetSupabaseAdminClientForTests();
 
-    assert.throws(() => supabaseAdmin.from("profiles"), /Missing required server environment configuration/);
+    assert.throws(
+      () => supabaseAdmin.from("profiles"),
+      /Missing required server environment configuration/,
+    );
   });
 
   it("creates a client on first access in production when admin env is valid", () => {

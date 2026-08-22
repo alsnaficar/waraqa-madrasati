@@ -6,13 +6,7 @@ import { TestGradingService } from "./test-grading.service.ts";
 import { TestQuestionService } from "./test-question.service.ts";
 import { TestService } from "./test.service.ts";
 import { TestSubmissionService } from "./test-submission.service.ts";
-import {
-  STUDENT_A,
-  TEACHER_A,
-  TEACHER_B,
-  authFor,
-  createEmptyTestsDb,
-} from "./tests-mock.ts";
+import { STUDENT_A, TEACHER_A, TEACHER_B, authFor, createEmptyTestsDb } from "./tests-mock.ts";
 
 async function seedPendingGradable() {
   const db = createEmptyTestsDb();

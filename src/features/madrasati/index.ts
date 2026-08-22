@@ -20,7 +20,6 @@ export {
   MadrasatiProviderError,
 } from "./provider/madrasati-provider.ts";
 
-
 export { MockMadrasatiProvider } from "./mock/mock-madrasati-provider.ts";
 export {
   MOCK_MADRASATI_CLASSES,

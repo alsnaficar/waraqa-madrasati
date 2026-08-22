@@ -7,13 +7,7 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Textarea } from "@/shared/ui/textarea";
 
@@ -275,9 +269,7 @@ function QuestionEditor({
           <Select
             value={draft.correctBoolean ? "true" : "false"}
             disabled={readOnly}
-            onValueChange={(value) =>
-              onChange({ ...draft, correctBoolean: value === "true" })
-            }
+            onValueChange={(value) => onChange({ ...draft, correctBoolean: value === "true" })}
           >
             <SelectTrigger className="min-h-11">
               <SelectValue />

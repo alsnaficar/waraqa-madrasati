@@ -203,7 +203,10 @@ describe("TASK 20.8 homework reports", () => {
       from: "2026-08-14",
       to: "2026-08-14",
     });
-    assert.equal(isHomeworkDueInRange("2026-08-14", { from: "2026-08-14", to: "2026-08-14" }), true);
+    assert.equal(
+      isHomeworkDueInRange("2026-08-14", { from: "2026-08-14", to: "2026-08-14" }),
+      true,
+    );
     assert.equal(isHomeworkDueInRange(null, { from: "2026-08-14", to: "2026-08-14" }), false);
   });
 
@@ -224,10 +227,11 @@ describe("TASK 20.8 homework reports", () => {
   });
 
   it("4. custom filter", () => {
-    assert.deepEqual(
-      buildReportsDateFilter("custom", { from: "2026-08-01", to: "2026-08-10" }),
-      { kind: "custom", from: "2026-08-01", to: "2026-08-10" },
-    );
+    assert.deepEqual(buildReportsDateFilter("custom", { from: "2026-08-01", to: "2026-08-10" }), {
+      kind: "custom",
+      from: "2026-08-01",
+      to: "2026-08-10",
+    });
     assert.throws(
       () => buildReportsDateFilter("custom", { from: "2026-08-10", to: "2026-08-01" }),
       /قبل تاريخ النهاية/,
@@ -327,7 +331,10 @@ describe("TASK 20.8 homework reports", () => {
       { kind: "today", today: "2026-08-14" },
       authFor(db, TEACHER_A),
     );
-    assert.equal(report.homework.every((row) => row.id !== HW_B), true);
+    assert.equal(
+      report.homework.every((row) => row.id !== HW_B),
+      true,
+    );
     assert.equal(report.summary.averageScore, 8);
 
     assert.equal(

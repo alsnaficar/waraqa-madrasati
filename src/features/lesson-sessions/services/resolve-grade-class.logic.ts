@@ -25,11 +25,7 @@ export type ResolveGradeClassInput = {
 };
 
 export type ResolveGradeClassStatus =
-  | "resolved"
-  | "unresolved"
-  | "ambiguous"
-  | "mismatch"
-  | "foreign";
+  "resolved" | "unresolved" | "ambiguous" | "mismatch" | "foreign";
 
 export type ResolveGradeClassResult = {
   gradeId: string | null;
@@ -41,10 +37,7 @@ export function normalizeCatalogName(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
-type NameLookup<T> =
-  | { kind: "none" }
-  | { kind: "unique"; item: T }
-  | { kind: "ambiguous" };
+type NameLookup<T> = { kind: "none" } | { kind: "unique"; item: T } | { kind: "ambiguous" };
 
 function findUniqueByNormalizedName<T extends { name: string }>(
   items: readonly T[],
@@ -78,9 +71,7 @@ function findById<T extends { id: string }>(
  * - Unknown / ambiguous mappings leave IDs null with a non-resolved status
  *   (callers that need hard failure should throw on status !== "resolved").
  */
-export function resolveOwnedGradeClassIds(
-  input: ResolveGradeClassInput,
-): ResolveGradeClassResult {
+export function resolveOwnedGradeClassIds(input: ResolveGradeClassInput): ResolveGradeClassResult {
   const grades = input.grades;
   const classes = input.classes;
 
@@ -132,9 +123,7 @@ export function resolveOwnedGradeClassIds(
   }
 
   if (normalizeCatalogName(input.className)) {
-    const scoped = gradeId
-      ? classes.filter((klass) => klass.gradeId === gradeId)
-      : classes;
+    const scoped = gradeId ? classes.filter((klass) => klass.gradeId === gradeId) : classes;
     const byName = findUniqueByNormalizedName(scoped, input.className);
     if (byName.kind === "ambiguous") {
       return { gradeId, classId: null, status: "ambiguous" };

@@ -179,7 +179,9 @@ export function HomeworkPageContent({
                         <div className="min-w-0 space-y-1">
                           <h2 className="truncate text-base font-bold">{view.title}</h2>
                           <p className="text-xs text-muted-foreground">{view.metaLabel}</p>
-                          <p className="text-xs text-muted-foreground">الموعد: {view.dueDateLabel}</p>
+                          <p className="text-xs text-muted-foreground">
+                            الموعد: {view.dueDateLabel}
+                          </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="outline">{view.statusLabel}</Badge>
@@ -200,9 +202,7 @@ export function HomeworkPageContent({
                           type="button"
                           variant={isSelected ? "default" : "outline"}
                           className="min-h-11 flex-1 gap-1 sm:flex-none"
-                          onClick={() =>
-                            setSelectedHomeworkId(isSelected ? null : homework.id)
-                          }
+                          onClick={() => setSelectedHomeworkId(isSelected ? null : homework.id)}
                         >
                           {isSelected ? "إخفاء التسليمات" : "التسليمات"}
                         </Button>
@@ -218,9 +218,7 @@ export function HomeworkPageContent({
                         <Button
                           type="button"
                           variant="outline"
-                          className={cn(
-                            "min-h-11 flex-1 gap-1 text-destructive sm:flex-none",
-                          )}
+                          className={cn("min-h-11 flex-1 gap-1 text-destructive sm:flex-none")}
                           onClick={() => setDeleteTarget(homework)}
                         >
                           <Trash2 className="h-4 w-4" />

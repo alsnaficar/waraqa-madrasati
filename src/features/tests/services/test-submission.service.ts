@@ -9,11 +9,7 @@ type SubmissionUpdate = Database["public"]["Tables"]["test_submissions"]["Update
 
 export type TestSubmissionStatus = "pending" | "submitted" | "graded";
 
-const SUBMISSION_STATUSES: readonly TestSubmissionStatus[] = [
-  "pending",
-  "submitted",
-  "graded",
-];
+const SUBMISSION_STATUSES: readonly TestSubmissionStatus[] = ["pending", "submitted", "graded"];
 
 export function toTestSubmissionStatus(value: string): TestSubmissionStatus {
   return (SUBMISSION_STATUSES as readonly string[]).includes(value)
@@ -21,9 +17,7 @@ export function toTestSubmissionStatus(value: string): TestSubmissionStatus {
     : "pending";
 }
 
-export function assertTestSubmissionStatus(
-  value: string,
-): asserts value is TestSubmissionStatus {
+export function assertTestSubmissionStatus(value: string): asserts value is TestSubmissionStatus {
   if (!(SUBMISSION_STATUSES as readonly string[]).includes(value)) {
     throw new Error("حالة التسليم غير صالحة. القيم المسموحة: pending و submitted و graded.");
   }
@@ -151,9 +145,7 @@ export class TestSubmissionService {
    * Teacher-wide submitted tests needing auto-grade.
    * Single filtered query — no per-test N+1.
    */
-  static async listSubmittedForTeacher(
-    context?: SupabaseUserContext,
-  ): Promise<TestSubmission[]> {
+  static async listSubmittedForTeacher(context?: SupabaseUserContext): Promise<TestSubmission[]> {
     const resolved = await resolveUserContext(context);
     if (!resolved) return [];
 
@@ -168,10 +160,7 @@ export class TestSubmissionService {
     return (data ?? []).map(toSubmission);
   }
 
-  static async getById(
-    id: string,
-    context?: SupabaseUserContext,
-  ): Promise<TestSubmission | null> {
+  static async getById(id: string, context?: SupabaseUserContext): Promise<TestSubmission | null> {
     const resolved = await resolveUserContext(context);
     if (!resolved) return null;
 
@@ -384,8 +373,7 @@ export class TestSubmissionService {
       throw new Error("الملاحظات متاحة للتسليمات المُصحَّحة فقط.");
     }
 
-    const nextFeedback =
-      typeof feedback === "string" && feedback.trim() ? feedback.trim() : null;
+    const nextFeedback = typeof feedback === "string" && feedback.trim() ? feedback.trim() : null;
 
     const { data, error } = await resolved.client
       .from("test_submissions")

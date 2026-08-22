@@ -89,11 +89,7 @@ describe("TASK 25.3 homework bulk assign UI logic", () => {
       ["panel", panel],
       ["hook", hook],
     ] as const) {
-      assert.equal(
-        /\bteacher_id\s*[:=]/.test(source),
-        false,
-        `${label} must not set teacher_id`,
-      );
+      assert.equal(/\bteacher_id\s*[:=]/.test(source), false, `${label} must not set teacher_id`);
       assert.equal(
         /from\(["']homework_submissions["']\)|createClient|supabase\.from/.test(source),
         false,

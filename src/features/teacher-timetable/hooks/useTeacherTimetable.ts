@@ -22,7 +22,12 @@ export function useTeacherTimetable() {
   return {
     loading: query.isPending,
     entries: query.data ?? [],
-    error: query.error instanceof Error ? query.error : query.error ? new Error("تعذر تحميل الجدول الأسبوعي") : null,
+    error:
+      query.error instanceof Error
+        ? query.error
+        : query.error
+          ? new Error("تعذر تحميل الجدول الأسبوعي")
+          : null,
     refresh: () => queryClient.invalidateQueries({ queryKey: teacherTimetableQueryKey }),
   };
 }

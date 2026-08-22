@@ -394,9 +394,7 @@ export function FilledWeeklyTimetable() {
     return weekDates.filter((date, index) => {
       const dayOfWeek = TIMETABLE_DAYS[index]?.value;
       return (
-        dayOfWeek !== undefined &&
-        daysWithSlots.has(dayOfWeek) &&
-        !datesWithSessions.has(date)
+        dayOfWeek !== undefined && daysWithSlots.has(dayOfWeek) && !datesWithSessions.has(date)
       );
     });
   }, [
@@ -432,8 +430,7 @@ export function FilledWeeklyTimetable() {
   ].sort();
 
   const showLoading =
-    loading ||
-    (entries.length > 0 && sessionsPending && existingSessionsQuery.data === undefined);
+    loading || (entries.length > 0 && sessionsPending && existingSessionsQuery.data === undefined);
 
   if (showLoading) {
     return (
@@ -496,134 +493,134 @@ export function FilledWeeklyTimetable() {
   return (
     <WeeklyLessonOptionsProvider lessonSessionIds={weeklyLessonSessionIds}>
       <div className="min-w-0 w-full max-w-[100dvw] overflow-x-hidden">
-      <Card className="min-w-0 overflow-hidden">
-        <CardHeader className="min-w-0 overflow-x-hidden border-b bg-muted/30 px-3 py-2 sm:px-4 md:p-6">
-          <TimetableWeekHeader
-            weekRange={weekRange}
-            entriesCount={entries.length}
-            switching={weekSwitchPending}
-            onPreviousWeek={() => setWeekOffset((value) => value - 1)}
-            onNextWeek={() => setWeekOffset((value) => value + 1)}
-          />
-        </CardHeader>
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="min-w-0 overflow-x-hidden border-b bg-muted/30 px-3 py-2 sm:px-4 md:p-6">
+            <TimetableWeekHeader
+              weekRange={weekRange}
+              entriesCount={entries.length}
+              switching={weekSwitchPending}
+              onPreviousWeek={() => setWeekOffset((value) => value - 1)}
+              onNextWeek={() => setWeekOffset((value) => value + 1)}
+            />
+          </CardHeader>
 
-        <CardContent className="min-w-0 p-0">
-          <div className="px-3 pt-2">
-            <PlannerLegend />
-          </div>
+          <CardContent className="min-w-0 p-0">
+            <div className="px-3 pt-2">
+              <PlannerLegend />
+            </div>
 
-          <TeacherWeeklyTimetableMobile
-            weekSunday={weekRange.sunday}
-            maxPeriod={maxPeriod}
-            getEntry={getEntry}
-            sessionBySlot={sessionBySlot}
-          />
+            <TeacherWeeklyTimetableMobile
+              weekSunday={weekRange.sunday}
+              maxPeriod={maxPeriod}
+              getEntry={getEntry}
+              sessionBySlot={sessionBySlot}
+            />
 
-          <div className="hidden min-w-0 lg:block">
-            <div className="min-w-0 overflow-x-auto">
-              <table
-                className="w-full min-w-[920px] table-fixed border-collapse text-right"
-                dir="rtl"
-              >
-                <thead>
-                  <tr>
-                    <th className="w-20 border-b border-l bg-muted/70 p-2 text-center text-sm font-bold">
-                      الحصة
-                    </th>
+            <div className="hidden min-w-0 lg:block">
+              <div className="min-w-0 overflow-x-auto">
+                <table
+                  className="w-full min-w-[920px] table-fixed border-collapse text-right"
+                  dir="rtl"
+                >
+                  <thead>
+                    <tr>
+                      <th className="w-20 border-b border-l bg-muted/70 p-2 text-center text-sm font-bold">
+                        الحصة
+                      </th>
 
-                    {TIMETABLE_DAYS.map((day, index) => {
-                      const dayDate = new Date(weekRange.sunday);
-                      dayDate.setDate(weekRange.sunday.getDate() + index);
+                      {TIMETABLE_DAYS.map((day, index) => {
+                        const dayDate = new Date(weekRange.sunday);
+                        dayDate.setDate(weekRange.sunday.getDate() + index);
 
-                      const dayDates = formatDayDates(dayDate);
-
-                      return (
-                        <th
-                          key={day.value}
-                          className="border-b border-l bg-muted/70 p-2 text-center last:border-l-0"
-                        >
-                          <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-sm font-bold">{day.label}</span>
-
-                            <span className="text-[11px] font-medium text-foreground/80">
-                              {dayDates.hijri}
-                            </span>
-
-                            <span className="text-[10px] font-normal text-muted-foreground">
-                              {dayDates.gregorian}
-                            </span>
-                          </div>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {Array.from({ length: maxPeriod }, (_, index) => index + 1).map((period) => (
-                    <tr key={period}>
-                      <td className="border-b border-l bg-muted/20 p-2 text-center align-middle">
-                        <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-primary/10 px-2 text-sm font-bold text-primary">
-                          {period}
-                        </span>
-                      </td>
-
-                      {TIMETABLE_DAYS.map((day) => {
-                        const entry = getEntry(day.value, period);
-                        const lessonSession = entry
-                          ? sessionBySlot.get(`${entry.dayOfWeek}-${entry.period}`)
-                          : undefined;
+                        const dayDates = formatDayDates(dayDate);
 
                         return (
-                          <td
+                          <th
                             key={day.value}
-                            className="h-24 border-b border-l p-1.5 align-top last:border-l-0"
+                            className="border-b border-l bg-muted/70 p-2 text-center last:border-l-0"
                           >
-                            {entry ? (
-                              <div className="flex h-full min-w-0 max-w-full flex-col items-stretch justify-center overflow-hidden rounded-lg border bg-card p-2 shadow-sm">
-                                <div className="flex min-w-0 items-center justify-center gap-1.5">
-                                  <PreparationStatusIcon
-                                    prepared={Boolean(lessonSession?.lessonLocked)}
-                                  />
-                                  <div className="min-w-0 truncate text-center text-sm font-bold leading-tight">
-                                    {entry.subject}
-                                  </div>
-                                </div>
+                            <div className="flex flex-col items-center gap-0.5">
+                              <span className="text-sm font-bold">{day.label}</span>
 
-                                {lessonSession ? (
-                                  <div className="mt-1 w-full min-w-0 max-w-full">
-                                    <LessonSelector
-                                      lessonSessionId={lessonSession.id}
-                                      lessonLocked={lessonSession.lessonLocked}
-                                      compact
-                                      hideLabel
-                                      className="mt-1 w-full min-w-0 max-w-full"
-                                    />
+                              <span className="text-[11px] font-medium text-foreground/80">
+                                {dayDates.hijri}
+                              </span>
 
-                                    <LessonActions
-                                      lessonSessionId={lessonSession.id}
-                                      compact
-                                      className="mt-1.5"
-                                    />
-                                  </div>
-                                ) : null}
-                              </div>
-                            ) : (
-                              <div className="flex h-full items-center justify-center text-xs text-muted-foreground/40">
-                                —
-                              </div>
-                            )}
-                          </td>
+                              <span className="text-[10px] font-normal text-muted-foreground">
+                                {dayDates.gregorian}
+                              </span>
+                            </div>
+                          </th>
                         );
                       })}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody>
+                    {Array.from({ length: maxPeriod }, (_, index) => index + 1).map((period) => (
+                      <tr key={period}>
+                        <td className="border-b border-l bg-muted/20 p-2 text-center align-middle">
+                          <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-primary/10 px-2 text-sm font-bold text-primary">
+                            {period}
+                          </span>
+                        </td>
+
+                        {TIMETABLE_DAYS.map((day) => {
+                          const entry = getEntry(day.value, period);
+                          const lessonSession = entry
+                            ? sessionBySlot.get(`${entry.dayOfWeek}-${entry.period}`)
+                            : undefined;
+
+                          return (
+                            <td
+                              key={day.value}
+                              className="h-24 border-b border-l p-1.5 align-top last:border-l-0"
+                            >
+                              {entry ? (
+                                <div className="flex h-full min-w-0 max-w-full flex-col items-stretch justify-center overflow-hidden rounded-lg border bg-card p-2 shadow-sm">
+                                  <div className="flex min-w-0 items-center justify-center gap-1.5">
+                                    <PreparationStatusIcon
+                                      prepared={Boolean(lessonSession?.lessonLocked)}
+                                    />
+                                    <div className="min-w-0 truncate text-center text-sm font-bold leading-tight">
+                                      {entry.subject}
+                                    </div>
+                                  </div>
+
+                                  {lessonSession ? (
+                                    <div className="mt-1 w-full min-w-0 max-w-full">
+                                      <LessonSelector
+                                        lessonSessionId={lessonSession.id}
+                                        lessonLocked={lessonSession.lessonLocked}
+                                        compact
+                                        hideLabel
+                                        className="mt-1 w-full min-w-0 max-w-full"
+                                      />
+
+                                      <LessonActions
+                                        lessonSessionId={lessonSession.id}
+                                        compact
+                                        className="mt-1.5"
+                                      />
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <div className="flex h-full items-center justify-center text-xs text-muted-foreground/40">
+                                  —
+                                </div>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       </div>
     </WeeklyLessonOptionsProvider>
   );

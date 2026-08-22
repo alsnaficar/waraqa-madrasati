@@ -1,11 +1,14 @@
-import type { HomeworkPeriodReport, HomeworkReportSummary } from "@/features/homework/services/homework-reports.service";
-import type { TestPeriodReport, TestReportSummary } from "@/features/tests/services/test-reports.service";
+import type {
+  HomeworkPeriodReport,
+  HomeworkReportSummary,
+} from "@/features/homework/services/homework-reports.service";
+import type {
+  TestPeriodReport,
+  TestReportSummary,
+} from "@/features/tests/services/test-reports.service";
 
 import type { LessonSessionReportView } from "./enrich-report-with-lesson-titles";
-import type {
-  LessonSessionReportStats,
-  ReportsDateFilter,
-} from "./reports.service";
+import type { LessonSessionReportStats, ReportsDateFilter } from "./reports.service";
 import { buildReportsDateFilter } from "./reports-ui.logic";
 
 /** Shared default period for Dashboard + /reports hub. */

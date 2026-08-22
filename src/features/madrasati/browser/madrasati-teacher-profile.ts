@@ -54,8 +54,7 @@ const SEMESTER_LABELS = ["الفصل الدراسي", "الفصل"];
 
 const MAX_FIELD = 200;
 
-export const MADRASATI_TEACHER_PROFILE_UNAVAILABLE_CODE =
-  "TEACHER_PROFILE_UNAVAILABLE" as const;
+export const MADRASATI_TEACHER_PROFILE_UNAVAILABLE_CODE = "TEACHER_PROFILE_UNAVAILABLE" as const;
 
 export const MADRASATI_TEACHER_PROFILE_UNAVAILABLE_MESSAGE =
   "تعذر قراءة ملف المعلم من الصفحة الرئيسية لمدرستي.";
@@ -87,9 +86,7 @@ export function sanitizePageLandmarks(raw: MadrasatiPageLandmarks): MadrasatiPag
  * Maps a semantic Madrasati page snapshot to a teacher profile.
  * Fail-closed: returns null unless a display name can be read.
  */
-export function extractMadrasatiTeacher(
-  snapshot: MadrasatiPageLandmarks,
-): MadrasatiTeacher | null {
+export function extractMadrasatiTeacher(snapshot: MadrasatiPageLandmarks): MadrasatiTeacher | null {
   const landmarks = sanitizePageLandmarks(snapshot);
   const firstName = pickLabeled(landmarks.labeledValues, ["الاسم الأول"]);
   const familyName = pickLabeled(landmarks.labeledValues, ["اسم العائلة", "اسم العائله"]);
@@ -102,10 +99,10 @@ export function extractMadrasatiTeacher(
   const displayName =
     firstName && familyName
       ? `${firstName} ${familyName}`.trim()
-      : labeledFullName ??
+      : (labeledFullName ??
         pickGreetingName(landmarks.text) ??
         pickGreetingName(landmarks.accessibleNames.join("\n")) ??
-        pickPersonAccessibleName(landmarks.accessibleNames);
+        pickPersonAccessibleName(landmarks.accessibleNames));
 
   if (!displayName) {
     return null;
@@ -141,10 +138,7 @@ export function extractMadrasatiTeacher(
   return teacher;
 }
 
-function pickLabeledFromText(
-  text: string,
-  labels: readonly string[],
-): string | undefined {
+function pickLabeledFromText(text: string, labels: readonly string[]): string | undefined {
   const lines = text
     .split(/\n/)
     .map((line) => line.trim())
@@ -270,11 +264,7 @@ function isNoise(value: string): boolean {
 }
 
 function isSensitiveIdentifier(value: string): boolean {
-  return (
-    /^\d{10}$/.test(value.trim()) ||
-    /@/.test(value) ||
-    /^\+?\d{8,15}$/.test(value.trim())
-  );
+  return /^\d{10}$/.test(value.trim()) || /@/.test(value) || /^\+?\d{8,15}$/.test(value.trim());
 }
 
 function normalizeLabel(label: string): string {

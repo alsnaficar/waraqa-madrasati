@@ -99,9 +99,7 @@ describe("matchPlanEntryToTimetableSlot (DI-02)", () => {
 
   it("TEST 4 — no match when subject/class differ → null (no unrelated lesson)", () => {
     const timetableSlot = slot({ subject: "لغة عربية", className: "1/A" });
-    const entries = [
-      planEntry({ lessonId: LESSON_MATH, subject: "رياضيات", className: "1/A" }),
-    ];
+    const entries = [planEntry({ lessonId: LESSON_MATH, subject: "رياضيات", className: "1/A" })];
 
     const matched = matchPlanEntryToTimetableSlot(timetableSlot, entries, SUNDAY);
 

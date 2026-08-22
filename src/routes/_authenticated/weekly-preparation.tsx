@@ -150,7 +150,12 @@ function WeeklyPreparationPage() {
               </Button>
             ) : null}
 
-            <Button variant="outline" size="sm" className="h-11 min-h-11 flex-1 sm:flex-none" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-11 min-h-11 flex-1 sm:flex-none"
+              asChild
+            >
               <Link to="/lesson-sessions">حصص اليوم</Link>
             </Button>
 

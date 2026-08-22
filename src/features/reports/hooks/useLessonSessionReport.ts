@@ -1,10 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { enrichReportWithLessonTitles } from "../services/enrich-report-with-lesson-titles";
-import {
-  ReportsService,
-  type ReportsDateFilter,
-} from "../services/reports.service";
+import { ReportsService, type ReportsDateFilter } from "../services/reports.service";
 
 export function lessonSessionReportQueryKey(filter: ReportsDateFilter) {
   if (filter.kind === "custom") {

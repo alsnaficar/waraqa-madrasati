@@ -3,12 +3,7 @@ import { describe, it } from "node:test";
 
 import { TestQuestionService } from "./test-question.service.ts";
 import { TestService } from "./test.service.ts";
-import {
-  TEACHER_A,
-  TEACHER_B,
-  authFor,
-  createEmptyTestsDb,
-} from "./tests-mock.ts";
+import { TEACHER_A, TEACHER_B, authFor, createEmptyTestsDb } from "./tests-mock.ts";
 
 async function seedOwnedTest(db = createEmptyTestsDb()) {
   const test = await TestService.create({ title: "اختبار الأسئلة" }, authFor(db));

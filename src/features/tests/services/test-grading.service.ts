@@ -9,10 +9,7 @@ import {
 } from "./test-grading.logic";
 import { TestAnswerService, type TestAnswer } from "./test-answer.service";
 import { TestQuestionService, type TestQuestion } from "./test-question.service";
-import {
-  TestSubmissionService,
-  type TestSubmission,
-} from "./test-submission.service";
+import { TestSubmissionService, type TestSubmission } from "./test-submission.service";
 
 export type AutoGradeResult = {
   submission: TestSubmission;

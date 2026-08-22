@@ -22,9 +22,7 @@ class FakeBrowserAutomation implements BrowserAutomation {
 
   async assertAvailable(): Promise<void> {}
 
-  async openSession(
-    _options?: BrowserSessionOpenOptions,
-  ): Promise<BrowserSessionHandle> {
+  async openSession(_options?: BrowserSessionOpenOptions): Promise<BrowserSessionHandle> {
     this.sessionOpen = true;
     return Object.freeze({ id: "test-session" });
   }
@@ -33,9 +31,7 @@ class FakeBrowserAutomation implements BrowserAutomation {
     this.sessionOpen = false;
   }
 
-  async openPage(
-    _session: BrowserSessionHandle,
-  ): Promise<BrowserPageHandle> {
+  async openPage(_session: BrowserSessionHandle): Promise<BrowserPageHandle> {
     assert.equal(this.sessionOpen, true);
     this.pageOpen = true;
     return Object.freeze({ id: "test-page" });
@@ -45,10 +41,7 @@ class FakeBrowserAutomation implements BrowserAutomation {
     this.pageOpen = false;
   }
 
-  async goto(
-    _page: BrowserPageHandle,
-    url: string,
-  ): Promise<void> {
+  async goto(_page: BrowserPageHandle, url: string): Promise<void> {
     assert.equal(this.pageOpen, true);
     assert.match(url, /^https:\/\/schools\.madrasati\.sa\//);
   }
@@ -69,21 +62,11 @@ class FakeBrowserAutomation implements BrowserAutomation {
     return new Uint8Array([137, 80, 78, 71]);
   }
 
-  async clickPage(
-    _page: BrowserPageHandle,
-    _x: number,
-    _y: number,
-  ): Promise<void> {}
+  async clickPage(_page: BrowserPageHandle, _x: number, _y: number): Promise<void> {}
 
-  async typePage(
-    _page: BrowserPageHandle,
-    _text: string,
-  ): Promise<void> {}
+  async typePage(_page: BrowserPageHandle, _text: string): Promise<void> {}
 
-  async pressPageKey(
-    _page: BrowserPageHandle,
-    _key: string,
-  ): Promise<void> {}
+  async pressPageKey(_page: BrowserPageHandle, _key: string): Promise<void> {}
 
   async focusEditableControl(_page: BrowserPageHandle): Promise<void> {}
 
@@ -100,9 +83,7 @@ class FakeBrowserAutomation implements BrowserAutomation {
     };
   }
 
-  async inspectFocusedControl(
-    _page: BrowserPageHandle,
-  ): Promise<MadrasatiFocusedControl> {
+  async inspectFocusedControl(_page: BrowserPageHandle): Promise<MadrasatiFocusedControl> {
     return { isEditable: false, inputType: "none" };
   }
 
@@ -160,10 +141,7 @@ test("MadrasatiBrowserAdapter — connect opens Madrasati session", async () => 
   assert.equal(status.state, "connected");
   assert.equal(status.browserAutomationAvailable, true);
   assert.equal(status.isMock, false);
-  assert.match(
-    status.message,
-    /تم فتح جلسة متصفح الخادم/,
-  );
+  assert.match(status.message, /تم فتح جلسة متصفح الخادم/);
 });
 
 test("MadrasatiBrowserAdapter — disconnect closes the browser session", async () => {
@@ -229,10 +207,7 @@ test("MadrasatiBrowserAdapter — reads teacher profile from authenticated home 
   assert.equal(teacher.academicYear, "1447");
   assert.equal(teacher.semester, "1");
 
-  await assert.rejects(
-    () => provider.getTimetable(),
-    /تعذر قراءة الجدول/,
-  );
+  await assert.rejects(() => provider.getTimetable(), /تعذر قراءة الجدول/);
   const after = await provider.getTeacherProfile();
   assert.equal(after.displayName, "معلم الاختبار");
 });
@@ -305,10 +280,7 @@ test("MadrasatiBrowserAdapter — navigates to مقرراتي and returns normal
       return false;
     }
 
-    async waitForPageText(
-      _page: BrowserPageHandle,
-      needle: string,
-    ): Promise<boolean> {
+    async waitForPageText(_page: BrowserPageHandle, needle: string): Promise<boolean> {
       return (await this.getPageText()).includes(needle);
     }
   }
@@ -401,10 +373,7 @@ test("MadrasatiBrowserAdapter — confirmed empty مقرراتي list is not a f
       return false;
     }
 
-    async waitForPageText(
-      _page: BrowserPageHandle,
-      needle: string,
-    ): Promise<boolean> {
+    async waitForPageText(_page: BrowserPageHandle, needle: string): Promise<boolean> {
       return (await this.getPageText()).includes(needle);
     }
   }
@@ -473,10 +442,7 @@ test("MadrasatiBrowserAdapter — getSubjects fails closed when unauthenticated 
       return false;
     }
 
-    async waitForPageText(
-      _page: BrowserPageHandle,
-      needle: string,
-    ): Promise<boolean> {
+    async waitForPageText(_page: BrowserPageHandle, needle: string): Promise<boolean> {
       return (await this.getPageText()).includes(needle);
     }
   }
@@ -562,10 +528,7 @@ test("MadrasatiBrowserAdapter — navigates to جدولي and returns normalized
       return false;
     }
 
-    async waitForPageText(
-      _page: BrowserPageHandle,
-      needle: string,
-    ): Promise<boolean> {
+    async waitForPageText(_page: BrowserPageHandle, needle: string): Promise<boolean> {
       return (await this.getPageText()).includes(needle);
     }
   }
@@ -738,10 +701,7 @@ test("MadrasatiBrowserAdapter — confirmed empty جدولي is not a fake succe
       return false;
     }
 
-    async waitForPageText(
-      _page: BrowserPageHandle,
-      needle: string,
-    ): Promise<boolean> {
+    async waitForPageText(_page: BrowserPageHandle, needle: string): Promise<boolean> {
       return (await this.getPageText()).includes(needle);
     }
   }
@@ -797,9 +757,7 @@ test("MadrasatiBrowserAdapter — navigates to الواجبات and returns norm
       this.clicked.push(names[0] ?? "");
 
       if (
-        names.some((name) =>
-          ["الواجبات", "الواجبات المنزلية", "قائمة الواجبات"].includes(name),
-        )
+        names.some((name) => ["الواجبات", "الواجبات المنزلية", "قائمة الواجبات"].includes(name))
       ) {
         this.view = "homework";
         return true;
@@ -813,10 +771,7 @@ test("MadrasatiBrowserAdapter — navigates to الواجبات and returns norm
       return false;
     }
 
-    async waitForPageText(
-      _page: BrowserPageHandle,
-      needle: string,
-    ): Promise<boolean> {
+    async waitForPageText(_page: BrowserPageHandle, needle: string): Promise<boolean> {
       return (await this.getPageText()).includes(needle);
     }
   }
@@ -895,9 +850,7 @@ test("MadrasatiBrowserAdapter — already on الواجبات does not navigate 
   }
 
   const authenticatedAutomation = new AuthenticatedHomeworkAutomation();
-  const authenticatedProvider = new MadrasatiBrowserAdapter(
-    authenticatedAutomation,
-  );
+  const authenticatedProvider = new MadrasatiBrowserAdapter(authenticatedAutomation);
 
   await authenticatedProvider.connect();
 
@@ -950,10 +903,7 @@ test("MadrasatiBrowserAdapter — confirmed empty الواجبات returns an em
       return false;
     }
 
-    async waitForPageText(
-      _page: BrowserPageHandle,
-      needle: string,
-    ): Promise<boolean> {
+    async waitForPageText(_page: BrowserPageHandle, needle: string): Promise<boolean> {
       return (await this.getPageText()).includes(needle);
     }
   }
@@ -972,10 +922,7 @@ test("MadrasatiBrowserAdapter — getHomework fails closed when unauthenticated 
 
   await unauthenticated.connect();
 
-  await assert.rejects(
-    () => unauthenticated.getHomework(),
-    /قبل اكتمال تسجيل الدخول/,
-  );
+  await assert.rejects(() => unauthenticated.getHomework(), /قبل اكتمال تسجيل الدخول/);
 
   class UnreadableHomeworkAutomation extends FakeBrowserAutomation {
     view: "home" | "homework" = "home";
@@ -1027,10 +974,7 @@ test("MadrasatiBrowserAdapter — getHomework fails closed when unauthenticated 
 
   await provider.connect();
 
-  await assert.rejects(
-    () => provider.getHomework(),
-    /تعذر قراءة الواجبات/,
-  );
+  await assert.rejects(() => provider.getHomework(), /تعذر قراءة الواجبات/);
 
   assert.equal(automation.view, "home");
 });
@@ -1094,10 +1038,7 @@ test("MadrasatiBrowserAdapter — focuses the email field, types once, and submi
   assert.equal(automation.typedText, "teacher@example.com");
   assert.equal(automation.sequence.filter((step) => step === "next").length, 1);
   assert.equal(automation.enterKeys, 0);
-  assert.equal(
-    automation.sequence.filter((step) => step.startsWith("key:")).length,
-    0,
-  );
+  assert.equal(automation.sequence.filter((step) => step.startsWith("key:")).length, 0);
   assert.ok(automation.nextNames.includes("Next"));
   assert.ok(automation.nextNames.includes("التالي"));
   assert.equal(page.authenticationState, "not_authenticated");
@@ -1107,12 +1048,7 @@ test("MadrasatiBrowserAdapter — focuses the email field, types once, and submi
   assert.equal("locator" in page, false);
   assert.equal("context" in page, false);
   assert.equal("playwright" in page, false);
-  assert.deepEqual(Object.keys(page).sort(), [
-    "authenticationState",
-    "text",
-    "title",
-    "url",
-  ]);
+  assert.deepEqual(Object.keys(page).sort(), ["authenticationState", "text", "title", "url"]);
 });
 
 test("MadrasatiBrowserAdapter — Enter is sent exactly once when Next is not available", async () => {
@@ -1160,15 +1096,9 @@ test("Playwright boundary — page lifecycle through opaque handles", async () =
     waitUntil: "domcontentloaded",
   });
 
-  assert.equal(
-    await automation.getPageTitle(page),
-    "Example Domain",
-  );
+  assert.equal(await automation.getPageTitle(page), "Example Domain");
 
-  assert.equal(
-    await automation.getPageUrl(page),
-    "https://example.com/",
-  );
+  assert.equal(await automation.getPageUrl(page), "https://example.com/");
 
   await automation.closePage(page);
   await automation.closeSession(session);

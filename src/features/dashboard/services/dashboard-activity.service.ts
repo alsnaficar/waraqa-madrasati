@@ -21,9 +21,7 @@ export type DashboardActivitySnapshot = {
  * Read-only aggregation from existing submissions. No notification writes.
  */
 export class DashboardActivityService {
-  static async getSnapshot(
-    context?: SupabaseUserContext,
-  ): Promise<DashboardActivitySnapshot> {
+  static async getSnapshot(context?: SupabaseUserContext): Promise<DashboardActivitySnapshot> {
     const resolved = await resolveUserContext(context);
     if (!resolved) {
       return { pending: [], activity: [] };
@@ -35,10 +33,7 @@ export class DashboardActivityService {
       listRecentGradedTests(resolved),
     ]);
 
-    const graded: GradedSubmissionForDashboard[] = [
-      ...gradedHomework,
-      ...gradedTests,
-    ];
+    const graded: GradedSubmissionForDashboard[] = [...gradedHomework, ...gradedTests];
 
     const gradedNeedingFeedback = graded.filter(
       (row) => row.status === "graded" && !row.feedback?.trim(),

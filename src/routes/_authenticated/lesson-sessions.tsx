@@ -142,7 +142,12 @@ function LessonSessionsPage() {
           onToday={() => setDayOffset(0)}
           onRefresh={() => void refresh()}
           weekLink={
-            <Button variant="outline" size="sm" className="h-11 min-h-11 flex-1 sm:flex-none" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-11 min-h-11 flex-1 sm:flex-none"
+              asChild
+            >
               <Link to="/weekly-preparation">تحضير الأسبوع</Link>
             </Button>
           }

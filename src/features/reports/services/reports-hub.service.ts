@@ -3,15 +3,8 @@ import { TestReportsService } from "@/features/tests/services/test-reports.servi
 import { resolveUserContext, type SupabaseUserContext } from "@/platform/database/supabase/context";
 
 import { enrichReportWithLessonTitles } from "./enrich-report-with-lesson-titles";
-import {
-  buildReportsHubSnapshot,
-  type ReportsHubSnapshot,
-} from "./reports-hub.logic";
-import {
-  ReportsService,
-  resolveReportsDateRange,
-  type ReportsDateFilter,
-} from "./reports.service";
+import { buildReportsHubSnapshot, type ReportsHubSnapshot } from "./reports-hub.logic";
+import { ReportsService, resolveReportsDateRange, type ReportsDateFilter } from "./reports.service";
 
 /**
  * TASK 25.8 — Unified teacher reports hub snapshot.
@@ -37,10 +30,7 @@ export class ReportsHubService {
   }
 }
 
-async function loadLessonReport(
-  filter: ReportsDateFilter,
-  context?: SupabaseUserContext,
-) {
+async function loadLessonReport(filter: ReportsDateFilter, context?: SupabaseUserContext) {
   const report = await ReportsService.getLessonSessionReport(filter, context);
   return enrichReportWithLessonTitles(report, context);
 }

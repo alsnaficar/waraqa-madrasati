@@ -2,7 +2,10 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { LessonSessionService, todayIso } from "@/features/lesson-sessions/services/lesson-session.service";
+import {
+  LessonSessionService,
+  todayIso,
+} from "@/features/lesson-sessions/services/lesson-session.service";
 import { TeacherCatalogService } from "@/features/homework/services/teacher-catalog.service";
 import { Button } from "@/shared/ui/button";
 import {
@@ -15,13 +18,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Textarea } from "@/shared/ui/textarea";
 
 import type { TeacherTest, TestCreateInput } from "../services/test.service";

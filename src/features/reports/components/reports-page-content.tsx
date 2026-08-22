@@ -188,7 +188,11 @@ export function ReportsPageContent() {
                 />
               </div>
               <div className="flex items-end">
-                <Button type="button" className="min-h-11 w-full sm:w-auto" onClick={applyCustomRange}>
+                <Button
+                  type="button"
+                  className="min-h-11 w-full sm:w-auto"
+                  onClick={applyCustomRange}
+                >
                   تطبيق
                 </Button>
               </div>
@@ -309,8 +313,7 @@ function LessonSessionsHubSection({
   onRetry: () => void;
 }) {
   const lessons = snapshot.lessons;
-  const summaryItems =
-    lessons.status === "ok" ? buildReportSummaryItems(lessons.data.stats) : [];
+  const summaryItems = lessons.status === "ok" ? buildReportSummaryItems(lessons.data.stats) : [];
 
   if (lessons.status === "error") {
     return (

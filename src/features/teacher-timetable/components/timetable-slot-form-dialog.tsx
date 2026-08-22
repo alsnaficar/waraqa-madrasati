@@ -14,13 +14,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 
 import type { TeacherTimetableEntry } from "../types";
 import {
@@ -135,13 +129,7 @@ export function TimetableSlotFormDialog({
       grade: partial.grade || resolved.grade,
       className: partial.className || resolved.className,
     });
-  }, [
-    open,
-    editingId,
-    catalogGrades,
-    catalogClasses,
-    initial,
-  ]);
+  }, [open, editingId, catalogGrades, catalogClasses, initial]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -264,9 +252,7 @@ export function TimetableSlotFormDialog({
                   id="tt-grade"
                   className="min-h-11"
                   value={form.grade}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, grade: e.target.value, gradeId: "" }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, grade: e.target.value, gradeId: "" }))}
                   required
                 />
               )}

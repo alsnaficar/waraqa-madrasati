@@ -46,9 +46,7 @@ export class MockMadrasatiProvider implements MadrasatiProvider {
     this.subjects = options.subjects ?? [...MOCK_MADRASATI_SUBJECTS];
     this.classes = options.classes ?? [...MOCK_MADRASATI_CLASSES];
     this.timetable = options.timetable ?? MOCK_MADRASATI_TIMETABLE.map((row) => ({ ...row }));
-    this.homework =
-      options.homework ??
-      MOCK_MADRASATI_HOMEWORK.map((row) => ({ ...row }));
+    this.homework = options.homework ?? MOCK_MADRASATI_HOMEWORK.map((row) => ({ ...row }));
   }
 
   async connect(): Promise<MadrasatiConnectionStatus> {

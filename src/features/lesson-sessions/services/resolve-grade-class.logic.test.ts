@@ -86,10 +86,7 @@ describe("TASK 25.4 resolveOwnedGradeClassIds", () => {
   });
 
   it("6. mismatched grade/class rejected", () => {
-    assert.throws(
-      () => assertGradeClassRelationship(GRADE_A, CLASS_B, classes),
-      /لا ينتمي/,
-    );
+    assert.throws(() => assertGradeClassRelationship(GRADE_A, CLASS_B, classes), /لا ينتمي/);
   });
 
   it("7. ambiguous name mapping does not guess", () => {

@@ -478,7 +478,12 @@ function QuizPage() {
                         )}
                         إنشاء اختبار مسودة
                       </Button>
-                      <Button variant="outline" size="sm" onClick={handleCopy} className="min-h-11 h-11">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCopy}
+                        className="min-h-11 h-11"
+                      >
                         <Copy className="ml-1.5 h-3.5 w-3.5" />
                         نسخ النص
                       </Button>
@@ -495,8 +500,8 @@ function QuizPage() {
                   </div>
 
                   <p className="mt-3 text-xs text-slate-500 leading-relaxed">
-                    الاستيراد ينشئ مسودة قابلة للتعديل في صفحة الاختبارات من أسئلة الاختيار من
-                    متعدد والصواب/خطأ فقط. الأسئلة المقالية القصيرة لا تُستورد في الإصدار الحالي.
+                    الاستيراد ينشئ مسودة قابلة للتعديل في صفحة الاختبارات من أسئلة الاختيار من متعدد
+                    والصواب/خطأ فقط. الأسئلة المقالية القصيرة لا تُستورد في الإصدار الحالي.
                   </p>
 
                   {/* High Craft Tab Selector */}

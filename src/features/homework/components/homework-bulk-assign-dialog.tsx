@@ -11,13 +11,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 
 import type { TeacherCatalogItem } from "../services/teacher-catalog.service";
 import type { Student } from "../services/student.service";
@@ -127,8 +121,8 @@ export function HomeworkBulkAssignDialog({
         <DialogHeader>
           <DialogTitle>إسناد للفصل</DialogTitle>
           <DialogDescription>
-            إسناد واجب «{homeworkTitle}» إلى كل الطلاب النشطين في الفصل المحدد. لن يُنشأ تسليم
-            مكرر لمن أُسند إليهم مسبقاً.
+            إسناد واجب «{homeworkTitle}» إلى كل الطلاب النشطين في الفصل المحدد. لن يُنشأ تسليم مكرر
+            لمن أُسند إليهم مسبقاً.
           </DialogDescription>
         </DialogHeader>
 
@@ -165,11 +159,7 @@ export function HomeworkBulkAssignDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor="bulk-hw-class">الفصل</Label>
-              <Select
-                value={classId || undefined}
-                onValueChange={setClassId}
-                disabled={busy}
-              >
+              <Select value={classId || undefined} onValueChange={setClassId} disabled={busy}>
                 <SelectTrigger id="bulk-hw-class" className="min-h-11">
                   <SelectValue placeholder="اختر الفصل" />
                 </SelectTrigger>

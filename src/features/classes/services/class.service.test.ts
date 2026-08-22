@@ -150,10 +150,7 @@ describe("TASK 25.1 ClassService", () => {
   it("5. creates owned class", async () => {
     const db: Db = { grades: [], classes: [] };
     seedOwnedGrade(db);
-    const created = await ClassService.create(
-      { name: "1/أ", gradeId: GRADE_A },
-      authFor(db),
-    );
+    const created = await ClassService.create({ name: "1/أ", gradeId: GRADE_A }, authFor(db));
     assert.ok(created);
     assert.equal(created.teacherId, TEACHER_A);
     assert.equal(created.name, "1/أ");
@@ -203,11 +200,7 @@ describe("TASK 25.1 ClassService", () => {
       ],
     };
     seedOwnedGrade(db);
-    const updated = await ClassService.update(
-      "c1",
-      { name: "1/ب", gradeId: GRADE_A },
-      authFor(db),
-    );
+    const updated = await ClassService.update("c1", { name: "1/ب", gradeId: GRADE_A }, authFor(db));
     assert.ok(updated);
     assert.equal(updated.name, "1/ب");
     assert.equal(updated.gradeId, GRADE_A);
@@ -234,10 +227,7 @@ describe("TASK 25.1 ClassService", () => {
   it("9. class references the correct owned grade", async () => {
     const db: Db = { grades: [], classes: [] };
     seedOwnedGrade(db);
-    const created = await ClassService.create(
-      { name: "1/أ", gradeId: GRADE_A },
-      authFor(db),
-    );
+    const created = await ClassService.create({ name: "1/أ", gradeId: GRADE_A }, authFor(db));
     assert.ok(created);
     assert.equal(created.gradeId, GRADE_A);
 

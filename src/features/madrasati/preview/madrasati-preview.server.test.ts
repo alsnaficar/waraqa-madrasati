@@ -14,8 +14,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const FUNCTIONS_FILE = "src/platform/integration/connectors/madrasati/madrasati.functions.ts";
 const PREVIEW_CORE_FILE =
   "src/platform/integration/connectors/madrasati/madrasati-preview.server.ts";
-const MODAL_FILE =
-  "src/routes/_authenticated/settings.tsx";
+const MODAL_FILE = "src/routes/_authenticated/settings.tsx";
 
 const USER_A = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const USER_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -69,8 +68,7 @@ describe("Madrasati authenticated dry-run preview", () => {
   });
 
   it("server-side Madrasati keyboard input has a strict allowlist", () => {
-    const authServerFile =
-      "src/platform/integration/connectors/madrasati/madrasati-auth.server.ts";
+    const authServerFile = "src/platform/integration/connectors/madrasati/madrasati-auth.server.ts";
     const source = readFileSync(join(ROOT, authServerFile), "utf8");
 
     assert.match(source, /const allowedKeys = new Set\(\[/);
@@ -83,10 +81,7 @@ describe("Madrasati authenticated dry-run preview", () => {
     assert.match(source, /"ArrowRight"/);
     assert.match(source, /"ArrowUp"/);
     assert.match(source, /"ArrowDown"/);
-    assert.match(
-      source,
-      /if \(!normalizedKey \|\| !allowedKeys\.has\(normalizedKey\)\)/,
-    );
+    assert.match(source, /if \(!normalizedKey \|\| !allowedKeys\.has\(normalizedKey\)\)/);
     assert.match(source, /Unsupported Madrasati browser key/);
   });
 

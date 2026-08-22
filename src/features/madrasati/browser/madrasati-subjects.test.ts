@@ -4,9 +4,7 @@ import { describe, it } from "node:test";
 import { extractMadrasatiSubjects } from "./madrasati-subjects.ts";
 import type { MadrasatiPageLandmarks } from "./madrasati-teacher-profile.ts";
 
-function snapshot(
-  partial: Partial<MadrasatiPageLandmarks> = {},
-): MadrasatiPageLandmarks {
+function snapshot(partial: Partial<MadrasatiPageLandmarks> = {}): MadrasatiPageLandmarks {
   return {
     url: "https://schools.madrasati.sa/Courses",
     title: "مقرراتي",

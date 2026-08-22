@@ -2,11 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type { SupabaseUserContext } from "@/platform/database/supabase/context";
-import {
-  HomeworkService,
-  toHomeworkStatus,
-  type HomeworkCreateInput,
-} from "./homework.service.ts";
+import { HomeworkService, toHomeworkStatus, type HomeworkCreateInput } from "./homework.service.ts";
 
 const TEACHER_A = "11111111-1111-4111-8111-111111111111";
 const TEACHER_B = "22222222-2222-4222-8222-222222222222";
@@ -314,7 +310,11 @@ describe("TASK 20.3 HomeworkService", () => {
       lesson_sessions: [] as Row[],
     };
 
-    const updated = await HomeworkService.update("hw-b", { title: "اختراق" }, authFor(db, TEACHER_A));
+    const updated = await HomeworkService.update(
+      "hw-b",
+      { title: "اختراق" },
+      authFor(db, TEACHER_A),
+    );
     assert.equal(updated, null);
     assert.equal(db.homework[0]?.title, "خاص");
 

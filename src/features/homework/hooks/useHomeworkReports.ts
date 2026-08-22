@@ -17,7 +17,9 @@ export function homeworkDetailReportQueryKey(homeworkId: string | null) {
 
 export function useHomeworkPeriodReport(filter: ReportsDateFilter | null) {
   return useQuery({
-    queryKey: filter ? homeworkPeriodReportQueryKey(filter) : ["homework-reports", "period", "idle"],
+    queryKey: filter
+      ? homeworkPeriodReportQueryKey(filter)
+      : ["homework-reports", "period", "idle"],
     enabled: Boolean(filter),
     staleTime: 30_000,
     queryFn: () => HomeworkReportsService.getPeriodReport(filter!),

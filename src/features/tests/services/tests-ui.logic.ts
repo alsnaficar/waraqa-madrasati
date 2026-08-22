@@ -1,8 +1,4 @@
-import type {
-  TestCreateInput,
-  TestStatus,
-  TeacherTest,
-} from "./test.service";
+import type { TestCreateInput, TestStatus, TeacherTest } from "./test.service";
 import type {
   TestOptionInput,
   TestQuestion,
@@ -167,9 +163,7 @@ export type QuestionDraft = {
   correctBoolean: boolean;
 };
 
-export function emptyQuestionDraft(
-  overrides: Partial<QuestionDraft> = {},
-): QuestionDraft {
+export function emptyQuestionDraft(overrides: Partial<QuestionDraft> = {}): QuestionDraft {
   return {
     localId: `local-${Math.random().toString(36).slice(2, 10)}`,
     type: "multiple_choice",

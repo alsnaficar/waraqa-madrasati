@@ -1,8 +1,4 @@
-import type {
-  Homework,
-  HomeworkCreateInput,
-  HomeworkStatus,
-} from "./homework.service";
+import type { Homework, HomeworkCreateInput, HomeworkStatus } from "./homework.service";
 
 export const HOMEWORK_STATUS_LABELS: Record<HomeworkStatus, string> = {
   draft: "مسودة",
@@ -41,9 +37,7 @@ export type HomeworkFormState = {
   sessionPickerDate: string;
 };
 
-export function emptyHomeworkForm(
-  overrides: Partial<HomeworkFormState> = {},
-): HomeworkFormState {
+export function emptyHomeworkForm(overrides: Partial<HomeworkFormState> = {}): HomeworkFormState {
   return {
     title: "",
     instructions: "",
@@ -58,10 +52,7 @@ export function emptyHomeworkForm(
   };
 }
 
-export function homeworkToFormState(
-  homework: Homework,
-  sessionPickerDate = "",
-): HomeworkFormState {
+export function homeworkToFormState(homework: Homework, sessionPickerDate = ""): HomeworkFormState {
   return {
     title: homework.title,
     instructions: homework.instructions,

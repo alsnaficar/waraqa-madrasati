@@ -5,8 +5,7 @@ export const GRADES_EMPTY_TITLE = "لا توجد صفوف بعد";
 export const GRADES_EMPTY_DESCRIPTION =
   "أضف الصفوف الدراسية التي تدرّسها (مثل الأول متوسط) لربط الفصول والطلاب لاحقاً.";
 export const CLASSES_EMPTY_TITLE = "لا توجد فصول بعد";
-export const CLASSES_EMPTY_DESCRIPTION =
-  "أضف فصولك (مثل 1/أ) واربطها بالصف الدراسي المناسب.";
+export const CLASSES_EMPTY_DESCRIPTION = "أضف فصولك (مثل 1/أ) واربطها بالصف الدراسي المناسب.";
 export const CATALOG_ERROR_TITLE = "تعذر تحميل الصفوف والفصول";
 
 export type GradeFormState = {
@@ -73,9 +72,7 @@ export function toClassListItemView(
   return {
     id: klass.id,
     name: klass.name,
-    gradeLabel: klass.gradeId
-      ? (gradeNameById.get(klass.gradeId) ?? "صف غير معروف")
-      : "بدون صف",
+    gradeLabel: klass.gradeId ? (gradeNameById.get(klass.gradeId) ?? "صف غير معروف") : "بدون صف",
   };
 }
 

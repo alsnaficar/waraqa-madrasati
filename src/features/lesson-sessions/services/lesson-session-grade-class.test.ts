@@ -196,14 +196,8 @@ describe("TASK 25.4 LessonSessionService.updateGradeAndClass", () => {
   });
 
   it("11. unauthenticated follows existing convention (return null)", () => {
-    const source = readFileSync(
-      new URL("./lesson-session.service.ts", import.meta.url),
-      "utf8",
-    );
-    assert.match(
-      source,
-      /static async updateGradeAndClass[\s\S]*?if \(!resolved\) return null;/,
-    );
+    const source = readFileSync(new URL("./lesson-session.service.ts", import.meta.url), "utf8");
+    assert.match(source, /static async updateGradeAndClass[\s\S]*?if \(!resolved\) return null;/);
   });
 
   it("foreign teacher session rejected", async () => {

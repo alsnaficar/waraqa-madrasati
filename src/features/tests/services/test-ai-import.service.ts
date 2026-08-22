@@ -5,10 +5,7 @@ import {
   isStructuredQuizContent,
   mapQuizContentToImportQuestions,
 } from "./test-ai-import.logic";
-import {
-  TestQuestionService,
-  type TestQuestion,
-} from "./test-question.service";
+import { TestQuestionService, type TestQuestion } from "./test-question.service";
 import { TestService, type TeacherTest } from "./test.service";
 
 export type TestAiImportResult = {
@@ -64,9 +61,7 @@ export class TestAiImportService {
     const mapped = mapQuizContentToImportQuestions(content, { subject, grade });
 
     if (mapped.questions.length === 0) {
-      throw new Error(
-        "لا توجد أسئلة قابلة للاستيراد (اختيار من متعدد أو صواب وخطأ).",
-      );
+      throw new Error("لا توجد أسئلة قابلة للاستيراد (اختيار من متعدد أو صواب وخطأ).");
     }
 
     const lessonSessionId = generation.lesson_session_id;
@@ -209,10 +204,7 @@ function readString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-function readNestedInputString(
-  record: Record<string, unknown>,
-  key: string,
-): string | null {
+function readNestedInputString(record: Record<string, unknown>, key: string): string | null {
   const input = record.input;
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   return readString((input as Record<string, unknown>)[key]);

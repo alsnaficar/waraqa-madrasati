@@ -6,10 +6,7 @@ import path from "node:path";
 
 import { TestAnswerService } from "./test-answer.service.ts";
 import { TestService } from "./test.service.ts";
-import {
-  TestSubmissionConflictError,
-  TestSubmissionService,
-} from "./test-submission.service.ts";
+import { TestSubmissionConflictError, TestSubmissionService } from "./test-submission.service.ts";
 import {
   STUDENT_A,
   STUDENT_B,
@@ -62,11 +59,7 @@ describe("TASK 22.2 TestSubmissionService", () => {
   it("rejects foreign student", async () => {
     const { db, test } = await seedPublished();
     await assert.rejects(
-      () =>
-        TestSubmissionService.create(
-          { testId: test.id, studentId: STUDENT_B },
-          authFor(db),
-        ),
+      () => TestSubmissionService.create({ testId: test.id, studentId: STUDENT_B }, authFor(db)),
       /الطالب غير موجود/,
     );
   });
@@ -74,27 +67,16 @@ describe("TASK 22.2 TestSubmissionService", () => {
   it("rejects foreign test", async () => {
     const { db } = await seedPublished();
     await assert.rejects(
-      () =>
-        TestSubmissionService.create(
-          { testId: "missing", studentId: STUDENT_A },
-          authFor(db),
-        ),
+      () => TestSubmissionService.create({ testId: "missing", studentId: STUDENT_A }, authFor(db)),
       /الاختبار غير موجود/,
     );
   });
 
   it("enforces unique test/student", async () => {
     const { db, test } = await seedPublished();
-    await TestSubmissionService.create(
-      { testId: test.id, studentId: STUDENT_A },
-      authFor(db),
-    );
+    await TestSubmissionService.create({ testId: test.id, studentId: STUDENT_A }, authFor(db));
     await assert.rejects(
-      () =>
-        TestSubmissionService.create(
-          { testId: test.id, studentId: STUDENT_A },
-          authFor(db),
-        ),
+      () => TestSubmissionService.create({ testId: test.id, studentId: STUDENT_A }, authFor(db)),
       (err: unknown) => err instanceof TestSubmissionConflictError,
     );
   });
@@ -106,11 +88,7 @@ describe("TASK 22.2 TestSubmissionService", () => {
     db.students.push({ id: STUDENT_A, teacher_id: TEACHER_A, full_name: "أحمد", active: true });
 
     await assert.rejects(
-      () =>
-        TestSubmissionService.create(
-          { testId: test.id, studentId: STUDENT_A },
-          authFor(db),
-        ),
+      () => TestSubmissionService.create({ testId: test.id, studentId: STUDENT_A }, authFor(db)),
       /مسودة/,
     );
   });
@@ -129,21 +107,14 @@ describe("TASK 22.2 TestSubmissionService", () => {
     const { db, test } = await seedPublished();
     await TestService.close(test.id, authFor(db));
     await assert.rejects(
-      () =>
-        TestSubmissionService.create(
-          { testId: test.id, studentId: STUDENT_A },
-          authFor(db),
-        ),
+      () => TestSubmissionService.create({ testId: test.id, studentId: STUDENT_A }, authFor(db)),
       /مغلق/,
     );
   });
 
   it("lists only owned submissions for a test", async () => {
     const { db, test } = await seedPublished();
-    await TestSubmissionService.create(
-      { testId: test.id, studentId: STUDENT_A },
-      authFor(db),
-    );
+    await TestSubmissionService.create({ testId: test.id, studentId: STUDENT_A }, authFor(db));
 
     const list = await TestSubmissionService.listByTest(test.id, authFor(db));
     assert.equal(list.length, 1);
@@ -158,11 +129,7 @@ describe("TASK 22.2 TestSubmissionService", () => {
 describe("TASK 22.4 TestSubmissionService.assignPending", () => {
   it("1. published + active → pending submission", async () => {
     const { db, test } = await seedPublished();
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     assert.equal(submission.status, "pending");
     assert.equal(submission.teacherId, TEACHER_A);
@@ -235,11 +202,7 @@ describe("TASK 22.4 TestSubmissionService.assignPending", () => {
     assert.equal(/\bscore\b|\bfeedback\b|\bmaxScore\b|\bmax_score\b/.test(method), false);
     assert.match(method, /status:\s*"pending"/);
 
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     assert.equal(submission.status, "pending");
     assert.equal(submission.score, null);
@@ -317,11 +280,7 @@ describe("TASK 22.4 TestSubmissionService.assignPending", () => {
 
   it("15. answers untouched by assignment", async () => {
     const { db, test } = await seedPublished();
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     assert.equal(db.test_answers.length, 0);
     const answers = await TestAnswerService.listBySubmission(submission.id, authFor(db));
@@ -332,11 +291,7 @@ describe("TASK 22.4 TestSubmissionService.assignPending", () => {
 describe("TASK 22.7 TestSubmissionService.markSubmitted", () => {
   it("1-7. pending → submitted; timestamps and grading fields unchanged", async () => {
     const { db, test } = await seedPublished();
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     assert.equal(submission.status, "pending");
 
@@ -361,11 +316,7 @@ describe("TASK 22.7 TestSubmissionService.markSubmitted", () => {
 
   it("8. rejects already submitted", async () => {
     const { db, test } = await seedPublished();
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     await TestSubmissionService.markSubmitted(submission.id, authFor(db));
     await assert.rejects(
@@ -395,11 +346,7 @@ describe("TASK 22.7 TestSubmissionService.markSubmitted", () => {
 
   it("10. rejects foreign teacher", async () => {
     const { db, test } = await seedPublished();
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     await assert.rejects(
       () => TestSubmissionService.markSubmitted(submission.id, authFor(db, TEACHER_B)),
@@ -411,21 +358,14 @@ describe("TASK 22.7 TestSubmissionService.markSubmitted", () => {
     const { db } = await seedPublished();
     await assert.rejects(
       () =>
-        TestSubmissionService.markSubmitted(
-          "99999999-9999-4999-8999-999999999999",
-          authFor(db),
-        ),
+        TestSubmissionService.markSubmitted("99999999-9999-4999-8999-999999999999", authFor(db)),
       /التسليم غير موجود/,
     );
   });
 
   it("12. rejects closed test", async () => {
     const { db, test } = await seedPublished();
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     await TestService.close(test.id, authFor(db));
     await assert.rejects(
@@ -504,11 +444,7 @@ describe("TASK 22.9 TestSubmissionService.setFeedback", () => {
 
   it("10. pending rejected", async () => {
     const { db, test } = await seedPublished();
-    const submission = await TestSubmissionService.assignPending(
-      test.id,
-      STUDENT_A,
-      authFor(db),
-    );
+    const submission = await TestSubmissionService.assignPending(test.id, STUDENT_A, authFor(db));
     assert.ok(submission);
     await assert.rejects(
       () => TestSubmissionService.setFeedback(submission.id, "ملاحظة", authFor(db)),

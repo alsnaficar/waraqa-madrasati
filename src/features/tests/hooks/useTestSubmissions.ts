@@ -136,13 +136,8 @@ export function useTestSubmissions(testId: string | null) {
   });
 
   const setFeedback = useMutation({
-    mutationFn: ({
-      submissionId,
-      feedback,
-    }: {
-      submissionId: string;
-      feedback: string;
-    }) => TestSubmissionService.setFeedback(submissionId, feedback),
+    mutationFn: ({ submissionId, feedback }: { submissionId: string; feedback: string }) =>
+      TestSubmissionService.setFeedback(submissionId, feedback),
     onSuccess: invalidate,
   });
 

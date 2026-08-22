@@ -139,10 +139,7 @@ describe("TASK 25.6 dashboard activity logic", () => {
     };
 
     assert.equal(activityFromSubmittedInbox(noTsInbox), null);
-    assert.equal(
-      activityFromGraded({ ...gradedOlder, gradedAt: null }),
-      null,
-    );
+    assert.equal(activityFromGraded({ ...gradedOlder, gradedAt: null }), null);
 
     const many = Array.from({ length: 20 }, (_, i) => ({
       ...hwInbox,
@@ -160,7 +157,10 @@ describe("TASK 25.6 dashboard activity logic", () => {
     });
     assert.equal(feed.length, DASHBOARD_ACTIVITY_LIMIT);
     assert.ok(Date.parse(feed[0]!.at) >= Date.parse(feed[1]!.at));
-    assert.equal(feed.some((row) => row.id.includes("sub-old")), false);
+    assert.equal(
+      feed.some((row) => row.id.includes("sub-old")),
+      false,
+    );
   });
 
   it("9-10. empty build and deep links preserve ids", () => {

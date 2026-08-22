@@ -23,10 +23,7 @@ export type BrowserSessionOpenOptions = {
 export class BrowserAutomationUnavailableError extends Error {
   readonly missingPackage: string;
 
-  constructor(
-    missingPackage = "playwright",
-    message = "Browser automation is not available.",
-  ) {
+  constructor(missingPackage = "playwright", message = "Browser automation is not available.") {
     super(message);
     this.name = "BrowserAutomationUnavailableError";
     this.missingPackage = missingPackage;
@@ -54,9 +51,7 @@ export interface BrowserAutomation {
 
   assertAvailable(): Promise<void>;
 
-  openSession(
-    options?: BrowserSessionOpenOptions,
-  ): Promise<BrowserSessionHandle>;
+  openSession(options?: BrowserSessionOpenOptions): Promise<BrowserSessionHandle>;
 
   closeSession(session: BrowserSessionHandle): Promise<void>;
 
@@ -85,21 +80,11 @@ export interface BrowserAutomation {
    * Browser/page objects and cookies remain server-side.
    */
   getPageScreenshot(page: BrowserPageHandle): Promise<Uint8Array>;
-  clickPage(
-    page: BrowserPageHandle,
-    x: number,
-    y: number,
-  ): Promise<void>;
+  clickPage(page: BrowserPageHandle, x: number, y: number): Promise<void>;
 
-  typePage(
-    page: BrowserPageHandle,
-    text: string,
-  ): Promise<void>;
+  typePage(page: BrowserPageHandle, text: string): Promise<void>;
 
-  pressPageKey(
-    page: BrowserPageHandle,
-    key: string,
-  ): Promise<void>;
+  pressPageKey(page: BrowserPageHandle, key: string): Promise<void>;
 
   /**
    * Focuses a visible editable control.
@@ -123,9 +108,7 @@ export interface BrowserAutomation {
    * Describes the currently focused control. Must never include the value,
    * cookies, HTML, or credentials.
    */
-  inspectFocusedControl(
-    page: BrowserPageHandle,
-  ): Promise<MadrasatiFocusedControl>;
+  inspectFocusedControl(page: BrowserPageHandle): Promise<MadrasatiFocusedControl>;
 
   /**
    * Semantic landmarks for the current page: visible text, accessible names,
@@ -137,19 +120,12 @@ export interface BrowserAutomation {
    * Clicks the first control whose accessible name matches one of the names.
    * Returns false when none are present.
    */
-  clickControlByAccessibleName(
-    page: BrowserPageHandle,
-    names: readonly string[],
-  ): Promise<boolean>;
+  clickControlByAccessibleName(page: BrowserPageHandle, names: readonly string[]): Promise<boolean>;
 
   /**
    * Waits until the page's visible text includes the needle.
    */
-  waitForPageText(
-    page: BrowserPageHandle,
-    needle: string,
-    timeoutMs?: number,
-  ): Promise<boolean>;
+  waitForPageText(page: BrowserPageHandle, needle: string, timeoutMs?: number): Promise<boolean>;
 
   /**
    * Subscribes to live JPEG frames for a page. The unsubscribe function
@@ -174,9 +150,7 @@ export class UnavailableBrowserAutomation implements BrowserAutomation {
     );
   }
 
-  async openSession(
-    _options?: BrowserSessionOpenOptions,
-  ): Promise<BrowserSessionHandle> {
+  async openSession(_options?: BrowserSessionOpenOptions): Promise<BrowserSessionHandle> {
     await this.assertAvailable();
     throw new BrowserAutomationUnavailableError("playwright");
   }
@@ -185,9 +159,7 @@ export class UnavailableBrowserAutomation implements BrowserAutomation {
     // No-op.
   }
 
-  async openPage(
-    _session: BrowserSessionHandle,
-  ): Promise<BrowserPageHandle> {
+  async openPage(_session: BrowserSessionHandle): Promise<BrowserPageHandle> {
     await this.assertAvailable();
     throw new BrowserAutomationUnavailableError("playwright");
   }
@@ -196,10 +168,7 @@ export class UnavailableBrowserAutomation implements BrowserAutomation {
     // No-op.
   }
 
-  async goto(
-    _page: BrowserPageHandle,
-    _url: string,
-  ): Promise<void> {
+  async goto(_page: BrowserPageHandle, _url: string): Promise<void> {
     await this.assertAvailable();
   }
 
@@ -223,25 +192,15 @@ export class UnavailableBrowserAutomation implements BrowserAutomation {
     return new Uint8Array();
   }
 
-  async clickPage(
-    _page: BrowserPageHandle,
-    _x: number,
-    _y: number,
-  ): Promise<void> {
+  async clickPage(_page: BrowserPageHandle, _x: number, _y: number): Promise<void> {
     await this.assertAvailable();
   }
 
-  async typePage(
-    _page: BrowserPageHandle,
-    _text: string,
-  ): Promise<void> {
+  async typePage(_page: BrowserPageHandle, _text: string): Promise<void> {
     await this.assertAvailable();
   }
 
-  async pressPageKey(
-    _page: BrowserPageHandle,
-    _key: string,
-  ): Promise<void> {
+  async pressPageKey(_page: BrowserPageHandle, _key: string): Promise<void> {
     await this.assertAvailable();
   }
 
@@ -257,23 +216,17 @@ export class UnavailableBrowserAutomation implements BrowserAutomation {
     // No-op.
   }
 
-  async getPageLiveFrame(
-    _page: BrowserPageHandle,
-  ): Promise<MadrasatiLiveFrame> {
+  async getPageLiveFrame(_page: BrowserPageHandle): Promise<MadrasatiLiveFrame> {
     await this.assertAvailable();
     throw new BrowserAutomationUnavailableError("playwright");
   }
 
-  async inspectFocusedControl(
-    _page: BrowserPageHandle,
-  ): Promise<MadrasatiFocusedControl> {
+  async inspectFocusedControl(_page: BrowserPageHandle): Promise<MadrasatiFocusedControl> {
     await this.assertAvailable();
     return { isEditable: false, inputType: "none" };
   }
 
-  async readPageLandmarks(
-    _page: BrowserPageHandle,
-  ): Promise<MadrasatiPageLandmarks> {
+  async readPageLandmarks(_page: BrowserPageHandle): Promise<MadrasatiPageLandmarks> {
     await this.assertAvailable();
     throw new BrowserAutomationUnavailableError("playwright");
   }

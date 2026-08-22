@@ -5,8 +5,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../../../..");
-const MIGRATION =
-  "supabase/migrations/20260813162000_official_academic_calendar_rls.sql";
+const MIGRATION = "supabase/migrations/20260813162000_official_academic_calendar_rls.sql";
 
 describe("official academic calendar RLS migration", () => {
   const sql = readFileSync(join(ROOT, MIGRATION), "utf8");

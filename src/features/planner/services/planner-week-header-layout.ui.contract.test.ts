@@ -12,9 +12,7 @@ function readSrc(relativeFromThisFile: string): string {
 
 describe("TASK 25.31 mobile-first week header layout", () => {
   const weekly = readSrc("../components/filled-weekly-timetable.tsx");
-  const mobile = readSrc(
-    "../../teacher-timetable/components/teacher-weekly-timetable-mobile.tsx",
-  );
+  const mobile = readSrc("../../teacher-timetable/components/teacher-weekly-timetable-mobile.tsx");
   const planner = readSrc("../../../routes/_authenticated/planner.tsx");
   const toolbar = readSrc("../components/planner-toolbar.tsx");
 
@@ -32,23 +30,14 @@ describe("TASK 25.31 mobile-first week header layout", () => {
   });
 
   it("stacks two equal-width prep groups under the date on mobile, not one three-section row", () => {
-    assert.match(
-      header,
-      /flex min-w-0 w-full max-w-full flex-col gap-2 overflow-x-hidden/,
-    );
+    assert.match(header, /flex min-w-0 w-full max-w-full flex-col gap-2 overflow-x-hidden/);
     assert.match(header, /order-2 grid min-w-0 w-full grid-cols-2 gap-3 md:contents/);
     assert.match(header, /flex min-w-0 w-full flex-col items-stretch gap-1\.5 md:w-44/);
-    assert.doesNotMatch(
-      header,
-      /flex items-center justify-between gap-2" dir="rtl"/,
-    );
+    assert.doesNotMatch(header, /flex items-center justify-between gap-2" dir="rtl"/);
   });
 
   it("uses a three-section desktop/tablet layout: today | date | week", () => {
-    assert.match(
-      header,
-      /md:grid md:grid-cols-\[minmax\(0,1fr\)_auto_minmax\(0,1fr\)\]/,
-    );
+    assert.match(header, /md:grid md:grid-cols-\[minmax\(0,1fr\)_auto_minmax\(0,1fr\)\]/);
     assert.match(header, /md:order-1 md:justify-self-start/);
     assert.match(header, /md:order-3 md:justify-self-end/);
 
@@ -100,7 +89,9 @@ describe("TASK 25.32 weekly plan publish UI in Family C header", () => {
   const headerEnd = weekly.indexOf("export function FilledWeeklyTimetable");
   const header = weekly.slice(headerStart, headerEnd);
   const publishStart = header.indexOf("{entriesCount} حصص");
-  const prepGroupsStart = header.indexOf("order-2 grid min-w-0 w-full grid-cols-2 gap-3 md:contents");
+  const prepGroupsStart = header.indexOf(
+    "order-2 grid min-w-0 w-full grid-cols-2 gap-3 md:contents",
+  );
   const publishBlock = header.slice(publishStart, prepGroupsStart);
 
   it("places نشر الخطة under the lesson count with both destination labels", () => {
@@ -126,10 +117,7 @@ describe("TASK 25.32 weekly plan publish UI in Family C header", () => {
   });
 
   it("keeps equal-width wrapping publish buttons without 320px overflow widths", () => {
-    assert.match(
-      publishBlock,
-      /grid min-w-0 w-full grid-cols-2 items-stretch/,
-    );
+    assert.match(publishBlock, /grid min-w-0 w-full grid-cols-2 items-stretch/);
     assert.match(header, /flex min-w-0 w-full max-w-full flex-col gap-2 overflow-x-hidden/);
     assert.match(header, /h-11 min-h-\[44px\] w-full min-w-0/);
     assert.match(header, /whitespace-normal/);
@@ -152,10 +140,7 @@ describe("TASK 25.32 weekly plan publish UI in Family C header", () => {
     assert.match(toolbar, /نشر الخطة/);
     assert.match(bottomNav, /التقارير/);
     assert.match(header, /order-2 grid min-w-0 w-full grid-cols-2 gap-3 md:contents/);
-    assert.match(
-      header,
-      /md:grid md:grid-cols-\[minmax\(0,1fr\)_auto_minmax\(0,1fr\)\]/,
-    );
+    assert.match(header, /md:grid md:grid-cols-\[minmax\(0,1fr\)_auto_minmax\(0,1fr\)\]/);
   });
 });
 
@@ -167,7 +152,9 @@ describe("TASK 25.33 weekly header attendance selector", () => {
   const headerEnd = weekly.indexOf("export function FilledWeeklyTimetable");
   const header = weekly.slice(headerStart, headerEnd);
   const publishStart = header.indexOf("نشر الخطة");
-  const prepGroupsStart = header.indexOf("order-2 grid min-w-0 w-full grid-cols-2 gap-3 md:contents");
+  const prepGroupsStart = header.indexOf(
+    "order-2 grid min-w-0 w-full grid-cols-2 gap-3 md:contents",
+  );
   const attendanceBlock = header.slice(publishStart, prepGroupsStart);
 
   it("places حضوري / عن بعد under the publish buttons with in_person default", () => {
@@ -206,10 +193,7 @@ describe("TASK 25.33 weekly header attendance selector", () => {
     assert.doesNotMatch(lessonPlan, /حضوري|عن بعد|in_person|deliveryMode/);
     assert.doesNotMatch(lessonPlan, /RadioGroup/);
     assert.doesNotMatch(weekly, /teacher_timetable/);
-    assert.doesNotMatch(
-      header,
-      /LessonSessionService\.(getSessionsByDates|ensureSessionsForDate)/,
-    );
+    assert.doesNotMatch(header, /LessonSessionService\.(getSessionsByDates|ensureSessionsForDate)/);
     assert.doesNotMatch(header, /\.insert\(|\.update\(|\.upsert\(/);
     assert.match(weekly, /TeacherWeeklyTimetableMobile/);
     assert.match(weekly, /placeholderData: keepPreviousData/);
@@ -234,10 +218,7 @@ describe("TASK 25.34 weekly header publish/attendance alignment", () => {
     assert.ok(countIdx < publishIdx && publishIdx < attendanceIdx && attendanceIdx < prepIdx);
     assert.match(header, /flex w-full min-w-0 max-w-\[21rem\] flex-col items-center/);
     assert.match(block, /overflow-hidden rounded-xl border border-border\/70/);
-    assert.match(
-      header,
-      /order-1 flex min-w-0 w-full flex-col items-center md:order-2/,
-    );
+    assert.match(header, /order-1 flex min-w-0 w-full flex-col items-center md:order-2/);
   });
 
   it("aligns equal publish columns above equal attendance columns with a divider", () => {
@@ -284,10 +265,7 @@ describe("TASK 25.37 mobile week header compaction", () => {
   const header = weekly.slice(headerStart, headerEnd);
   const legendStart = weekly.indexOf("function PlannerLegend");
   const legend = weekly.slice(legendStart, weekly.indexOf("const weekHeaderActionBtnClass"));
-  const titleBlock = header.slice(
-    header.indexOf("<CardTitle"),
-    header.indexOf("</CardTitle>"),
-  );
+  const titleBlock = header.slice(header.indexOf("<CardTitle"), header.indexOf("</CardTitle>"));
 
   it("compacts mobile header padding and gaps without changing md+ structure", () => {
     assert.match(
@@ -311,11 +289,10 @@ describe("TASK 25.37 mobile week header compaction", () => {
     assert.match(titleBlock, /\{entriesCount\} حصص/);
     assert.match(titleBlock, /aria-label="جاري تحميل الأسبوع"/);
     assert.ok(titleBlock.indexOf("الجدول الأسبوعي") < titleBlock.indexOf("{entriesCount} حصص"));
-    assert.ok(titleBlock.indexOf("{entriesCount} حصص") < titleBlock.indexOf("weekRange.hijriStart"));
-    assert.doesNotMatch(
-      header,
-      /mt-2 flex flex-wrap items-center justify-center gap-2/,
+    assert.ok(
+      titleBlock.indexOf("{entriesCount} حصص") < titleBlock.indexOf("weekRange.hijriStart"),
     );
+    assert.doesNotMatch(header, /mt-2 flex flex-wrap items-center justify-center gap-2/);
   });
 
   it("keeps publish, attendance, prep groups, and 44px targets", () => {

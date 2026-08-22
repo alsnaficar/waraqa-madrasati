@@ -90,8 +90,40 @@ describe("TASK 25.10 reports hub print logic", () => {
     const snapshot: ReportsHubSnapshot = {
       range,
       lessons: { status: "ok", data: lessonOk },
-      homework: { status: "ok", data: { ...homeworkOk, homework: [{ id: "h1", title: "و", subject: null, grade: null, className: null, dueDate: "2026-08-12", status: "assigned" }] } },
-      tests: { status: "ok", data: { ...testsOk, tests: [{ id: "t1", title: "ا", subject: null, grade: null, className: null, dueDate: "2026-08-13", status: "published" }] } },
+      homework: {
+        status: "ok",
+        data: {
+          ...homeworkOk,
+          homework: [
+            {
+              id: "h1",
+              title: "و",
+              subject: null,
+              grade: null,
+              className: null,
+              dueDate: "2026-08-12",
+              status: "assigned",
+            },
+          ],
+        },
+      },
+      tests: {
+        status: "ok",
+        data: {
+          ...testsOk,
+          tests: [
+            {
+              id: "t1",
+              title: "ا",
+              subject: null,
+              grade: null,
+              className: null,
+              dueDate: "2026-08-13",
+              status: "published",
+            },
+          ],
+        },
+      },
     };
 
     const view = buildReportsHubPrintView(snapshot, new Date("2026-08-15T12:30:00Z"));
@@ -109,7 +141,23 @@ describe("TASK 25.10 reports hub print logic", () => {
     const snapshot: ReportsHubSnapshot = {
       range,
       lessons: { status: "error", message: "lesson boom" },
-      homework: { status: "ok", data: { ...homeworkOk, homework: [{ id: "h1", title: "و", subject: null, grade: null, className: null, dueDate: null, status: "assigned" }] } },
+      homework: {
+        status: "ok",
+        data: {
+          ...homeworkOk,
+          homework: [
+            {
+              id: "h1",
+              title: "و",
+              subject: null,
+              grade: null,
+              className: null,
+              dueDate: null,
+              status: "assigned",
+            },
+          ],
+        },
+      },
       tests: { status: "ok", data: testsOk },
     };
 

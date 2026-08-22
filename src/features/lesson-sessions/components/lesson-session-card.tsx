@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, CheckCircle2, FileText, FlaskConical, Lightbulb, RotateCcw, Trash2 } from "lucide-react";
+import {
+  BookOpen,
+  CheckCircle2,
+  FileText,
+  FlaskConical,
+  Lightbulb,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
 
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";

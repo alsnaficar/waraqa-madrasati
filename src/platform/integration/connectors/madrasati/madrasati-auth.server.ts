@@ -3,7 +3,12 @@ import {
   type MadrasatiBrowserAuthenticationStart,
 } from "../../../../features/madrasati/browser/madrasati-browser-session-manager.server.ts";
 import type { MadrasatiAuthenticationPage } from "../../../../features/madrasati/provider/madrasati-provider.ts";
-import type { MadrasatiClass, MadrasatiSubject, MadrasatiTeacher, MadrasatiTimetableEntry } from "../../../../features/madrasati/provider/models.ts";
+import type {
+  MadrasatiClass,
+  MadrasatiSubject,
+  MadrasatiTeacher,
+  MadrasatiTimetableEntry,
+} from "../../../../features/madrasati/provider/models.ts";
 import type { MadrasatiLiveVerificationReport } from "../../../../features/madrasati/browser/madrasati-live-verification.ts";
 import type {
   MadrasatiFocusedControl,
@@ -46,19 +51,14 @@ export async function inspectAuthenticatedMadrasatiAuthentication(
     throw new Error("Madrasati browser session id is required.");
   }
 
-  return madrasatiBrowserSessionManager.inspectAuthentication(
-    userId,
-    sessionId.trim(),
-  );
+  return madrasatiBrowserSessionManager.inspectAuthentication(userId, sessionId.trim());
 }
 
 /**
  * Status of the caller's existing Madrasati browser session, if any.
  * Never starts a browser and never returns page text, cookies, or URLs.
  */
-export async function peekAuthenticatedMadrasatiAuthentication(
-  waraqaUserId: string,
-): Promise<{
+export async function peekAuthenticatedMadrasatiAuthentication(waraqaUserId: string): Promise<{
   hasSession: boolean;
   authenticationState: "not_authenticated" | "authenticated";
 }> {
@@ -141,10 +141,7 @@ export async function closeAuthenticatedMadrasatiAuthentication(
     throw new Error("Madrasati browser session id is required.");
   }
 
-  await madrasatiBrowserSessionManager.closeSession(
-    userId,
-    sessionId.trim(),
-  );
+  await madrasatiBrowserSessionManager.closeSession(userId, sessionId.trim());
 }
 
 /**
@@ -163,11 +160,10 @@ export async function getAuthenticatedMadrasatiAuthenticationScreenshot(
     throw new Error("Madrasati browser session id is required.");
   }
 
-  const bytes =
-    await madrasatiBrowserSessionManager.getAuthenticationScreenshot(
-      userId,
-      sessionId.trim(),
-    );
+  const bytes = await madrasatiBrowserSessionManager.getAuthenticationScreenshot(
+    userId,
+    sessionId.trim(),
+  );
 
   return Buffer.from(bytes).toString("base64");
 }
@@ -191,12 +187,7 @@ export async function clickAuthenticatedMadrasatiAuthentication(
     throw new Error("Invalid browser click coordinates.");
   }
 
-  await madrasatiBrowserSessionManager.clickAuthentication(
-    userId,
-    sessionId.trim(),
-    x,
-    y,
-  );
+  await madrasatiBrowserSessionManager.clickAuthentication(userId, sessionId.trim(), x, y);
 }
 
 /**
@@ -217,11 +208,7 @@ export async function typeAuthenticatedMadrasatiAuthentication(
     throw new Error("Authentication text is required.");
   }
 
-  await madrasatiBrowserSessionManager.typeAuthentication(
-    userId,
-    sessionId.trim(),
-    text,
-  );
+  await madrasatiBrowserSessionManager.typeAuthentication(userId, sessionId.trim(), text);
 }
 
 /**
@@ -277,10 +264,7 @@ export async function getAuthenticatedMadrasatiAuthenticationLiveFrame(
     throw new Error("Madrasati browser session id is required.");
   }
 
-  return madrasatiBrowserSessionManager.getAuthenticationLiveFrame(
-    userId,
-    sessionId.trim(),
-  );
+  return madrasatiBrowserSessionManager.getAuthenticationLiveFrame(userId, sessionId.trim());
 }
 
 /**
@@ -296,10 +280,7 @@ export async function inspectAuthenticatedMadrasatiAuthenticationFocus(
     throw new Error("Madrasati browser session id is required.");
   }
 
-  return madrasatiBrowserSessionManager.inspectAuthenticationFocus(
-    userId,
-    sessionId.trim(),
-  );
+  return madrasatiBrowserSessionManager.inspectAuthenticationFocus(userId, sessionId.trim());
 }
 
 /**

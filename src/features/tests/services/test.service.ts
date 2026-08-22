@@ -10,9 +10,7 @@ export type TestStatus = "draft" | "published" | "closed";
 const TEST_STATUSES: readonly TestStatus[] = ["draft", "published", "closed"];
 
 export function toTestStatus(value: string): TestStatus {
-  return (TEST_STATUSES as readonly string[]).includes(value)
-    ? (value as TestStatus)
-    : "draft";
+  return (TEST_STATUSES as readonly string[]).includes(value) ? (value as TestStatus) : "draft";
 }
 
 export function assertTestStatus(value: string): asserts value is TestStatus {

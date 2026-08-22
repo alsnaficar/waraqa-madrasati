@@ -4,9 +4,7 @@ import { describe, it } from "node:test";
 import { extractMadrasatiTimetable } from "./madrasati-timetable.ts";
 import type { MadrasatiPageLandmarks } from "./madrasati-teacher-profile.ts";
 
-function snapshot(
-  partial: Partial<MadrasatiPageLandmarks> = {},
-): MadrasatiPageLandmarks {
+function snapshot(partial: Partial<MadrasatiPageLandmarks> = {}): MadrasatiPageLandmarks {
   return {
     url: "https://schools.madrasati.sa/Timetable",
     title: "جدولي",
@@ -73,12 +71,10 @@ describe("Madrasati timetable extraction", () => {
   it("normalizes Arabic day labels to Sunday=0", () => {
     const result = extractMadrasatiTimetable(
       snapshot({
-        tableRows: ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس"].map(
-          (day, index) => ({
-            headers: ["اليوم", "الحصة", "المادة", "الصف", "الشعبة"],
-            cells: [day, String(index + 1), "الرياضيات", "الصف الأول المتوسط", "1"],
-          }),
-        ),
+        tableRows: ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس"].map((day, index) => ({
+          headers: ["اليوم", "الحصة", "المادة", "الصف", "الشعبة"],
+          cells: [day, String(index + 1), "الرياضيات", "الصف الأول المتوسط", "1"],
+        })),
       }),
     );
 

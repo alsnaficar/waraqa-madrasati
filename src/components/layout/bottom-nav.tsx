@@ -13,13 +13,7 @@ import { cn } from "@/shared/utils/utils";
 
 type NavItem = {
   to:
-    | "/dashboard"
-    | "/planner"
-    | "/homework"
-    | "/tests"
-    | "/corrections"
-    | "/reports"
-    | "/settings";
+    "/dashboard" | "/planner" | "/homework" | "/tests" | "/corrections" | "/reports" | "/settings";
   label: string;
   icon: LucideIcon;
 };

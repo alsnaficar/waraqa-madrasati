@@ -78,7 +78,9 @@ export function LessonSelector({
 
   const batchedOptions = weeklyOptions?.optionsBySessionId[lessonSessionId];
   const optionsData = useWeeklyBatch ? batchedOptions : optionsQuery.data;
-  const optionsLoading = useWeeklyBatch ? Boolean(weeklyOptions?.isPending) : optionsQuery.isLoading;
+  const optionsLoading = useWeeklyBatch
+    ? Boolean(weeklyOptions?.isPending)
+    : optionsQuery.isLoading;
   const optionsError = useWeeklyBatch
     ? Boolean(weeklyOptions?.isError) || (!weeklyOptions?.isPending && batchedOptions == null)
     : optionsQuery.isError;

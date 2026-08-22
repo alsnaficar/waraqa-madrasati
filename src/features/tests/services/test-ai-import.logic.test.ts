@@ -69,10 +69,7 @@ describe("TASK 22.8 test-ai-import.logic mapper", () => {
     assert.equal(firstMcq.prompt, "ما المقصود بالكفاءة الحرارية؟");
     assert.equal(firstMcq.options?.length, 4);
     assert.equal(firstMcq.options?.filter((o) => o.isCorrect).length, 1);
-    assert.equal(
-      firstMcq.options?.find((o) => o.isCorrect)?.label,
-      "نسبة الشغل إلى الحرارة",
-    );
+    assert.equal(firstMcq.options?.find((o) => o.isCorrect)?.label, "نسبة الشغل إلى الحرارة");
 
     const firstTf = mapped.questions.find((q) => q.type === "true_false");
     assert.ok(firstTf);
@@ -206,10 +203,7 @@ describe("TASK 22.8 test-ai-import.logic mapper", () => {
   });
 
   it("rejects non-quiz content structures", () => {
-    assert.throws(
-      () => mapQuizContentToImportQuestions({ title: "فقط" }),
-      /غير صالح/,
-    );
+    assert.throws(() => mapQuizContentToImportQuestions({ title: "فقط" }), /غير صالح/);
     assert.throws(() => mapQuizContentToImportQuestions(null), /غير صالح/);
   });
 });

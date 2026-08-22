@@ -10,9 +10,7 @@ function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");
 }
 
-export async function resolveAuthenticatedUserIdFromRequest(
-  request: Request,
-): Promise<string> {
+export async function resolveAuthenticatedUserIdFromRequest(request: Request): Promise<string> {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 
@@ -80,15 +78,14 @@ export function createOwnedMadrasatiLiveSseResponse(options: {
 
   const flushRef: { current: (() => void) | null } = { current: null };
 
-  const unsubscribe =
-    madrasatiBrowserSessionManager.subscribeAuthenticationLiveFrame(
-      options.userId,
-      options.sessionId,
-      (update) => {
-        pending = update;
-        flushRef.current?.();
-      },
-    );
+  const unsubscribe = madrasatiBrowserSessionManager.subscribeAuthenticationLiveFrame(
+    options.userId,
+    options.sessionId,
+    (update) => {
+      pending = update;
+      flushRef.current?.();
+    },
+  );
 
   const cleanup = () => {
     if (closed) {

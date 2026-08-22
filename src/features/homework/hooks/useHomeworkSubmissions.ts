@@ -84,13 +84,8 @@ export function useHomeworkSubmissions(homeworkId: string | null) {
   });
 
   const grade = useMutation({
-    mutationFn: ({
-      submissionId,
-      input,
-    }: {
-      submissionId: string;
-      input: HomeworkGradeInput;
-    }) => HomeworkSubmissionService.grade(submissionId, input),
+    mutationFn: ({ submissionId, input }: { submissionId: string; input: HomeworkGradeInput }) =>
+      HomeworkSubmissionService.grade(submissionId, input),
     onSuccess: invalidate,
   });
 

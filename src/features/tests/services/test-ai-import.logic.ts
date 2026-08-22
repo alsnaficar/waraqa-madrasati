@@ -112,8 +112,7 @@ function mapMcqItem(item: unknown, position: number): MappedImportQuestion | nul
   const labels = row.options.map((opt) => (typeof opt === "string" ? opt.trim() : ""));
   if (labels.some((label) => !label)) return null;
 
-  const correctAnswer =
-    typeof row.correctAnswer === "string" ? row.correctAnswer.trim() : "";
+  const correctAnswer = typeof row.correctAnswer === "string" ? row.correctAnswer.trim() : "";
   if (!correctAnswer) return null;
 
   const matchIndexes = labels

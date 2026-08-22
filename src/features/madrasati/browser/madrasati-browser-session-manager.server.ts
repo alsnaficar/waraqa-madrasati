@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { MadrasatiBrowserAdapter } from "./madrasati-browser-adapter.server.ts";
-import {
-  PlaywrightBrowserAutomation,
-} from "./playwright-browser-automation.server.ts";
+import { PlaywrightBrowserAutomation } from "./playwright-browser-automation.server.ts";
 import type { MadrasatiAuthenticationPage } from "../provider/madrasati-provider.ts";
-import type { MadrasatiClass, MadrasatiSubject, MadrasatiTeacher, MadrasatiTimetableEntry } from "../provider/models.ts";
+import type {
+  MadrasatiClass,
+  MadrasatiSubject,
+  MadrasatiTeacher,
+  MadrasatiTimetableEntry,
+} from "../provider/models.ts";
 import { MadrasatiProviderError } from "../provider/madrasati-provider.ts";
 import {
   EMPTY_TIMETABLE_VALIDATION,
@@ -80,9 +83,7 @@ export class MadrasatiBrowserSessionManager {
     }
   }
 
-  async startAuthentication(
-    userId: string,
-  ): Promise<MadrasatiBrowserAuthenticationStart> {
+  async startAuthentication(userId: string): Promise<MadrasatiBrowserAuthenticationStart> {
     const ownerId = this.requireUserId(userId);
 
     await this.cleanupExpired();
@@ -104,8 +105,7 @@ export class MadrasatiBrowserSessionManager {
           session: this.toSessionInfo(existing),
           url: page.url,
           authenticationState: page.authenticationState,
-          message:
-            "توجد جلسة متصفح مدرستي مفتوحة لهذا المستخدم وتمت إعادة استخدامها.",
+          message: "توجد جلسة متصفح مدرستي مفتوحة لهذا المستخدم وتمت إعادة استخدامها.",
         };
       }
 
@@ -201,9 +201,7 @@ export class MadrasatiBrowserSessionManager {
       return {
         hasSession: true,
         authenticationState:
-          page.authenticationState === "authenticated"
-            ? "authenticated"
-            : "not_authenticated",
+          page.authenticationState === "authenticated" ? "authenticated" : "not_authenticated",
       };
     } catch {
       return {
@@ -377,10 +375,12 @@ export class MadrasatiBrowserSessionManager {
     const authAfter = await this.peekAuthentication(ownerId);
     const remainedAuthenticated =
       authenticatedBefore && authAfter.authenticationState === "authenticated";
-    const secondSessionCreated =
-      [sessionAfterTeacher, sessionAfterClasses, sessionAfterSubjects, sessionAfterTimetable].some(
-        (id) => id != null && id !== sessionIdBefore,
-      );
+    const secondSessionCreated = [
+      sessionAfterTeacher,
+      sessionAfterClasses,
+      sessionAfterSubjects,
+      sessionAfterTimetable,
+    ].some((id) => id != null && id !== sessionIdBefore);
 
     const timetableValidation = timetable.success
       ? validateTimetableSnapshots(timetable.data)
@@ -419,10 +419,7 @@ export class MadrasatiBrowserSessionManager {
     }
   }
 
-  async getAuthenticationScreenshot(
-    userId: string,
-    sessionId: string,
-  ): Promise<Uint8Array> {
+  async getAuthenticationScreenshot(userId: string, sessionId: string): Promise<Uint8Array> {
     const record = this.requireOwnedSession(userId, sessionId);
 
     record.lastUsedAt = Date.now();
@@ -443,11 +440,7 @@ export class MadrasatiBrowserSessionManager {
     await record.provider.clickAuthentication(x, y);
   }
 
-  async typeAuthentication(
-    userId: string,
-    sessionId: string,
-    text: string,
-  ): Promise<void> {
+  async typeAuthentication(userId: string, sessionId: string, text: string): Promise<void> {
     const record = this.requireOwnedSession(userId, sessionId);
 
     record.lastUsedAt = Date.now();
@@ -455,11 +448,7 @@ export class MadrasatiBrowserSessionManager {
     await record.provider.typeAuthentication(text);
   }
 
-  async pressAuthenticationKey(
-    userId: string,
-    sessionId: string,
-    key: string,
-  ): Promise<void> {
+  async pressAuthenticationKey(userId: string, sessionId: string, key: string): Promise<void> {
     const record = this.requireOwnedSession(userId, sessionId);
 
     record.lastUsedAt = Date.now();
@@ -467,10 +456,7 @@ export class MadrasatiBrowserSessionManager {
     await record.provider.pressAuthenticationKey(key);
   }
 
-  async getAuthenticationLiveFrame(
-    userId: string,
-    sessionId: string,
-  ): Promise<MadrasatiLiveFrame> {
+  async getAuthenticationLiveFrame(userId: string, sessionId: string): Promise<MadrasatiLiveFrame> {
     const record = this.requireOwnedSession(userId, sessionId);
 
     record.lastUsedAt = Date.now();
@@ -486,9 +472,7 @@ export class MadrasatiBrowserSessionManager {
 
     record.lastUsedAt = Date.now();
 
-    return sanitizeFocusedControl(
-      await record.provider.inspectAuthenticationFocus(),
-    );
+    return sanitizeFocusedControl(await record.provider.inspectAuthenticationFocus());
   }
 
   async waitForAuthenticationLiveFrame(
@@ -566,10 +550,7 @@ export class MadrasatiBrowserSessionManager {
     }
   }
 
-  private requireOwnedSession(
-    userId: string,
-    sessionId: string,
-  ): BrowserSessionRecord {
+  private requireOwnedSession(userId: string, sessionId: string): BrowserSessionRecord {
     const ownerId = this.requireUserId(userId);
     const normalizedSessionId = sessionId?.trim();
 
@@ -608,11 +589,9 @@ export class MadrasatiBrowserSessionManager {
       return;
     }
 
-    record.unsubscribeLive = record.provider.subscribeAuthenticationLiveFrame(
-      (frame) => {
-        madrasatiLiveFrameHub.publish(record.sessionId, frame);
-      },
-    );
+    record.unsubscribeLive = record.provider.subscribeAuthenticationLiveFrame((frame) => {
+      madrasatiLiveFrameHub.publish(record.sessionId, frame);
+    });
   }
 
   private detachLivePublisher(record: BrowserSessionRecord): void {
@@ -631,9 +610,7 @@ export class MadrasatiBrowserSessionManager {
     return normalized;
   }
 
-  private toSessionInfo(
-    record: BrowserSessionRecord,
-  ): MadrasatiBrowserSessionInfo {
+  private toSessionInfo(record: BrowserSessionRecord): MadrasatiBrowserSessionInfo {
     return {
       sessionId: record.sessionId,
       createdAt: new Date(record.createdAt).toISOString(),
@@ -642,5 +619,4 @@ export class MadrasatiBrowserSessionManager {
   }
 }
 
-export const madrasatiBrowserSessionManager =
-  new MadrasatiBrowserSessionManager();
+export const madrasatiBrowserSessionManager = new MadrasatiBrowserSessionManager();

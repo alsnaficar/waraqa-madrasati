@@ -15,11 +15,7 @@ export function buildHomeworkBulkAssignPreview(input: {
   students: Student[];
 }): HomeworkBulkAssignPreview {
   const eligible = input.students
-    .filter(
-      (student) =>
-        student.active &&
-        student.classId === input.classId,
-    )
+    .filter((student) => student.active && student.classId === input.classId)
     .sort((a, b) => a.fullName.localeCompare(b.fullName, "ar"));
 
   return {

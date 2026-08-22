@@ -94,7 +94,12 @@ function authFor(db: { lesson_sessions: Row[] }, userId = TEACHER_A): SupabaseUs
 }
 
 function sessionRow(
-  overrides: Partial<Row> & { id: string; teacher_id?: string; session_date?: string; status?: string },
+  overrides: Partial<Row> & {
+    id: string;
+    teacher_id?: string;
+    session_date?: string;
+    status?: string;
+  },
 ): Row {
   return {
     day_of_week: 0,
@@ -296,10 +301,7 @@ describe("TASK 19.3 ReportsService lesson session report", () => {
       { kind: "month", today: "2026-08-14" },
       authFor(db),
     );
-    assert.deepEqual(
-      month.sessions.map((s) => s.id).sort(),
-      ["month-edge", "week-edge"],
-    );
+    assert.deepEqual(month.sessions.map((s) => s.id).sort(), ["month-edge", "week-edge"]);
   });
 
   it("6. teacher ownership — never returns another teacher's sessions", async () => {
@@ -341,9 +343,7 @@ describe("TASK 19.3 ReportsService lesson session report", () => {
   });
 
   it("8. unknown status follows project convention (count as scheduled)", async () => {
-    const mapped = toReportRow(
-      sessionRow({ id: "x", status: "legacy-unknown" }) as never,
-    );
+    const mapped = toReportRow(sessionRow({ id: "x", status: "legacy-unknown" }) as never);
     assert.equal(mapped.status, "scheduled");
 
     const db = {
@@ -358,5 +358,4 @@ describe("TASK 19.3 ReportsService lesson session report", () => {
     assert.equal(report.stats.completed, 0);
     assert.equal(report.stats.total, 1);
   });
-
 });

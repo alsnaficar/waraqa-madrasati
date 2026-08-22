@@ -13,28 +13,12 @@ describe("TASK 25.9A live bottom navigation", () => {
     assert.equal(BOTTOM_NAV_ITEMS.length, 7);
     assert.deepEqual(
       BOTTOM_NAV_ITEMS.map((item) => item.to),
-      [
-        "/dashboard",
-        "/planner",
-        "/homework",
-        "/tests",
-        "/corrections",
-        "/reports",
-        "/settings",
-      ],
+      ["/dashboard", "/planner", "/homework", "/tests", "/corrections", "/reports", "/settings"],
     );
 
     assert.deepEqual(
       BOTTOM_NAV_ITEMS.map((item) => item.label),
-      [
-        "الرئيسية",
-        "الجدول",
-        "الواجبات",
-        "الاختبارات",
-        "التصحيح",
-        "التقارير",
-        "الإعدادات",
-      ],
+      ["الرئيسية", "الجدول", "الواجبات", "الاختبارات", "التصحيح", "التقارير", "الإعدادات"],
     );
   });
 
@@ -55,10 +39,7 @@ describe("TASK 25.9A live bottom navigation", () => {
   });
 
   it("authenticated shell still mounts BottomNav", () => {
-    const shell = readFileSync(
-      path.join(here, "../../routes/_authenticated/route.tsx"),
-      "utf8",
-    );
+    const shell = readFileSync(path.join(here, "../../routes/_authenticated/route.tsx"), "utf8");
     assert.match(shell, /BottomNav/);
     assert.match(shell, /authenticated-shell-offset/);
     assert.doesNotMatch(shell, /pb-32/);
@@ -69,10 +50,7 @@ describe("TASK 25.9A live bottom navigation", () => {
       path.join(here, "../../routes/_authenticated/homework.tsx"),
       "utf8",
     );
-    const tests = readFileSync(
-      path.join(here, "../../routes/_authenticated/tests.tsx"),
-      "utf8",
-    );
+    const tests = readFileSync(path.join(here, "../../routes/_authenticated/tests.tsx"), "utf8");
     const corrections = readFileSync(
       path.join(here, "../../routes/_authenticated/corrections.tsx"),
       "utf8",
@@ -91,20 +69,14 @@ describe("TASK 25.9A live bottom navigation", () => {
 describe("TASK 25.38 mobile bottom navigation safe area", () => {
   const source = readFileSync(path.join(here, "bottom-nav.tsx"), "utf8");
   const styles = readFileSync(path.join(here, "../../styles.css"), "utf8");
-  const shell = readFileSync(
-    path.join(here, "../../routes/_authenticated/route.tsx"),
-    "utf8",
-  );
+  const shell = readFileSync(path.join(here, "../../routes/_authenticated/route.tsx"), "utf8");
   const root = readFileSync(path.join(here, "../../routes/__root.tsx"), "utf8");
 
   it("applies additive env(safe-area-inset-bottom) with a 0px fallback", () => {
     assert.match(source, /bottom-nav-safe-area/);
     assert.match(styles, /\.bottom-nav-safe-area/);
     assert.match(styles, /env\(safe-area-inset-bottom,\s*0px\)/);
-    assert.match(
-      styles,
-      /padding-bottom:\s*calc\(0px \+ env\(safe-area-inset-bottom,\s*0px\)\)/,
-    );
+    assert.match(styles, /padding-bottom:\s*calc\(0px \+ env\(safe-area-inset-bottom,\s*0px\)\)/);
     assert.doesNotMatch(source, /paddingBottom:\s*["']20px["']/);
     assert.doesNotMatch(source, /paddingBottom:\s*["']24px["']/);
     assert.doesNotMatch(source, /paddingBottom:\s*["']30px["']/);
@@ -121,10 +93,7 @@ describe("TASK 25.38 mobile bottom navigation safe area", () => {
     assert.match(shell, /authenticated-shell-offset/);
     assert.match(styles, /\.authenticated-shell-offset/);
     assert.match(styles, /padding-bottom:\s*8rem;/);
-    assert.match(
-      styles,
-      /padding-bottom:\s*calc\(8rem \+ env\(safe-area-inset-bottom,\s*0px\)\)/,
-    );
+    assert.match(styles, /padding-bottom:\s*calc\(8rem \+ env\(safe-area-inset-bottom,\s*0px\)\)/);
     assert.doesNotMatch(shell, /pb-32/);
     assert.doesNotMatch(shell, /pb-40|pb-36|pb-24/);
   });
@@ -133,27 +102,11 @@ describe("TASK 25.38 mobile bottom navigation safe area", () => {
     assert.equal(BOTTOM_NAV_ITEMS.length, 7);
     assert.deepEqual(
       BOTTOM_NAV_ITEMS.map((item) => item.to),
-      [
-        "/dashboard",
-        "/planner",
-        "/homework",
-        "/tests",
-        "/corrections",
-        "/reports",
-        "/settings",
-      ],
+      ["/dashboard", "/planner", "/homework", "/tests", "/corrections", "/reports", "/settings"],
     );
     assert.deepEqual(
       BOTTOM_NAV_ITEMS.map((item) => item.label),
-      [
-        "الرئيسية",
-        "الجدول",
-        "الواجبات",
-        "الاختبارات",
-        "التصحيح",
-        "التقارير",
-        "الإعدادات",
-      ],
+      ["الرئيسية", "الجدول", "الواجبات", "الاختبارات", "التصحيح", "التقارير", "الإعدادات"],
     );
     assert.match(source, /grid-cols-7/);
     assert.match(source, /min-h-\[44px\]/);
@@ -181,10 +134,7 @@ describe("TASK 25.38 mobile bottom navigation safe area", () => {
 describe("TASK 25.38I touch-device bottom-nav 48px floor", () => {
   const source = readFileSync(path.join(here, "bottom-nav.tsx"), "utf8");
   const styles = readFileSync(path.join(here, "../../styles.css"), "utf8");
-  const shell = readFileSync(
-    path.join(here, "../../routes/_authenticated/route.tsx"),
-    "utf8",
-  );
+  const shell = readFileSync(path.join(here, "../../routes/_authenticated/route.tsx"), "utf8");
   const root = readFileSync(path.join(here, "../../routes/__root.tsx"), "utf8");
 
   const coarseBlock = styles.slice(
@@ -234,27 +184,11 @@ describe("TASK 25.38I touch-device bottom-nav 48px floor", () => {
     assert.equal(BOTTOM_NAV_ITEMS.length, 7);
     assert.deepEqual(
       BOTTOM_NAV_ITEMS.map((item) => item.to),
-      [
-        "/dashboard",
-        "/planner",
-        "/homework",
-        "/tests",
-        "/corrections",
-        "/reports",
-        "/settings",
-      ],
+      ["/dashboard", "/planner", "/homework", "/tests", "/corrections", "/reports", "/settings"],
     );
     assert.deepEqual(
       BOTTOM_NAV_ITEMS.map((item) => item.label),
-      [
-        "الرئيسية",
-        "الجدول",
-        "الواجبات",
-        "الاختبارات",
-        "التصحيح",
-        "التقارير",
-        "الإعدادات",
-      ],
+      ["الرئيسية", "الجدول", "الواجبات", "الاختبارات", "التصحيح", "التقارير", "الإعدادات"],
     );
     assert.match(source, /grid-cols-7/);
     assert.match(source, /min-h-\[44px\]/);

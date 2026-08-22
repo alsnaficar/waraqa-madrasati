@@ -1,19 +1,8 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type PointerEvent,
-} from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/shared/ui/button";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Loader2,
-  XCircle,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   clickMadrasatiAuthentication,
@@ -32,8 +21,7 @@ type AuthenticationState = "not_authenticated" | "authenticated" | "unknown";
 
 const INSPECT_INTERVAL_MS = 3000;
 
-const RETURNING_HOME_MESSAGE =
-  "تم تسجيل الدخول إلى مدرستي بنجاح، جارٍ العودة إلى ورقة...";
+const RETURNING_HOME_MESSAGE = "تم تسجيل الدخول إلى مدرستي بنجاح، جارٍ العودة إلى ورقة...";
 
 interface MadrasatiAuthPageProps {
   onSyncSuccess?: () => Promise<void>;
@@ -65,8 +53,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [viewportWidth, setViewportWidth] = useState(390);
   const [viewportHeight, setViewportHeight] = useState(844);
-  const [authenticationState, setAuthenticationState] =
-    useState<AuthenticationState>("unknown");
+  const [authenticationState, setAuthenticationState] = useState<AuthenticationState>("unknown");
   const [clickBusy, setClickBusy] = useState(false);
   const [focus, setFocus] = useState<MadrasatiAuthenticationFocusResult>({
     isEditable: false,
@@ -79,16 +66,11 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
   sessionIdRef.current = sessionId;
 
   function enqueueWrite(task: () => Promise<void>) {
-    writeQueueRef.current = writeQueueRef.current
-      .then(task)
-      .catch((error) => {
-        const text =
-          error instanceof Error
-            ? error.message
-            : "تعذر إرسال الإدخال إلى جلسة مدرستي.";
+    writeQueueRef.current = writeQueueRef.current.then(task).catch((error) => {
+      const text = error instanceof Error ? error.message : "تعذر إرسال الإدخال إلى جلسة مدرستي.";
 
-        toast.error(text);
-      });
+      toast.error(text);
+    });
   }
 
   function focusNativeInput() {
@@ -106,9 +88,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
     setScreenshot(`data:${frame.mimeType};base64,${frame.base64}`);
   }
 
-  async function handleLiveViewPointer(
-    event: PointerEvent<HTMLElement>,
-  ) {
+  async function handleLiveViewPointer(event: PointerEvent<HTMLElement>) {
     if (!sessionId || !screenshotRef.current || clickBusy) {
       return;
     }
@@ -148,10 +128,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
       setFocus(nextFocus);
       focusNativeInput();
     } catch (error) {
-      const text =
-        error instanceof Error
-          ? error.message
-          : "تعذر النقر داخل جلسة مدرستي.";
+      const text = error instanceof Error ? error.message : "تعذر النقر داخل جلسة مدرستي.";
 
       toast.error(text);
     } finally {
@@ -272,10 +249,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
         await navigate({ to: "/dashboard" });
       }
     } catch (error) {
-      const text =
-        error instanceof Error
-          ? error.message
-          : "تعذر إغلاق جلسة مدرستي.";
+      const text = error instanceof Error ? error.message : "تعذر إغلاق جلسة مدرستي.";
 
       toast.error(text);
     } finally {
@@ -321,10 +295,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
           return;
         }
 
-        const text =
-          error instanceof Error
-            ? error.message
-            : "تعذر فتح جلسة متصفح مدرستي.";
+        const text = error instanceof Error ? error.message : "تعذر فتح جلسة متصفح مدرستي.";
 
         toast.error(text);
       } finally {
@@ -371,9 +342,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
     }
 
     const sync = () => {
-      setKeyboardInset(
-        Math.max(0, window.innerHeight - (viewport.height + viewport.offsetTop)),
-      );
+      setKeyboardInset(Math.max(0, window.innerHeight - (viewport.height + viewport.offsetTop)));
     };
 
     sync();
@@ -456,10 +425,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
         returningHomeRef.current = false;
         setReturningHome(false);
 
-        const text =
-          error instanceof Error
-            ? error.message
-            : "تعذر العودة إلى ورقة.";
+        const text = error instanceof Error ? error.message : "تعذر العودة إلى ورقة.";
 
         toast.error(text);
       }
@@ -557,9 +523,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
           </Button>
 
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-sm font-bold leading-6">
-              تسجيل الدخول إلى مدرستي
-            </h1>
+            <h1 className="truncate text-sm font-bold leading-6">تسجيل الدخول إلى مدرستي</h1>
             <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] font-medium leading-snug text-muted-foreground">
               {authenticationState === "authenticated" || returningHome ? (
                 <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
@@ -638,9 +602,7 @@ export function MadrasatiAuthPage({ onSyncSuccess }: MadrasatiAuthPageProps) {
           ) : (
             <div className="flex flex-col items-center justify-center gap-2 px-6 text-zinc-200">
               <Loader2 className="h-5 w-5 animate-spin" />
-              <span className="text-center text-xs leading-relaxed">
-                جارٍ تحميل شاشة مدرستي...
-              </span>
+              <span className="text-center text-xs leading-relaxed">جارٍ تحميل شاشة مدرستي...</span>
             </div>
           )}
         </div>
