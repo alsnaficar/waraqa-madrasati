@@ -99,10 +99,7 @@ describe("TASK 22.3 tests UI logic", () => {
         { label: "", isCorrect: false },
       ],
     });
-    assert.equal(
-      validateQuestionDraft(tooFew),
-      "سؤال الاختيار من متعدد يحتاج خيارين على الأقل.",
-    );
+    assert.equal(validateQuestionDraft(tooFew), "سؤال الاختيار من متعدد يحتاج خيارين على الأقل.");
 
     const noCorrect = emptyQuestionDraft({
       prompt: "س",
@@ -213,10 +210,7 @@ describe("TASK 22.3 tests UI logic", () => {
   });
 
   it("8. title filter and loading/empty/error copy", () => {
-    const rows = [
-      sample,
-      { ...sample, id: "t2", title: "اختبار علوم" },
-    ];
+    const rows = [sample, { ...sample, id: "t2", title: "اختبار علوم" }];
     assert.equal(filterTestsByTitle(rows, "ميزان").length, 1);
     assert.equal(filterTestsByTitle(rows, "").length, 2);
     assert.match(TEST_EMPTY_TITLE, /لا توجد اختبارات/);
@@ -254,12 +248,10 @@ describe("TASK 22.3 tests UI logic", () => {
     assert.match(hooks, /TestService\.close/);
     assert.match(hooks, /TestService\.delete/);
 
-    const page = readFileSync(
-      path.join(here, "../components/tests-page-content.tsx"),
-      "utf8",
-    );
+    const page = readFileSync(path.join(here, "../components/tests-page-content.tsx"), "utf8");
     assert.match(page, /publish\.mutateAsync/);
     assert.match(page, /close\.mutateAsync/);
+    // eslint-disable-next-line no-useless-escape
     assert.match(page, /حذف الاختبار\؟/);
   });
 });
