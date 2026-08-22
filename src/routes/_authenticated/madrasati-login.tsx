@@ -54,7 +54,7 @@ function MadrasatiLoginRoute() {
                   </p>
 
                   <p className="text-muted-foreground">
-                    لن تمر كلمة المرور أو رمز التحقق عبر ورقة.
+                    لن تمر بيانات الدخول أو رمز التحقق عبر ورقة.
                     أدخل بياناتك فقط في صفحة مدرستي الرسمية.
                   </p>
                 </div>

@@ -43,6 +43,10 @@ import {
   MADRASATI_TIMETABLE_UNAVAILABLE_CODE,
   MADRASATI_TIMETABLE_UNAVAILABLE_MESSAGE,
 } from "./madrasati-timetable.ts";
+import {
+  extractMadrasatiHomework,
+  type MadrasatiHomework,
+} from "./madrasati-homework.ts";
 
 const MADRASATI_URL = "https://schools.madrasati.sa/";
 
@@ -593,6 +597,68 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
     );
   }
 
+  async getHomework(): Promise<MadrasatiHomework[]> {
+    this.requireReadySession();
+
+    const inspection = await this.inspectAuthenticationPage();
+    if (inspection.authenticationState !== "authenticated") {
+      throw new MadrasatiProviderError(
+        "NOT_AUTHENTICATED",
+        "لا يمكن قراءة الواجبات قبل اكتمال تسجيل الدخول إلى مدرستي.",
+      );
+    }
+
+    const fromCurrent = extractMadrasatiHomework(
+      await this.automation.readPageLandmarks(this.page!),
+    );
+
+    if (fromCurrent.status === "found") {
+      return [...fromCurrent.homework];
+    }
+
+    if (fromCurrent.status === "empty") {
+      return [];
+    }
+
+    await this.automation.clickControlByAccessibleName(this.page!, [
+      "الواجبات",
+      "الواجبات المنزلية",
+      "قائمة الواجبات",
+    ]);
+
+    await this.waitForHomework();
+
+    const fromHomework = extractMadrasatiHomework(
+      await this.automation.readPageLandmarks(this.page!),
+    );
+
+    await this.automation.clickControlByAccessibleName(this.page!, [
+      "الرئيسية",
+      "الصفحة الرئيسية",
+    ]);
+
+    const after = await this.inspectAuthenticationPage();
+    if (after.authenticationState !== "authenticated") {
+      throw new MadrasatiProviderError(
+        "NOT_AUTHENTICATED",
+        "انتهت جلسة مدرستي أثناء قراءة الواجبات.",
+      );
+    }
+
+    if (fromHomework.status === "found") {
+      return [...fromHomework.homework];
+    }
+
+    if (fromHomework.status === "empty") {
+      return [];
+    }
+
+    throw new MadrasatiProviderError(
+      "HOMEWORK_UNAVAILABLE",
+      "تعذر قراءة الواجبات من منصة مدرستي.",
+    );
+  }
+
   private requireReadySession(): void {
     if (!this.session || !this.page) {
       throw new MadrasatiNotConnectedError("محوّل متصفح مدرستي غير متصل.");
@@ -601,6 +667,24 @@ export class MadrasatiBrowserAdapter implements MadrasatiProvider {
 
   private async waitForClassCatalog(): Promise<void> {
     const needles = ["الشعبة", "لا توجد مقررات", "لا يوجد مقررات", "الصف الدراسي", "مقرراتي"];
+
+    for (const needle of needles) {
+      if (await this.automation.waitForPageText(this.page!, needle, 4000)) {
+        return;
+      }
+    }
+  }
+
+  private async waitForHomework(): Promise<void> {
+    const needles = [
+      "الواجبات",
+      "الواجبات المنزلية",
+      "اسم الواجب",
+      "لا توجد واجبات",
+      "لا يوجد واجبات",
+      "لا توجد بيانات",
+      "لا يوجد بيانات",
+    ];
 
     for (const needle of needles) {
       if (await this.automation.waitForPageText(this.page!, needle, 4000)) {

@@ -752,6 +752,289 @@ test("MadrasatiBrowserAdapter — confirmed empty جدولي is not a fake succe
   assert.deepEqual(timetable, []);
 });
 
+test("MadrasatiBrowserAdapter — navigates to الواجبات and returns normalized homework", async () => {
+  class HomeworkAutomation extends FakeBrowserAutomation {
+    view: "home" | "homework" = "home";
+    clicked: string[] = [];
+
+    async getPageText(): Promise<string> {
+      return this.view === "homework"
+        ? "الواجبات\nاسم الواجب\nالمادة\nتاريخ التسليم\nتدريب حروف الجر\nلغتي\n2026-08-25"
+        : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
+    }
+
+    async readPageLandmarks() {
+      if (this.view === "homework") {
+        return {
+          url: "https://schools.madrasati.sa/Homework",
+          title: "الواجبات",
+          text: await this.getPageText(),
+          accessibleNames: ["الواجبات", "الرئيسية"],
+          labeledValues: [],
+          tableRows: [
+            {
+              headers: ["اسم الواجب", "المادة", "تاريخ التسليم"],
+              cells: ["تدريب حروف الجر", "لغتي", "2026-08-25"],
+            },
+          ],
+        };
+      }
+
+      return {
+        url: "https://schools.madrasati.sa/",
+        title: "مدرستي",
+        text: await this.getPageText(),
+        accessibleNames: ["جدولي", "المقررات والمصادر", "الواجبات", "الرئيسية"],
+        labeledValues: [],
+        tableRows: [],
+      };
+    }
+
+    async clickControlByAccessibleName(
+      _page: BrowserPageHandle,
+      names: readonly string[],
+    ): Promise<boolean> {
+      this.clicked.push(names[0] ?? "");
+
+      if (
+        names.some((name) =>
+          ["الواجبات", "الواجبات المنزلية", "قائمة الواجبات"].includes(name),
+        )
+      ) {
+        this.view = "homework";
+        return true;
+      }
+
+      if (names.some((name) => ["الرئيسية", "الصفحة الرئيسية"].includes(name))) {
+        this.view = "home";
+        return true;
+      }
+
+      return false;
+    }
+
+    async waitForPageText(
+      _page: BrowserPageHandle,
+      needle: string,
+    ): Promise<boolean> {
+      return (await this.getPageText()).includes(needle);
+    }
+  }
+
+  const automation = new HomeworkAutomation();
+  const provider = new MadrasatiBrowserAdapter(automation);
+
+  await provider.connect();
+
+  const homework = await provider.getHomework();
+
+  assert.deepEqual(homework, [
+    {
+      title: "تدريب حروف الجر",
+      subject: "لغتي",
+      dueAt: "2026-08-25",
+    },
+  ]);
+
+  assert.equal(automation.view, "home");
+  assert.ok(automation.clicked.includes("الواجبات"));
+  assert.ok(automation.clicked.includes("الرئيسية"));
+});
+
+test("MadrasatiBrowserAdapter — already on الواجبات does not navigate again", async () => {
+  class AlreadyOnHomeworkAutomation extends FakeBrowserAutomation {
+    clicked: string[] = [];
+
+    async getPageText(): Promise<string> {
+      return "الواجبات\nتدريب حروف الجر\nلغتي\n2026-08-25";
+    }
+
+    async readPageLandmarks() {
+      return {
+        url: "https://schools.madrasati.sa/Homework",
+        title: "الواجبات",
+        text: await this.getPageText(),
+        accessibleNames: ["الواجبات", "الرئيسية"],
+        labeledValues: [],
+        tableRows: [
+          {
+            headers: ["اسم الواجب", "المادة", "تاريخ التسليم"],
+            cells: ["تدريب حروف الجر", "لغتي", "2026-08-25"],
+          },
+        ],
+      };
+    }
+
+    async clickControlByAccessibleName(
+      _page: BrowserPageHandle,
+      names: readonly string[],
+    ): Promise<boolean> {
+      this.clicked.push(names[0] ?? "");
+      return true;
+    }
+  }
+
+  const automation = new AlreadyOnHomeworkAutomation();
+  const provider = new MadrasatiBrowserAdapter(automation);
+
+  await provider.connect();
+
+  class AuthenticatedHomeworkAutomation extends AlreadyOnHomeworkAutomation {
+    async getPageText(): Promise<string> {
+      return "مرحباً، معلم الاختبار\nالواجبات\nتدريب حروف الجر\nلغتي\n2026-08-25\nتسجيل الخروج";
+    }
+
+    async inspectAuthenticationPage() {
+      return {
+        url: "https://schools.madrasati.sa/Homework",
+        title: "الواجبات",
+        text: await this.getPageText(),
+        authenticationState: "authenticated" as const,
+      };
+    }
+  }
+
+  const authenticatedAutomation = new AuthenticatedHomeworkAutomation();
+  const authenticatedProvider = new MadrasatiBrowserAdapter(
+    authenticatedAutomation,
+  );
+
+  await authenticatedProvider.connect();
+
+  const homework = await authenticatedProvider.getHomework();
+
+  assert.equal(homework.length, 1);
+  assert.equal(homework[0]?.title, "تدريب حروف الجر");
+  assert.equal(homework[0]?.subject, "لغتي");
+  assert.deepEqual(automation.clicked, []);
+});
+
+test("MadrasatiBrowserAdapter — confirmed empty الواجبات returns an empty list", async () => {
+  class EmptyHomeworkAutomation extends FakeBrowserAutomation {
+    view: "home" | "homework" = "home";
+
+    async getPageText(): Promise<string> {
+      return this.view === "homework"
+        ? "الواجبات\nلا توجد واجبات"
+        : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
+    }
+
+    async readPageLandmarks() {
+      return {
+        url:
+          this.view === "homework"
+            ? "https://schools.madrasati.sa/Homework"
+            : "https://schools.madrasati.sa/",
+        title: this.view === "homework" ? "الواجبات" : "مدرستي",
+        text: await this.getPageText(),
+        accessibleNames: ["الواجبات", "الرئيسية"],
+        labeledValues: [],
+        tableRows: [],
+      };
+    }
+
+    async clickControlByAccessibleName(
+      _page: BrowserPageHandle,
+      names: readonly string[],
+    ): Promise<boolean> {
+      if (names.some((name) => name === "الواجبات")) {
+        this.view = "homework";
+        return true;
+      }
+
+      if (names.some((name) => name === "الرئيسية")) {
+        this.view = "home";
+        return true;
+      }
+
+      return false;
+    }
+
+    async waitForPageText(
+      _page: BrowserPageHandle,
+      needle: string,
+    ): Promise<boolean> {
+      return (await this.getPageText()).includes(needle);
+    }
+  }
+
+  const provider = new MadrasatiBrowserAdapter(new EmptyHomeworkAutomation());
+
+  await provider.connect();
+
+  const homework = await provider.getHomework();
+
+  assert.deepEqual(homework, []);
+});
+
+test("MadrasatiBrowserAdapter — getHomework fails closed when unauthenticated or unreadable", async () => {
+  const unauthenticated = new MadrasatiBrowserAdapter(new FakeBrowserAutomation());
+
+  await unauthenticated.connect();
+
+  await assert.rejects(
+    () => unauthenticated.getHomework(),
+    /قبل اكتمال تسجيل الدخول/,
+  );
+
+  class UnreadableHomeworkAutomation extends FakeBrowserAutomation {
+    view: "home" | "homework" = "home";
+
+    async getPageText(): Promise<string> {
+      return this.view === "homework"
+        ? "الواجبات"
+        : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
+    }
+
+    async readPageLandmarks() {
+      return {
+        url:
+          this.view === "homework"
+            ? "https://schools.madrasati.sa/Homework"
+            : "https://schools.madrasati.sa/",
+        title: this.view === "homework" ? "الواجبات" : "مدرستي",
+        text: await this.getPageText(),
+        accessibleNames: ["الواجبات", "الرئيسية"],
+        labeledValues: [],
+        tableRows: [],
+      };
+    }
+
+    async clickControlByAccessibleName(
+      _page: BrowserPageHandle,
+      names: readonly string[],
+    ): Promise<boolean> {
+      if (names.some((name) => name === "الواجبات")) {
+        this.view = "homework";
+        return true;
+      }
+
+      if (names.some((name) => name === "الرئيسية")) {
+        this.view = "home";
+        return true;
+      }
+
+      return false;
+    }
+
+    async waitForPageText(): Promise<boolean> {
+      return true;
+    }
+  }
+
+  const automation = new UnreadableHomeworkAutomation();
+  const provider = new MadrasatiBrowserAdapter(automation);
+
+  await provider.connect();
+
+  await assert.rejects(
+    () => provider.getHomework(),
+    /تعذر قراءة الواجبات/,
+  );
+
+  assert.equal(automation.view, "home");
+});
+
 test("MadrasatiBrowserAdapter — focuses the email field, types once, and submits Next once", async () => {
   class EmailNextAutomation extends FakeBrowserAutomation {
     readonly sequence: string[] = [];

@@ -5,6 +5,7 @@ import type {
   MadrasatiTeacher,
   MadrasatiTimetableEntry,
 } from "../provider/models.ts";
+import type { MadrasatiHomework } from "../browser/madrasati-homework.ts";
 import {
   MadrasatiNotConnectedError,
   type MadrasatiAuthenticationPage,
@@ -102,6 +103,11 @@ export class MockMadrasatiProvider implements MadrasatiProvider {
   async getSubjects(): Promise<MadrasatiSubject[]> {
     this.requireConnected();
     return this.subjects.map((row) => ({ ...row }));
+  }
+
+  async getHomework(): Promise<MadrasatiHomework[]> {
+    this.requireConnected();
+    return [];
   }
 
   private requireConnected(): void {

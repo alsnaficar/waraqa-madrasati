@@ -1,4 +1,5 @@
 import type { MadrasatiAuthenticationState } from "./models.ts";
+import type { MadrasatiHomework } from "../browser/madrasati-homework.ts";
 
 import type {
   MadrasatiClass,
@@ -35,6 +36,7 @@ export interface MadrasatiProvider {
   getTimetable(): Promise<MadrasatiTimetableEntry[]>;
   getClasses(): Promise<MadrasatiClass[]>;
   getSubjects(): Promise<MadrasatiSubject[]>;
+  getHomework(): Promise<MadrasatiHomework[]>;
 }
 
 export class MadrasatiProviderError extends Error {

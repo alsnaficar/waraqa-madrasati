@@ -89,6 +89,7 @@ function failingTimetableProvider(): MadrasatiProvider {
     getTeacherProfile: () => base.getTeacherProfile(),
     getClasses: () => base.getClasses(),
     getSubjects: () => base.getSubjects(),
+    getHomework: () => base.getHomework(),
     async getTimetable() {
       throw new Error("simulated incomplete timetable fetch");
     },
