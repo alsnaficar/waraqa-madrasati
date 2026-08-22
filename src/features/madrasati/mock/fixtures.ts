@@ -4,6 +4,7 @@ import type {
   MadrasatiTeacher,
   MadrasatiTimetableEntry,
 } from "../provider/models.ts";
+import type { MadrasatiHomework } from "../browser/madrasati-homework.ts";
 
 /**
  * Fixture data for the mock Madrasati provider.
@@ -83,6 +84,29 @@ export const MOCK_MADRASATI_TIMETABLE: MadrasatiTimetableEntry[] = [
  * Intentionally messy raw rows for normalization tests (duplicates + invalid).
  * Not returned by the mock provider's happy path.
  */
+export const MOCK_MADRASATI_HOMEWORK: MadrasatiHomework[] = [
+  {
+    id: "mock-homework-001",
+    title: "تدريب حروف الجر",
+    subject: "لغتي الخالدة",
+    grade: "الصف الأول المتوسط",
+    className: "1",
+    description: "تدريب على استخدام حروف الجر في جمل مفيدة.",
+    startsAt: "2026-08-22",
+    dueAt: "2026-08-25",
+    status: "مفتوح",
+  },
+  {
+    id: "mock-homework-002",
+    title: "مراجعة العمليات الحسابية",
+    subject: "الرياضيات",
+    grade: "الصف الأول المتوسط",
+    className: "1",
+    dueAt: "2026-08-27",
+    status: "مفتوح",
+  },
+];
+
 export const MOCK_MADRASATI_TIMETABLE_WITH_ISSUES = [
   ...MOCK_MADRASATI_TIMETABLE,
   // Exact duplicate of first slot

@@ -99,6 +99,11 @@ describe("Madrasati foundation — sync service", () => {
     assert.ok(result.teacher);
     assert.ok(result.classes.length > 0);
     assert.ok(result.subjects.length > 0);
+    assert.equal(result.homework.length, 2);
+    assert.equal(result.homework[0]?.title, "تدريب حروف الجر");
+    assert.equal(result.homework[0]?.subject, "لغتي الخالدة");
+    assert.equal(result.homework[0]?.dueAt, "2026-08-25");
+    assert.equal(result.homework[1]?.title, "مراجعة العمليات الحسابية");
     assert.equal(result.timetable.accepted.length, MOCK_MADRASATI_TIMETABLE.length);
     assert.equal(result.counts.discovered, MOCK_MADRASATI_TIMETABLE.length);
     assert.equal(result.counts.added, MOCK_MADRASATI_TIMETABLE.length);

@@ -6,6 +6,7 @@ import type {
   MadrasatiTimetableEntry,
 } from "../provider/models.ts";
 import type { MadrasatiProvider } from "../provider/madrasati-provider.ts";
+import type { MadrasatiHomework } from "../browser/madrasati-homework.ts";
 import { normalizeTimetableEntries, type RejectedTimetableEntry } from "./normalize-timetable.ts";
 import {
   mapMadrasatiTimetableToTeacherDrafts,
@@ -59,6 +60,7 @@ export interface MadrasatiSyncResult {
   teacher: MadrasatiTeacher | null;
   classes: MadrasatiClass[];
   subjects: MadrasatiSubject[];
+  homework: MadrasatiHomework[];
   timetable: {
     accepted: MadrasatiTimetableEntry[];
     rejected: RejectedTimetableEntry[];
@@ -136,6 +138,7 @@ type CollectedSnapshot = {
   teacher: MadrasatiTeacher | null;
   classes: MadrasatiClass[];
   subjects: MadrasatiSubject[];
+  homework: MadrasatiHomework[];
   rawTimetable: MadrasatiTimetableEntry[];
   warnings: string[];
   errors: string[];
@@ -213,6 +216,7 @@ export class MadrasatiSyncService {
       teacher: collected.teacher,
       classes: collected.classes,
       subjects: collected.subjects,
+      homework: collected.homework,
       timetable: {
         accepted: normalized.accepted,
         rejected: normalized.rejected,
@@ -352,6 +356,7 @@ export class MadrasatiSyncService {
         teacher: null,
         classes: [],
         subjects: [],
+        homework: [],
         rawTimetable: [],
         warnings,
         errors,
@@ -368,6 +373,7 @@ export class MadrasatiSyncService {
     let teacher: MadrasatiTeacher | null = null;
     let classes: MadrasatiClass[] = [];
     let subjects: MadrasatiSubject[] = [];
+    let homework: MadrasatiHomework[] = [];
     let rawTimetable: MadrasatiTimetableEntry[] = [];
     let timetableReadOk = false;
 
@@ -390,6 +396,11 @@ export class MadrasatiSyncService {
     }
 
     try {
+      homework = await this.provider.getHomework();
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : "Failed to read homework.");
+    }
+    try {
       rawTimetable = await this.provider.getTimetable();
       timetableReadOk = true;
     } catch (error) {
@@ -404,6 +415,7 @@ export class MadrasatiSyncService {
       teacher,
       classes,
       subjects,
+      homework,
       rawTimetable,
       warnings,
       errors,

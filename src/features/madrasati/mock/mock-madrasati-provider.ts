@@ -13,6 +13,7 @@ import {
 } from "../provider/madrasati-provider.ts";
 import {
   MOCK_MADRASATI_CLASSES,
+  MOCK_MADRASATI_HOMEWORK,
   MOCK_MADRASATI_SUBJECTS,
   MOCK_MADRASATI_TEACHER,
   MOCK_MADRASATI_TIMETABLE,
@@ -23,6 +24,7 @@ export interface MockMadrasatiProviderOptions {
   subjects?: MadrasatiSubject[];
   classes?: MadrasatiClass[];
   timetable?: MadrasatiTimetableEntry[];
+  homework?: MadrasatiHomework[];
 }
 
 /**
@@ -37,12 +39,16 @@ export class MockMadrasatiProvider implements MadrasatiProvider {
   private readonly subjects: MadrasatiSubject[];
   private readonly classes: MadrasatiClass[];
   private readonly timetable: MadrasatiTimetableEntry[];
+  private readonly homework: MadrasatiHomework[];
 
   constructor(options: MockMadrasatiProviderOptions = {}) {
     this.teacher = options.teacher ?? MOCK_MADRASATI_TEACHER;
     this.subjects = options.subjects ?? [...MOCK_MADRASATI_SUBJECTS];
     this.classes = options.classes ?? [...MOCK_MADRASATI_CLASSES];
     this.timetable = options.timetable ?? MOCK_MADRASATI_TIMETABLE.map((row) => ({ ...row }));
+    this.homework =
+      options.homework ??
+      MOCK_MADRASATI_HOMEWORK.map((row) => ({ ...row }));
   }
 
   async connect(): Promise<MadrasatiConnectionStatus> {
@@ -107,7 +113,7 @@ export class MockMadrasatiProvider implements MadrasatiProvider {
 
   async getHomework(): Promise<MadrasatiHomework[]> {
     this.requireConnected();
-    return [];
+    return this.homework.map((row) => ({ ...row }));
   }
 
   private requireConnected(): void {
