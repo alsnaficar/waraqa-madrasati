@@ -1,0 +1,1143 @@
+import { randomUUID } from "node:crypto";
+import { lookup } from "node:dns/promises";
+import {
+  chromium,
+  type Browser,
+  type BrowserContext,
+  type CDPSession,
+  type Locator,
+  type Page,
+} from "playwright";
+import type {
+  BrowserAutomation,
+  BrowserPageHandle,
+  BrowserSessionHandle,
+  BrowserSessionOpenOptions,
+} from "./browser-automation.ts";
+import {
+  mapRemoteDomInputType,
+  sanitizeFocusedControl,
+  sanitizeLiveFrame,
+  type MadrasatiFocusedControl,
+  type MadrasatiLiveFrame,
+} from "./madrasati-browser-live-session.ts";
+import {
+  sanitizePageLandmarks,
+  type MadrasatiPageLandmarks,
+} from "./madrasati-teacher-profile.ts";
+
+type SessionRecord = {
+  readonly context: BrowserContext;
+  readonly pages: Map<string, Page>;
+};
+
+type LiveViewRecord = {
+  readonly cdp: CDPSession;
+  latestJpegBase64: string | null;
+  lastEmittedAt: number;
+  readonly listeners: Set<(frame: MadrasatiLiveFrame) => void>;
+};
+
+type TypingTarget = {
+  readonly locator: Locator;
+  readonly kind: "password" | "text";
+};
+
+const MIN_LIVE_FRAME_GAP_MS = 250;
+
+export class PlaywrightBrowserAutomation implements BrowserAutomation {
+  readonly kind = "playwright" as const;
+
+  private browser: Browser | null = null;
+
+  private readonly sessions = new Map<string, SessionRecord>();
+
+  private readonly liveViews = new Map<string, LiveViewRecord>();
+
+  private readonly typingTargets = new Map<string, TypingTarget>();
+
+  async assertAvailable(): Promise<void> {
+    await this.ensureBrowser();
+  }
+
+  async openSession(
+    options: BrowserSessionOpenOptions = {},
+  ): Promise<BrowserSessionHandle> {
+    await this.ensureBrowser();
+
+    const context = await this.browser!.newContext({
+      viewport: options.viewport,
+    });
+
+    const id = randomUUID();
+
+    this.sessions.set(id, {
+      context,
+      pages: new Map(),
+    });
+
+    return Object.freeze({ id });
+  }
+
+  async closeSession(session: BrowserSessionHandle): Promise<void> {
+    const record = this.sessions.get(session.id);
+
+    if (!record) return;
+
+    this.sessions.delete(session.id);
+
+    for (const pageId of record.pages.keys()) {
+      this.typingTargets.delete(pageId);
+    }
+
+    await Promise.allSettled(
+      [...record.pages.keys()].map((pageId) =>
+        this.stopPageLiveView(Object.freeze({ id: pageId })),
+      ),
+    );
+
+    await Promise.allSettled([...record.pages.values()].map((page) => page.close()));
+
+    await record.context.close();
+  }
+
+  async openPage(session: BrowserSessionHandle): Promise<BrowserPageHandle> {
+    const record = this.requireSession(session);
+
+    const page = await record.context.newPage();
+
+    const id = randomUUID();
+
+    record.pages.set(id, page);
+
+    return Object.freeze({ id });
+  }
+
+  async closePage(page: BrowserPageHandle): Promise<void> {
+    const record = this.findPage(page);
+
+    if (!record) return;
+
+    const { session, pageObject } = record;
+
+    session.pages.delete(page.id);
+    this.typingTargets.delete(page.id);
+
+    await this.stopPageLiveView(page);
+
+    await pageObject.close();
+  }
+
+  async goto(
+    page: BrowserPageHandle,
+    url: string,
+    options: {
+      timeoutMs?: number;
+      waitUntil?: "load" | "domcontentloaded" | "networkidle";
+    } = {},
+  ): Promise<void> {
+    const pageObject = this.requirePage(page);
+    this.typingTargets.delete(page.id);
+
+    await pageObject.goto(url, {
+      timeout: options.timeoutMs ?? 30000,
+      waitUntil: options.waitUntil ?? "domcontentloaded",
+    });
+  }
+
+  async getPageUrl(page: BrowserPageHandle): Promise<string> {
+    return this.requirePage(page).url();
+  }
+
+  async getPageTitle(page: BrowserPageHandle): Promise<string> {
+    return this.requirePage(page).title();
+  }
+
+  async getPageText(page: BrowserPageHandle): Promise<string> {
+    const pageObject = this.requirePage(page);
+    const chunks: string[] = [];
+
+    for (const frame of pageObject.frames()) {
+      try {
+        const text = await frame.locator("body").innerText({ timeout: 2500 });
+        const trimmed = text.trim();
+
+        if (trimmed) {
+          chunks.push(trimmed);
+        }
+      } catch {
+        // Cross-origin frames (Microsoft SSO) cannot be read. Skip them.
+      }
+    }
+
+    return chunks.join("\n");
+  }
+
+  async getPageScreenshot(page: BrowserPageHandle): Promise<Uint8Array> {
+    const buffer = await this.requirePage(page).screenshot({
+      type: "png",
+      fullPage: false,
+    });
+
+    return new Uint8Array(buffer);
+  }
+
+  async clickPage(
+    page: BrowserPageHandle,
+    x: number,
+    y: number,
+  ): Promise<void> {
+    const pageObject = this.requirePage(page);
+
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      throw new Error("Browser click coordinates must be finite numbers.");
+    }
+
+    if (x < 0 || y < 0) {
+      throw new Error("Browser click coordinates cannot be negative.");
+    }
+
+    await pageObject.mouse.click(x, y);
+  }
+
+  async typePage(
+    page: BrowserPageHandle,
+    text: string,
+  ): Promise<void> {
+    const pageObject = this.requirePage(page);
+
+    if (typeof text !== "string") {
+      throw new Error("Browser text input must be a string.");
+    }
+
+    const target = await this.resolveTypingTarget(page);
+
+    if (target.kind === "password") {
+      if ((await target.locator.getAttribute("readonly")) !== null) {
+        await this.activatePasswordLocator(target.locator);
+      }
+
+      // Overlay keystrokes arrive in chunks. pressSequentially appends;
+      // fill() would replace the field on every chunk.
+      await target.locator.pressSequentially(text, { timeout: 5000 });
+      return;
+    }
+
+    await target.locator.focus({ timeout: 2000 });
+    // Microsoft login fields are dynamically managed. Use sequential
+    // keystrokes for text/email inputs so the field processes each
+    // character in order instead of receiving one injected text payload.
+    await target.locator.pressSequentially(text, { timeout: 5000 });
+  }
+
+  async pressPageKey(
+    page: BrowserPageHandle,
+    key: string,
+  ): Promise<void> {
+    const pageObject = this.requirePage(page);
+
+    const normalizedKey = key?.trim();
+
+    if (!normalizedKey) {
+      throw new Error("Browser key is required.");
+    }
+
+    await pageObject.keyboard.press(normalizedKey);
+  }
+
+  async focusEditableControl(page: BrowserPageHandle): Promise<void> {
+    const pageObject = this.requirePage(page);
+    const password = await this.findVisiblePasswordLocator(pageObject);
+    const text = await this.findVisibleTextLocator(pageObject);
+    const current = await this.inspectFocusedControl(page);
+
+    // Password values are never read. A leftover hidden email/loginfmt is
+    // ignored by inspectFocusedControl, so it cannot be kept as focus.
+    if (current.inputType === "protected" && password) {
+      await this.ensurePasswordControlReady(password, current);
+      this.rememberTypingTarget(page.id, password, "password");
+      return;
+    }
+
+    // Microsoft password step: the email field is gone or hidden, password
+    // is visible. Select it before any textbox/email discovery.
+    if (password && !text) {
+      await this.ensurePasswordControlReady(password, current);
+      this.rememberTypingTarget(page.id, password, "password");
+      return;
+    }
+
+    if (text) {
+      await text.focus({ timeout: 2000 });
+      this.rememberTypingTarget(page.id, text, "text");
+      return;
+    }
+
+    if (password) {
+      await this.ensurePasswordControlReady(password, current);
+      this.rememberTypingTarget(page.id, password, "password");
+      return;
+    }
+
+    throw new Error("No visible editable control is available to focus.");
+  }
+
+  async startPageLiveView(page: BrowserPageHandle): Promise<void> {
+    if (this.liveViews.has(page.id)) {
+      return;
+    }
+
+    const found = this.findPage(page);
+
+    if (!found) {
+      throw new Error(`Unknown browser page: ${page.id}`);
+    }
+
+    const cdp = await found.session.context.newCDPSession(found.pageObject);
+
+    const record: LiveViewRecord = {
+      cdp,
+      latestJpegBase64: null,
+      lastEmittedAt: 0,
+      listeners: new Set(),
+    };
+
+    cdp.on("Page.screencastFrame", (event) => {
+      record.latestJpegBase64 = event.data;
+
+      void cdp
+        .send("Page.screencastFrameAck", {
+          sessionId: event.sessionId,
+        })
+        .catch(() => undefined);
+
+      this.emitLiveFrame(page, record);
+    });
+
+    try {
+      await cdp.send("Page.startScreencast", {
+        format: "jpeg",
+        quality: 50,
+        maxWidth: 720,
+        maxHeight: 1560,
+        everyNthFrame: 2,
+      });
+    } catch (error) {
+      await cdp.detach().catch(() => undefined);
+      throw error;
+    }
+
+    this.liveViews.set(page.id, record);
+  }
+
+  async stopPageLiveView(page: BrowserPageHandle): Promise<void> {
+    const record = this.liveViews.get(page.id);
+
+    if (!record) {
+      return;
+    }
+
+    this.liveViews.delete(page.id);
+    record.listeners.clear();
+
+    await record.cdp.send("Page.stopScreencast").catch(() => undefined);
+    await record.cdp.detach().catch(() => undefined);
+  }
+
+  async getPageLiveFrame(page: BrowserPageHandle): Promise<MadrasatiLiveFrame> {
+    const pageObject = this.requirePage(page);
+    const viewport = pageObject.viewportSize() ?? {
+      width: 1280,
+      height: 720,
+    };
+    const live = this.liveViews.get(page.id);
+
+    if (live?.latestJpegBase64) {
+      return sanitizeLiveFrame({
+        mimeType: "image/jpeg",
+        base64: live.latestJpegBase64,
+        viewportWidth: viewport.width,
+        viewportHeight: viewport.height,
+      });
+    }
+
+    const png = await this.getPageScreenshot(page);
+
+    return sanitizeLiveFrame({
+      mimeType: "image/png",
+      base64: Buffer.from(png).toString("base64"),
+      viewportWidth: viewport.width,
+      viewportHeight: viewport.height,
+    });
+  }
+
+  async inspectFocusedControl(
+    page: BrowserPageHandle,
+  ): Promise<MadrasatiFocusedControl> {
+    const pageObject = this.requirePage(page);
+
+    for (const frame of pageObject.frames()) {
+      try {
+        const raw = await frame.evaluate(() => {
+          const el = document.activeElement;
+
+          if (!(el instanceof HTMLElement)) {
+            return { isEditable: false, inputType: "none" };
+          }
+
+          const tag = el.tagName.toLowerCase();
+
+          // The iframe host is not the password/email control. Child frames
+          // are inspected separately via page.frames().
+          if (tag === "iframe" || tag === "frame") {
+            return { isEditable: false, inputType: "none" };
+          }
+
+          if (el.hidden || el.getAttribute("aria-hidden") === "true") {
+            return { isEditable: false, inputType: "none" };
+          }
+
+          let ancestor: HTMLElement | null = el;
+
+          while (ancestor) {
+            const style = window.getComputedStyle(ancestor);
+
+            if (style.display === "none" || style.visibility === "hidden") {
+              return { isEditable: false, inputType: "none" };
+            }
+
+            ancestor = ancestor.parentElement;
+          }
+
+          const rect = el.getBoundingClientRect();
+
+          if (rect.width <= 0 || rect.height <= 0) {
+            return { isEditable: false, inputType: "none" };
+          }
+
+          if (tag === "input") {
+            const input = el as HTMLInputElement;
+            const domType = (input.getAttribute("type") || "text").toLowerCase();
+
+            if (
+              input.disabled ||
+              input.readOnly ||
+              domType === "hidden" ||
+              domType === "submit" ||
+              domType === "button" ||
+              domType === "checkbox" ||
+              domType === "radio" ||
+              domType === "file"
+            ) {
+              return { isEditable: false, inputType: "none" };
+            }
+
+            return {
+              isEditable: true,
+              inputType: domType,
+            };
+          }
+
+          if (tag === "textarea") {
+            const area = el as HTMLTextAreaElement;
+
+            if (area.readOnly || area.disabled) {
+              return { isEditable: false, inputType: "none" };
+            }
+
+            return { isEditable: true, inputType: "text" };
+          }
+
+          if (el.isContentEditable) {
+            return { isEditable: true, inputType: "text" };
+          }
+
+          return { isEditable: false, inputType: "none" };
+        });
+
+        const sanitized = sanitizeFocusedControl({
+          isEditable: raw.isEditable,
+          inputType: mapRemoteDomInputType(String(raw.inputType)),
+        });
+
+        if (sanitized.isEditable) {
+          return sanitized;
+        }
+      } catch {
+        // Detached or unloaded frames (including Microsoft SSO). Skip them.
+      }
+    }
+
+    return { isEditable: false, inputType: "none" };
+  }
+
+  async readPageLandmarks(
+    page: BrowserPageHandle,
+  ): Promise<MadrasatiPageLandmarks> {
+    const pageObject = this.requirePage(page);
+    const labeledValues: Array<{ label: string; value: string }> = [];
+    const accessibleNames: string[] = [];
+    const tableRows: Array<{ headers: string[]; cells: string[] }> = [];
+
+    for (const frame of pageObject.frames()) {
+      try {
+        const part = (await frame.evaluate(`(() => {
+          const names = [];
+          const labeled = [];
+          const rows = [];
+
+          function clean(value) {
+            return String(value || "").replace(/\\s+/g, " ").trim();
+          }
+
+          const controls = document.querySelectorAll(
+            'a, button, [role="button"], [role="link"], [role="menuitem"]',
+          );
+
+          for (const el of controls) {
+            if (!(el instanceof HTMLElement)) {
+              continue;
+            }
+            const name = clean(el.getAttribute("aria-label") || el.innerText);
+            if (name) {
+              names.push(name.slice(0, 200));
+            }
+          }
+
+          for (const dt of document.querySelectorAll("dt")) {
+            const dd = dt.nextElementSibling;
+            if (dd && dd.tagName === "DD") {
+              labeled.push({
+                label: clean(dt.textContent),
+                value: clean(dd.textContent),
+              });
+            }
+          }
+
+          for (const label of document.querySelectorAll("label")) {
+            const text = clean(label.textContent);
+            const controlId = label.getAttribute("for");
+            const control = controlId ? document.getElementById(controlId) : null;
+            const value =
+              control instanceof HTMLInputElement ||
+              control instanceof HTMLSelectElement ||
+              control instanceof HTMLTextAreaElement
+                ? control.value
+                : (label.nextElementSibling && label.nextElementSibling.textContent) || "";
+            if (text && value) {
+              labeled.push({
+                label: text,
+                value: clean(value),
+              });
+            }
+          }
+
+          const tables = document.querySelectorAll("table");
+          for (let tableIndex = 0; tableIndex < tables.length; tableIndex += 1) {
+            const table = tables[tableIndex];
+            const headerRow = table.querySelector("thead tr") || table.querySelector("tr");
+            const headers = headerRow
+              ? Array.from(headerRow.querySelectorAll("th, td")).map(function(el) {
+                  return clean(el.textContent);
+                })
+              : [];
+            const tableRowEls = table.querySelectorAll("tr");
+            for (let rowIndex = 0; rowIndex < tableRowEls.length; rowIndex += 1) {
+              const cells = Array.from(tableRowEls[rowIndex].querySelectorAll("th, td")).map(
+                function(el) {
+                  return clean(el.textContent);
+                },
+              );
+              const isHeader =
+                headers.length > 0 &&
+                cells.length === headers.length &&
+                cells.every(function(cell, index) {
+                  return cell === headers[index];
+                });
+              if (isHeader || !cells.some(function(cell) { return cell.length > 0; })) {
+                continue;
+              }
+              rows.push({ headers: headers, cells: cells });
+            }
+          }
+
+          const grids = document.querySelectorAll('[role="table"], [role="grid"]');
+          for (let gridIndex = 0; gridIndex < grids.length; gridIndex += 1) {
+            const grid = grids[gridIndex];
+            const headers = Array.from(grid.querySelectorAll('[role="columnheader"]')).map(
+              function(el) {
+                return clean(el.textContent);
+              },
+            );
+            const gridRows = grid.querySelectorAll('[role="row"]');
+            for (let rowIndex = 0; rowIndex < gridRows.length; rowIndex += 1) {
+              const cells = Array.from(
+                gridRows[rowIndex].querySelectorAll(
+                  '[role="rowheader"], [role="cell"], [role="gridcell"]',
+                ),
+              ).map(function(el) {
+                return clean(el.textContent);
+              });
+              if (!cells.some(function(cell) { return cell.length > 0; })) {
+                continue;
+              }
+              rows.push({ headers: headers, cells: cells });
+            }
+          }
+
+          return { accessibleNames: names, labeledValues: labeled, tableRows: rows };
+        })()`)) as {
+          accessibleNames: string[];
+          labeledValues: Array<{ label: string; value: string }>;
+          tableRows: Array<{ headers: string[]; cells: string[] }>;
+        };
+
+        accessibleNames.push(...part.accessibleNames);
+        labeledValues.push(...part.labeledValues);
+        tableRows.push(...(part.tableRows ?? []));
+      } catch {
+        // Cross-origin frames (Microsoft SSO) cannot be read.
+      }
+    }
+
+    return sanitizePageLandmarks({
+      url: pageObject.url(),
+      title: await pageObject.title(),
+      text: await this.getPageText(page),
+      accessibleNames,
+      labeledValues,
+      tableRows,
+    });
+  }
+
+  private async dismissMadrasatiSplashModal(
+    pageObject: Page,
+    timeoutMs = 2000,
+  ): Promise<boolean> {
+    const modal = pageObject.locator(
+      '.splash-modal:visible',
+    ).first();
+
+    try {
+      await modal.waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+    } catch {
+      return false;
+    }
+
+    const closeButton = modal.locator(
+      'button.btn-close[aria-label="Close"]',
+    ).first();
+
+    try {
+      if ((await closeButton.count()) === 0) {
+        return false;
+      }
+
+      await closeButton.click({ timeout: 4000 });
+
+      await modal.waitFor({
+        state: "hidden",
+        timeout: 4000,
+      }).catch(() => undefined);
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async clickControlByAccessibleName(
+    page: BrowserPageHandle,
+    names: readonly string[],
+  ): Promise<boolean> {
+    const pageObject = this.requirePage(page);
+    const roles = ["button", "link", "menuitem"] as const;
+
+    for (const name of names) {
+      const needle = name.trim();
+      if (!needle) {
+        continue;
+      }
+
+      // Madrasati displays a delayed splash advertisement after navigation.
+      // Wait briefly for the known splash shape and dismiss it if present.
+      await this.dismissMadrasatiSplashModal(pageObject);
+      // Prefer Madrasati's real /login route over its dropdown button.
+      if (needle === "تسجيل الدخول") {
+        try {
+          const loginLink = pageObject.locator('a[href="/login"]').first();
+          if ((await loginLink.count()) > 0 && (await loginLink.isVisible())) {
+            await loginLink.click({ timeout: 4000 });
+            return true;
+          }
+        } catch {
+          // Fall through to the generic accessible-name handling.
+        }
+      }
+
+
+      for (const frame of pageObject.frames()) {
+        for (const role of roles) {
+          try {
+            const locator = frame.getByRole(role, {
+              name: needle,
+              exact: false,
+            });
+
+            if ((await locator.count()) === 0) {
+              continue;
+            }
+
+            try {
+              await locator.first().click({ timeout: 4000 });
+              return true;
+            } catch {
+              // The delayed splash may have appeared between the initial
+              // dismissal and the click. Dismiss the known modal and retry once.
+              if (frame === pageObject.mainFrame()) {
+                const dismissed =
+                  await this.dismissMadrasatiSplashModal(pageObject);
+
+                if (dismissed) {
+                  try {
+                    await locator.first().click({ timeout: 4000 });
+                    return true;
+                  } catch {
+                    // Continue with the next role/frame.
+                  }
+                }
+              }
+            }
+          } catch {
+            // Try the next role or frame.
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  async waitForPageText(
+    page: BrowserPageHandle,
+    needle: string,
+    timeoutMs = 8000,
+  ): Promise<boolean> {
+    const pageObject = this.requirePage(page);
+    const snippet = needle.trim();
+
+    if (!snippet) {
+      return false;
+    }
+
+    try {
+      await pageObject.waitForFunction(
+        (text: string) => (document.body?.innerText ?? "").includes(text),
+        snippet,
+        { timeout: Math.min(Math.max(timeoutMs, 250), 15000) },
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  subscribePageLiveFrame(
+    page: BrowserPageHandle,
+    listener: (frame: MadrasatiLiveFrame) => void,
+  ): () => void {
+    const record = this.liveViews.get(page.id);
+
+    if (!record) {
+      return () => undefined;
+    }
+
+    record.listeners.add(listener);
+    this.emitLiveFrame(page, record, true);
+
+    return () => {
+      record.listeners.delete(listener);
+    };
+  }
+
+  async close(): Promise<void> {
+    const sessions = [...this.sessions.keys()];
+
+    await Promise.allSettled(sessions.map((id) => this.closeSession(Object.freeze({ id }))));
+
+    if (this.browser) {
+      await this.browser.close();
+      this.browser = null;
+    }
+  }
+
+  private async ensureBrowser(): Promise<void> {
+    if (this.browser) return;
+
+    const resolverIp = await this.resolveMadrasatiEndpoint();
+
+    this.browser = await chromium.launch({
+      headless: true,
+      args: [`--host-resolver-rules=MAP schools.madrasati.sa ${resolverIp}`],
+    });
+  }
+
+  private async resolveMadrasatiEndpoint(): Promise<string> {
+    const configuredIp = process.env.MADRASATI_ENDPOINT_IP?.trim();
+
+    if (configuredIp) {
+      return configuredIp;
+    }
+
+    const endpointHosts = [
+      "uaenemadrasatiw03.uaenorth.cloudapp.azure.com",
+      "uaenemadrasatiw10.uaenorth.cloudapp.azure.com",
+    ];
+
+    for (const hostname of endpointHosts) {
+      try {
+        const result = await lookup(hostname, {
+          family: 4,
+        });
+
+        if (result.address) {
+          return result.address;
+        }
+      } catch {
+        // Try the next known Madrasati endpoint.
+      }
+    }
+
+    throw new Error("تعذر اكتشاف عنوان خادم منصة مدرستي تلقائيًا.");
+  }
+
+  private emitLiveFrame(
+    page: BrowserPageHandle,
+    record: LiveViewRecord,
+    force = false,
+  ): void {
+    if (!record.latestJpegBase64 || record.listeners.size === 0) {
+      return;
+    }
+
+    const now = Date.now();
+
+    if (!force && now - record.lastEmittedAt < MIN_LIVE_FRAME_GAP_MS) {
+      return;
+    }
+
+    const found = this.findPage(page);
+
+    if (!found) {
+      return;
+    }
+
+    const viewport = found.pageObject.viewportSize() ?? {
+      width: 390,
+      height: 844,
+    };
+
+    try {
+      const frame = sanitizeLiveFrame({
+        mimeType: "image/jpeg",
+        base64: record.latestJpegBase64,
+        viewportWidth: viewport.width,
+        viewportHeight: viewport.height,
+      });
+
+      record.lastEmittedAt = now;
+
+      for (const listener of record.listeners) {
+        listener(frame);
+      }
+    } catch {
+      // A bad frame must not take down the isolated session.
+    }
+  }
+
+  private rememberTypingTarget(
+    pageId: string,
+    locator: Locator,
+    kind: TypingTarget["kind"],
+  ): void {
+    this.typingTargets.set(pageId, { locator, kind });
+  }
+
+  private async resolveTypingTarget(
+    page: BrowserPageHandle,
+  ): Promise<TypingTarget> {
+    const existing = this.typingTargets.get(page.id);
+
+    if (existing) {
+      const stillUsable = await this.isLocatorUsable(existing.locator);
+
+      if (stillUsable) {
+        if (existing.kind === "password") {
+          return existing;
+        }
+
+        const password = await this.findVisiblePasswordLocator(
+          this.requirePage(page),
+        );
+
+        if (!password) {
+          return existing;
+        }
+      }
+    }
+
+    await this.focusEditableControl(page);
+
+    const target = this.typingTargets.get(page.id);
+
+    if (!target) {
+      throw new Error("No visible editable control is available to type into.");
+    }
+
+    return target;
+  }
+
+  private async isLocatorUsable(locator: Locator): Promise<boolean> {
+    try {
+      if (!(await locator.isVisible())) {
+        return false;
+      }
+
+      if (await locator.isDisabled()) {
+        return false;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async findVisiblePasswordLocator(
+    pageObject: Page,
+    timeoutMs = 10000,
+  ): Promise<Locator | null> {
+    const deadline = Date.now() + timeoutMs;
+
+    while (Date.now() < deadline) {
+      for (const frame of pageObject.frames()) {
+        try {
+          const locator = frame.locator('input[type="password"]');
+          const count = await locator.count();
+
+          for (let index = 0; index < count; index += 1) {
+            const candidate = locator.nth(index);
+
+            try {
+              if (!(await candidate.isVisible())) {
+                continue;
+              }
+              if (await candidate.isDisabled()) {
+                continue;
+              }
+
+              // Microsoft temporarily keeps a hidden password prefill
+              // control in the DOM before creating the real password input.
+              // isVisible() alone is insufficient because that control can
+              // still report as visible while opacity=0 / aria-hidden=true.
+              const state = await candidate.evaluate((el) => {
+                const element = el as HTMLInputElement;
+                const style = window.getComputedStyle(element);
+                const rect = element.getBoundingClientRect();
+
+                return {
+                  ariaHidden: element.getAttribute("aria-hidden"),
+                  tabIndex: element.tabIndex,
+                  opacity: style.opacity,
+                  visibility: style.visibility,
+                  display: style.display,
+                  pointerEvents: style.pointerEvents,
+                  width: rect.width,
+                  height: rect.height,
+                  x: rect.x,
+                  y: rect.y,
+                  className: element.className,
+                };
+              });
+
+              const isRealInteractivePassword =
+                state.ariaHidden !== "true" &&
+                state.tabIndex >= 0 &&
+                state.opacity !== "0" &&
+                state.visibility !== "hidden" &&
+                state.display !== "none" &&
+                state.width > 0 &&
+                state.height > 0;
+
+              if (!isRealInteractivePassword) {
+                continue;
+              }
+
+              return candidate;
+            } catch {
+              // The Microsoft login DOM can be replaced during the
+              // transition from email to password. Retry with a fresh locator.
+            }
+          }
+        } catch {
+          // Detached or unloaded frames. Retry on the next polling cycle.
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    return null;
+  }
+
+  private async findVisibleTextLocator(
+    pageObject: Page,
+  ): Promise<Locator | null> {
+    const fallbackSelectors = [
+      'input[type="email"]',
+      'input[name="loginfmt"]',
+      'input[type="text"]',
+      "input:not([type])",
+      "textarea",
+    ];
+
+    for (const frame of pageObject.frames()) {
+      try {
+        const textboxes = frame.getByRole("textbox");
+        const count = await textboxes.count();
+
+        for (let index = 0; index < count; index += 1) {
+          const box = textboxes.nth(index);
+
+          if (!(await this.isVisibleNonPasswordTextControl(box))) {
+            continue;
+          }
+
+          return box;
+        }
+      } catch {
+        // Detached or unloaded frames. Skip them.
+      }
+    }
+
+    for (const frame of pageObject.frames()) {
+      for (const selector of fallbackSelectors) {
+        try {
+          const locator = frame.locator(selector);
+          const count = await locator.count();
+
+          for (let index = 0; index < count; index += 1) {
+            const candidate = locator.nth(index);
+
+            if (!(await this.isVisibleNonPasswordTextControl(candidate))) {
+              continue;
+            }
+
+            return candidate;
+          }
+        } catch {
+          // Try the next selector or frame.
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private async isVisibleNonPasswordTextControl(
+    locator: Locator,
+  ): Promise<boolean> {
+    try {
+      if (!(await locator.isVisible())) {
+        return false;
+      }
+
+      if (await locator.isDisabled()) {
+        return false;
+      }
+
+      const type = ((await locator.getAttribute("type")) ?? "text").toLowerCase();
+
+      if (
+        type === "password" ||
+        type === "hidden" ||
+        type === "submit" ||
+        type === "button" ||
+        type === "checkbox" ||
+        type === "radio" ||
+        type === "file"
+      ) {
+        return false;
+      }
+
+      if ((await locator.getAttribute("readonly")) !== null) {
+        return false;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async ensurePasswordControlReady(
+    locator: Locator,
+    current: MadrasatiFocusedControl,
+  ): Promise<void> {
+    const readonly = (await locator.getAttribute("readonly")) !== null;
+
+    if (readonly || current.inputType !== "protected") {
+      await this.activatePasswordLocator(locator);
+      return;
+    }
+  }
+
+  private async activatePasswordLocator(locator: Locator): Promise<void> {
+    try {
+      await locator.click({ timeout: 2000 });
+    } catch {
+      await locator.focus({ timeout: 2000 });
+    }
+  }
+
+  private requireSession(session: BrowserSessionHandle): SessionRecord {
+    const record = this.sessions.get(session.id);
+
+    if (!record) {
+      throw new Error(`Unknown browser session: ${session.id}`);
+    }
+
+    return record;
+  }
+
+  private requirePage(page: BrowserPageHandle): Page {
+    const found = this.findPage(page);
+
+    if (!found) {
+      throw new Error(`Unknown browser page: ${page.id}`);
+    }
+
+    return found.pageObject;
+  }
+
+  private findPage(page: BrowserPageHandle): {
+    session: SessionRecord;
+    pageObject: Page;
+  } | null {
+    for (const session of this.sessions.values()) {
+      const pageObject = session.pages.get(page.id);
+
+      if (pageObject) {
+        return {
+          session,
+          pageObject,
+        };
+      }
+    }
+
+    return null;
+  }
+}
