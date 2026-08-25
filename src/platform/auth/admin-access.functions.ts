@@ -11,10 +11,23 @@ export type AdminDashboardStats = {
   users: number;
   teachers: number;
   admins: number;
+
+  subscriptionsActive: number;
+  subscriptionsScheduled: number;
+  subscriptionsPendingPayment: number;
+  subscriptionsExpired: number;
+
+  paymentsPendingReview: number;
+  paymentsPendingAmountSar: number;
+
+  homeworkTotal: number;
+  testsTotal: number;
+
   curriculumTotal: number;
   curriculumDraft: number;
   curriculumPublished: number;
   curriculumArchived: number;
+
   recentCurriculum: Array<{
     id: string;
     originalName: string;
@@ -27,7 +40,14 @@ export type AdminDashboardStats = {
 
 async function countRows(
   client: Awaited<typeof import("@/platform/database/supabase/client.server")>["supabaseAdmin"],
-  table: "profiles" | "user_roles" | "curriculum_files",
+  table:
+    | "profiles"
+    | "user_roles"
+    | "curriculum_files"
+    | "subscriptions"
+    | "payments"
+    | "homework"
+    | "tests",
   filters?: { column: string; value: string },
 ): Promise<number> {
   let query = client.from(table).select("*", { count: "exact", head: true });
@@ -81,25 +101,96 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminDashboardStats> => {
     const { supabaseAdmin } = await import("@/platform/database/supabase/client.server");
+
     await assertAdmin(supabaseAdmin, context.userId);
 
     const [
       users,
       teachers,
       admins,
+
+      subscriptionsActive,
+      subscriptionsScheduled,
+      subscriptionsPendingPayment,
+      subscriptionsExpired,
+
+      paymentsPendingReview,
+
       curriculumTotal,
       curriculumDraft,
       curriculumPublished,
       curriculumArchived,
+
+      homeworkTotal,
+      testsTotal,
+
+      paymentsPendingAmountResult,
+
       recentResult,
     ] = await Promise.all([
       countRows(supabaseAdmin, "profiles"),
-      countRows(supabaseAdmin, "user_roles", { column: "role", value: "teacher" }),
-      countRows(supabaseAdmin, "user_roles", { column: "role", value: "admin" }),
+
+      countRows(supabaseAdmin, "user_roles", {
+        column: "role",
+        value: "teacher",
+      }),
+
+      countRows(supabaseAdmin, "user_roles", {
+        column: "role",
+        value: "admin",
+      }),
+
+      countRows(supabaseAdmin, "subscriptions", {
+        column: "status",
+        value: "active",
+      }),
+
+      countRows(supabaseAdmin, "subscriptions", {
+        column: "status",
+        value: "scheduled",
+      }),
+
+      countRows(supabaseAdmin, "subscriptions", {
+        column: "status",
+        value: "pending_payment",
+      }),
+
+      countRows(supabaseAdmin, "subscriptions", {
+        column: "status",
+        value: "expired",
+      }),
+
+      countRows(supabaseAdmin, "payments", {
+        column: "status",
+        value: "submitted",
+      }),
+
       countRows(supabaseAdmin, "curriculum_files"),
-      countRows(supabaseAdmin, "curriculum_files", { column: "status", value: "draft" }),
-      countRows(supabaseAdmin, "curriculum_files", { column: "status", value: "published" }),
-      countRows(supabaseAdmin, "curriculum_files", { column: "status", value: "archived" }),
+
+      countRows(supabaseAdmin, "curriculum_files", {
+        column: "status",
+        value: "draft",
+      }),
+
+      countRows(supabaseAdmin, "curriculum_files", {
+        column: "status",
+        value: "published",
+      }),
+
+      countRows(supabaseAdmin, "curriculum_files", {
+        column: "status",
+        value: "archived",
+      }),
+
+      countRows(supabaseAdmin, "homework"),
+
+      countRows(supabaseAdmin, "tests"),
+
+      supabaseAdmin
+        .from("payments")
+        .select("net_sar")
+        .eq("status", "submitted"),
+
       supabaseAdmin
         .from("curriculum_files")
         .select("id, original_name, status, subject, grade, updated_at")
@@ -107,16 +198,43 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
         .limit(5),
     ]);
 
-    if (recentResult.error) throw recentResult.error;
+    if (paymentsPendingAmountResult.error) {
+      throw paymentsPendingAmountResult.error;
+    }
+
+    if (recentResult.error) {
+      throw recentResult.error;
+    }
+
+    const paymentsPendingAmountSar = (paymentsPendingAmountResult.data ?? []).reduce(
+      (total, row) => {
+        const amount = Number(row.net_sar);
+        return total + (Number.isFinite(amount) ? amount : 0);
+      },
+      0,
+    );
 
     return {
       users,
       teachers,
       admins,
+
+      subscriptionsActive,
+      subscriptionsScheduled,
+      subscriptionsPendingPayment,
+      subscriptionsExpired,
+
+      paymentsPendingReview,
+      paymentsPendingAmountSar,
+
+      homeworkTotal,
+      testsTotal,
+
       curriculumTotal,
       curriculumDraft,
       curriculumPublished,
       curriculumArchived,
+
       recentCurriculum: (recentResult.data ?? []).map((row) => ({
         id: row.id,
         originalName: row.original_name,

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { RefreshCw, Loader2 } from "lucide-react";
+import { CheckCircle2, RefreshCw, Loader2, XCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 
 import { PageShell } from "@/components/layout/page-shell";
@@ -33,10 +33,42 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { supabase } from "@/platform/database/supabase/client";
 import { type EducationStage } from "@/features/ai/components/curriculum-selector";
+import { cn } from "@/shared/utils/utils";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
 });
+
+function MadrasatiVerificationItem({
+  label,
+  success,
+  detail,
+}: {
+  label: string;
+  success: boolean;
+  detail?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5",
+        success
+          ? "border-emerald-100 bg-emerald-50/70"
+          : "border-red-100 bg-red-50/70",
+      )}
+    >
+      <div className="min-w-0">
+        <p className="text-xs font-bold text-slate-800">{label}</p>
+        {detail ? <p className="mt-0.5 text-[11px] text-slate-600">{detail}</p> : null}
+      </div>
+      {success ? (
+        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+      ) : (
+        <XCircle className="h-4 w-4 shrink-0 text-red-500" />
+      )}
+    </div>
+  );
+}
 
 /** Shared assignment shape used by other routes; Settings no longer edits it. */
 export interface Assignment {
@@ -269,53 +301,128 @@ function SettingsPage() {
                     </p>
                   ) : null}
                   {liveVerification ? (
-                    <div className="mt-2 space-y-1 text-xs leading-relaxed text-amber-900/80">
-                      <p>
-                        التحقق المباشر:{" "}
-                        {liveVerification.stoppedBecauseMock
-                          ? "LIVE MADRASATI SESSION WAS NOT USED."
-                          : liveVerification.connection === "LIVE"
-                            ? "جلسة حية"
-                            : "جلسة وهمية"}
-                        {liveVerification.authenticated ? " · موثّق" : " · غير موثّق"}
-                      </p>
-                      <p>
-                        المعلم: {liveVerification.teacher.success ? "نجاح" : "فشل"}
-                        {liveVerification.teacher.success
-                          ? ` · الاسم: ${liveVerification.teacher.data.displayName ? "نعم" : "لا"} · المدرسة: ${liveVerification.teacher.data.schoolName ? "نعم" : "لا"}`
-                          : ""}
-                      </p>
-                      <p>
-                        الفصول:{" "}
-                        {liveVerification.classes.success
-                          ? liveVerification.classes.empty
-                            ? "نتيجة فارغة صحيحة"
-                            : `نجاح · ${liveVerification.classes.data.length}`
-                          : "فشل"}
-                      </p>
-                      <p>
-                        المواد:{" "}
-                        {liveVerification.subjects.success
-                          ? liveVerification.subjects.empty
-                            ? "نتيجة فارغة صحيحة"
-                            : `نجاح · ${liveVerification.subjects.data.length}`
-                          : "فشل"}
-                      </p>
-                      <p>
-                        الجدول:{" "}
-                        {liveVerification.timetable.success
-                          ? liveVerification.timetable.empty
-                            ? "نتيجة فارغة صحيحة"
-                            : `نجاح · ${liveVerification.timetable.data.length}`
-                          : "فشل"}
-                      </p>
-                      <p>
-                        الجلسة: قبل {liveVerification.session.existedBefore ? "نعم" : "لا"} · بقيت{" "}
-                        {liveVerification.session.remainedAlive ? "نعم" : "لا"} · موثّقة{" "}
-                        {liveVerification.session.remainedAuthenticated ? "نعم" : "لا"} · جلسة ثانية{" "}
-                        {liveVerification.session.secondSessionCreated ? "نعم" : "لا"}
-                      </p>
-                      <p>كتابة قاعدة البيانات: {liveVerification.databaseWrites}</p>
+                    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">
+                            نتيجة التحقق المباشر
+                          </p>
+                          <p className="mt-1 text-[11px] text-slate-500">
+                            قراءة فقط — بدون إنشاء جلسة ثانية وبدون كتابة بيانات.
+                          </p>
+                        </div>
+
+                        <div
+                          className={cn(
+                            "rounded-full px-3 py-1 text-[11px] font-bold",
+                            liveVerification.stoppedBecauseMock
+                              ? "bg-amber-100 text-amber-800"
+                              : liveVerification.connection === "LIVE" &&
+                                  liveVerification.authenticated
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-red-100 text-red-800",
+                          )}
+                        >
+                          {liveVerification.stoppedBecauseMock
+                            ? "جلسة وهمية"
+                            : liveVerification.connection === "LIVE"
+                              ? liveVerification.authenticated
+                                ? "جلسة حية موثّقة"
+                                : "جلسة حية غير موثّقة"
+                              : "جلسة وهمية"}
+                        </div>
+                      </div>
+
+                      {liveVerification.stoppedBecauseMock ? (
+                        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900">
+                          لم يتم استخدام جلسة مدرستي الحقيقية. أعد تسجيل الدخول من خلال جلسة مدرستي
+                          الحية ثم أعد التحقق.
+                        </div>
+                      ) : null}
+
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <MadrasatiVerificationItem
+                          label="حساب المعلم"
+                          success={liveVerification.teacher.success}
+                          detail={
+                            liveVerification.teacher.success
+                              ? `${liveVerification.teacher.data.displayName}${
+                                  liveVerification.teacher.data.schoolName
+                                    ? ` — ${liveVerification.teacher.data.schoolName}`
+                                    : ""
+                                }`
+                              : liveVerification.teacher.message
+                          }
+                        />
+
+                        <MadrasatiVerificationItem
+                          label="الفصول"
+                          success={liveVerification.classes.success}
+                          detail={
+                            liveVerification.classes.success
+                              ? liveVerification.classes.empty
+                                ? "لا توجد فصول مسندة"
+                                : `${liveVerification.classes.data.length} فصل`
+                              : liveVerification.classes.message
+                          }
+                        />
+
+                        <MadrasatiVerificationItem
+                          label="المواد"
+                          success={liveVerification.subjects.success}
+                          detail={
+                            liveVerification.subjects.success
+                              ? liveVerification.subjects.empty
+                                ? "لا توجد مواد مسندة"
+                                : `${liveVerification.subjects.data.length} مادة`
+                              : liveVerification.subjects.message
+                          }
+                        />
+
+                        <MadrasatiVerificationItem
+                          label="الجدول"
+                          success={liveVerification.timetable.success}
+                          detail={
+                            liveVerification.timetable.success
+                              ? liveVerification.timetable.empty
+                                ? "لا توجد حصص"
+                                : `${liveVerification.timetable.data.length} حصة`
+                              : liveVerification.timetable.message
+                          }
+                        />
+                      </div>
+
+                      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        <div className="rounded-lg bg-slate-50 px-3 py-2 text-center">
+                          <p className="text-[10px] text-slate-500">الجلسة الأصلية</p>
+                          <p className="mt-1 text-xs font-bold text-slate-800">
+                            {liveVerification.session.existedBefore ? "موجودة" : "غير موجودة"}
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg bg-slate-50 px-3 py-2 text-center">
+                          <p className="text-[10px] text-slate-500">بقاء الجلسة</p>
+                          <p className="mt-1 text-xs font-bold text-slate-800">
+                            {liveVerification.session.remainedAlive ? "نعم" : "لا"}
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg bg-slate-50 px-3 py-2 text-center">
+                          <p className="text-[10px] text-slate-500">جلسة ثانية</p>
+                          <p className="mt-1 text-xs font-bold text-slate-800">
+                            {liveVerification.session.secondSessionCreated ? "تم إنشاؤها" : "لم تُنشأ"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+                        <span className="text-[11px] text-slate-500">
+                          كتابة قاعدة البيانات
+                        </span>
+                        <span className="text-[11px] font-bold text-slate-800">
+                          {liveVerification.databaseWrites}
+                        </span>
+                      </div>
                     </div>
                   ) : null}
                 </div>

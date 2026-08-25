@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ورقة - النظام التعليمي الذكي</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment-border: #b89360;
+            --parchment-border-dark: #7a5529;
+            --ink-black: #261708;
+            --ink-brown: #573a1c;
+            --ink-green: #1b5e20;
+            --red-btn: #c62828;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #1a1006;
+            background-image: radial-gradient(circle at center, #2e1c0c 0%, #0d0702 100%);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: var(--ink-black);
+        }
+
+        /* نظام التبديل بين الشاشات */
+        .app-view-screen { display: none; width: 100%; max-width: 1400px; animation: fadeIn 0.2s ease-out; }
+        .app-view-screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* هيكل المخطوطة */
+        .board {
+            width: 100%;
+            background: linear-gradient(135deg, #fbf0dc 0%, #eed5b1 45%, #dfbe8f 80%, #d1ab7a 100%);
+            border-radius: 28px;
+            padding: 22px 30px 36px 30px;
+            box-shadow: 0 0 0 3px #5c3b19, 0 0 0 7px #231204, 0 25px 70px rgba(0,0,0,0.85);
+            border: 1.5px solid #8c6239;
+        }
+
+        /* حاوية اللوقو الرسمي المتطابق */
+        .official-logo-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .logo-graphic-container {
+            width: 62px;
+            height: 62px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
+        }
+        .logo-text-col {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+        }
+        .logo-wordmark {
+            font-family: 'Aref Ruqaa', 'Amiri', serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: #144a17;
+            line-height: 0.95;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .logo-sub-pill {
+            background: #1b5e20;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        /* كرت الدخول للمنصة */
+        .auth-card-box {
+            max-width: 520px;
+            margin: 40px auto;
+            background: #faf0dc;
+            border: 2px solid var(--parchment-border-dark);
+            border-radius: 18px;
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(90, 52, 17, 0.2);
+        }
+        .btn-gold-action {
+            width: 100%;
+            background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
+            color: #fff;
+            border: 1.5px solid #144a17;
+            padding: 13px;
+            border-radius: 8px;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .auth-row-item {
+            background: #fdf7ec;
+            border: 1.5px solid var(--parchment-border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        /* لوحة التحكم الرئيسية */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(184, 147, 96, 0.6); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .nav-tabs { display: flex; gap: 6px; background: rgba(184, 147, 96, 0.22); padding: 4px 6px; border-radius: 12px; border: 1px solid var(--parchment-border); }
+        .nav-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; color: var(--ink-brown); cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+        .nav-item.active { background: #fdf8ee; color: var(--ink-black); border: 1px solid var(--parchment-border); }
+
+        .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+        @media(max-width: 1024px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+        @media(max-width: 650px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+        .stat-box { background: linear-gradient(180deg, #fdf9f0 0%, #f7e8cf 100%); border: 1.5px solid var(--parchment-border); border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+
+        .info-row { display: grid; grid-template-columns: 1.45fr 1fr; gap: 12px; margin-bottom: 14px; }
+        @media(max-width: 880px) { .info-row { grid-template-columns: 1fr; } }
+        .info-box { background: #faf0dc; border: 1.5px solid var(--parchment-border); border-radius: 12px; padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+
+        .week-bar { background: #fdf7ec; border: 1.5px solid var(--parchment-border); border-radius: 10px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .btn-arrow { background: #f5e4c6; border: 1.5px solid var(--parchment-border-dark); color: var(--ink-black); padding: 4px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
+
+        .controls-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
+        .select-parchment { background: #fdf8ee; border: 1.5px solid var(--parchment-border-dark); color: var(--ink-black); font-size: 11px; font-weight: 800; padding: 5px 8px; border-radius: 6px; outline: none; }
+        .btn-prep-all { background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%); color: #fff; border: 1.5px solid #144a17; padding: 6px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
+        .btn-del-all { background: #fdf8ee; color: var(--red-btn); border: 1.5px solid var(--red-btn); padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
+
+        /* جدول الحصص الأسبوعي */
+        .schedule-wrap { overflow-x: auto; background: #fdf8ed; border: 2px solid var(--parchment-border-dark); border-radius: 12px; margin-bottom: 16px; box-shadow: 0 6px 18px rgba(90, 52, 17, 0.12); }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; min-width: 1000px; }
+        th { background: #e4c79f; color: var(--ink-black); padding: 8px 4px; border: 1.5px solid var(--parchment-border-dark); font-weight: 900; }
+        td { border: 1.5px solid var(--parchment-border); padding: 5px 3px; vertical-align: top; }
+        .cell-day { background: #edd5b1; font-weight: 900; font-size: 12.5px; width: 75px; vertical-align: middle; color: var(--ink-black); }
+
+        .card-slot { background: #ffffff; border: 1.5px solid #d4b88e; border-radius: 8px; padding: 5px 4px; min-height: 98px; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-slot.ready { background: #f1f8e9; border-color: #7cb342; }
+        .slot-tag { font-size: 8.5px; font-weight: 800; color: var(--ink-green); background: #e8f5e9; padding: 1px 5px; border-radius: 4px; align-self: flex-start; margin-bottom: 2px; }
+        .slot-title { font-size: 11.5px; font-weight: 900; color: #1b5e20; }
+        .slot-sub { font-size: 9px; font-weight: 700; color: var(--ink-brown); margin-bottom: 3px; }
+        .slot-select { width: 100%; font-size: 9px; font-weight: 700; padding: 2px; border-radius: 4px; border: 1px solid #c8a676; background: #fff; margin-bottom: 3px; outline: none; }
+        .btn-card-micro { border: none; padding: 3px 5px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; }
+
+        .services-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        @media (max-width: 1100px) { .services-row { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 700px) { .services-row { grid-template-columns: repeat(2, 1fr); } }
+        .svc-box { background: linear-gradient(180deg, #fdf9f0 0%, #f4e3c3 100%); border: 1.5px solid var(--parchment-border-dark); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; box-shadow: 0 3px 6px rgba(90, 52, 17, 0.1); }
+    </style>
+</head>
+<body>
+
+    <!-- ================= 1. الصفحة الرئيسية (البوابة) ================= -->
+    <div id="view-landing" class="app-view-screen active">
+        <div class="board" style="max-width: 650px; margin: 20px auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--parchment-border); padding-bottom: 12px; margin-bottom: 16px;">
+                
+                <!-- اللوقو في البوابة -->
+                <div class="official-logo-box">
+                    <div class="logo-graphic-container">
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <!-- ورقة المخطوطة الملفوفة -->
+                            <path d="M18,22 C32,8 68,8 82,22 C92,38 88,72 78,82 C65,92 28,92 18,78 Z" fill="#ecd5b0" stroke="#7a5529" stroke-width="2.5"/>
+                            <!-- ريشة الكتابة الخضراء والذهبية -->
+                            <path d="M48,12 C62,20 78,40 68,68 C58,48 48,32 48,12 Z" fill="#1b5e20"/>
+                            <path d="M30,32 C38,42 36,62 24,76 C40,70 50,50 30,32 Z" fill="#2e7d32"/>
+                            <circle cx="50" cy="44" r="4" fill="#d4af37"/>
+                            <!-- المحبرة والكتاب -->
+                            <path d="M22,76 L34,76 L30,88 L26,88 Z" fill="#261708"/>
+                            <rect x="20" y="84" width="45" height="6" rx="2" fill="#1b5e20" stroke="#d4af37" stroke-width="0.8"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text-col">
+                        <span class="logo-wordmark">ورقة 🌿</span>
+                        <span class="logo-sub-pill">النظام التعليمي الذكي</span>
+                    </div>
+                </div>
+
+                <span style="font-size: 13px; font-weight: 800; color: var(--ink-brown);">منصة مدرستي</span>
+            </div>
+
+            <div class="auth-card-box">
+                <div style="font-size: 42px; margin-bottom: 10px;">🎓</div>
+                <h2 style="font-size: 19px; font-weight: 900; margin-bottom: 6px;">بوابة التعليم الإلكتروني الموحدة</h2>
+                <p style="font-size: 12.5px; color: var(--ink-brown); line-height: 1.7; margin-bottom: 22px;">
+                    مرحباً بك في منصة مدرستي الرسمية، يرجى تسجيل الدخول للوصول المباشر إلى الجدول الدراسي، التحضير الآلي، وسجلات متابعة الطلاب.
+                </p>
+                <button class="btn-gold-action" onclick="AppFlow.go('view-methods')">
+                    المتابعة إلى تسجيل الدخول ◀
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 2. شاشة خيارات تسجيل الدخول ================= -->
+    <div id="view-methods" class="app-view-screen">
+        <div class="board" style="max-width: 600px; margin: 20px auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--parchment-border); padding-bottom: 12px; margin-bottom: 16px;">
+                <h3 style="color: var(--ink-green);">تسجيل الدخول إلى منصة مدرستي</h3>
+                <button onclick="AppFlow.go('view-landing')" class="btn-arrow">✕ رجوع</button>
+            </div>
+
+            <div class="auth-card-box" style="margin: 20px auto;">
+                <p style="font-size: 12px; color: var(--ink-brown); margin-bottom: 16px;">اختر بوابة الحساب المناسبة للمتابعة</p>
+                <div class="auth-row-item" onclick="AppFlow.go('view-ms-account')">
+                    <div style="text-align: right;">
+                        <div style="font-weight: 800; font-size: 13.5px; color: #0284c7;">الدخول بحساب مايكروسوفت</div>
+                        <div style="font-size: 10.5px; color: var(--ink-brown);">للكادر التعليمي والطلاب وأطفال روضتي</div>
+                    </div>
+                    <div style="font-size: 24px;">🪟</div>
+                </div>
+                <div class="auth-row-item" onclick="AppFlow.go('view-ms-account')">
+                    <div style="text-align: right;">
+                        <div style="font-weight: 800; font-size: 13.5px; color: var(--ink-green);">الدخول بحساب نور</div>
+                        <div style="font-size: 10.5px; color: var(--ink-brown);">تسجيل الدخول لأولياء الأمور والإداريين</div>
+                    </div>
+                    <div style="font-size: 24px;">🏛️</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 3. شاشة اختيار الحساب ================= -->
+    <div id="view-ms-account" class="app-view-screen">
+        <div class="board" style="max-width: 520px; margin: 30px auto;">
+            <div class="auth-card-box" style="margin: 10px auto;">
+                <div style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">Microsoft 🪟</div>
+                <h3 style="font-size: 17px; font-weight: 900; margin-bottom: 4px;">اختيار حساب</h3>
+                <p style="font-size: 11.5px; color: var(--ink-brown); margin-bottom: 16px;">للمتابعة والربط المباشر مع منصة مدرستي</p>
+
+                <div class="auth-row-item" style="background:#f4e8cf; border-color: var(--ink-green);" onclick="AppFlow.go('view-school')">
+                    <div style="text-align: right;">
+                        <div style="font-weight: 900; font-size: 14px;">محمد الفيفي</div>
+                        <div style="font-size: 11px; color: var(--ink-brown);">moe.gov.sa@1246961055</div>
+                        <div style="font-size: 10px; color: var(--ink-green); font-weight: bold;">مسجل الدخول ✓</div>
+                    </div>
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #0284c7; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold;">م</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 4. شاشة اختيار المدرسة ================= -->
+    <div id="view-school" class="app-view-screen">
+        <div class="board">
+            <div class="header">
+                <h2 style="color: var(--ink-green);">🏫 قائمة المدارس | منصة مدرستي</h2>
+                <button class="btn-arrow" onclick="AppFlow.go('view-dashboard')">الصفحة الرئيسية ◀</button>
+            </div>
+
+            <div class="info-row" style="margin-top: 20px;">
+                <div class="info-box" style="flex-direction: column; text-align: center; padding: 24px;">
+                    <div style="font-size: 38px; margin-bottom: 6px;">🏫</div>
+                    <h2 style="font-size: 19px; font-weight: 900; color: #0284c7;">متوسطة أوس بن حبيب</h2>
+                    <div style="font-size: 12px; color: var(--ink-brown); font-weight: 700; margin-bottom: 16px;">مكتب تعليم خميس مشيط • الإدارة العامة للتعليم بعسير</div>
+                    <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;">
+                        <span class="select-parchment">👨‍🏫 الدور: معلم</span>
+                        <span class="select-parchment">👨‍🎓 الطلاب: 324</span>
+                        <span class="select-parchment">👥 المعلمين: 20</span>
+                    </div>
+                    <button class="btn-gold-action" onclick="AppFlow.go('view-dashboard')">الدخول إلى لوحة المعلم والجدول الدراسي</button>
+                </div>
+
+                <div class="info-box" style="flex-direction: column; justify-content: center; text-align: right; padding: 20px;">
+                    <div style="font-size: 13.5px; color: var(--ink-green); font-weight: 900; margin-bottom: 6px;">📢 التوجيهات الوزارية المعتمدة</div>
+                    <p style="font-size: 12px; color: var(--ink-brown); line-height: 1.8; font-weight: 700;">
+                        «إن التعليم في المملكة العربية السعودية هو الركيزة الأساسية التي نحقق بها تطلعات شعبنا نحو التقدم والازدهار، والشباب هم أمل الأمة وعماد المستقبل.»
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 5. لوحة المعلم وجدول ورقة الأسبوعي الكامل ================= -->
+    <div id="view-dashboard" class="app-view-screen">
+        <div class="board">
+            
+            <div class="header">
+                <!-- اللوقو في لوحة المعلم -->
+                <div class="official-logo-box">
+                    <div class="logo-graphic-container">
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <path d="M18,22 C32,8 68,8 82,22 C92,38 88,72 78,82 C65,92 28,92 18,78 Z" fill="#ecd5b0" stroke="#7a5529" stroke-width="2.5"/>
+                            <path d="M48,12 C62,20 78,40 68,68 C58,48 48,32 48,12 Z" fill="#1b5e20"/>
+                            <path d="M30,32 C38,42 36,62 24,76 C40,70 50,50 30,32 Z" fill="#2e7d32"/>
+                            <circle cx="50" cy="44" r="4" fill="#d4af37"/>
+                            <path d="M22,76 L34,76 L30,88 L26,88 Z" fill="#261708"/>
+                            <rect x="20" y="84" width="45" height="6" rx="2" fill="#1b5e20" stroke="#d4af37" stroke-width="0.8"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text-col">
+                        <span class="logo-wordmark">ورقة 🌿</span>
+                        <span class="logo-sub-pill">النظام التعليمي الذكي</span>
+                    </div>
+                </div>
+
+                <div class="nav-tabs">
+                    <span class="nav-item active">🏠 الرئيسية</span>
+                    <span class="nav-item" onclick="AppFlow.go('view-school')">🏫 المدارس</span>
+                    <span class="nav-item" onclick="alert('الواجبات')">📝 الواجبات</span>
+                    <span class="nav-item" onclick="alert('الطلاب')">👥 الطلاب</span>
+                    <span class="nav-item" onclick="alert('التقارير')">📊 التقارير</span>
+                    <span class="nav-item" onclick="alert('المصادر')">📚 المصادر</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="btn-arrow" onclick="AppFlow.go('view-landing')">🚪 خروج</button>
+                    <button class="btn-arrow" onclick="location.reload()">🔄 تحديث</button>
+                </div>
+            </div>
+
+            <!-- كروت الإحصائيات الخمسة -->
+            <div class="stats-row">
+                <div class="stat-box" onclick="alert('كادر المعلمين: 20 معلم ومعلمة')"><div><div style="font-size:11px; font-weight:800;">المعلمون</div><div style="font-size:22px; font-weight:900;">20</div></div><div>👥</div></div>
+                <div class="stat-box" onclick="alert('سجلات الطلاب: 324 طالب وطالبة')"><div><div style="font-size:11px; font-weight:800;">الطلاب</div><div style="font-size:22px; font-weight:900;">324</div></div><div>👨‍🎓</div></div>
+                <div class="stat-box" onclick="alert('الفصول الدراسية: 19 فصل')"><div><div style="font-size:11px; font-weight:800;">الفصول</div><div style="font-size:22px; font-weight:900;">19</div></div><div>🏫</div></div>
+                <div class="stat-box" onclick="alert('المواد الدراسية: 10 مواد')"><div><div style="font-size:11px; font-weight:800;">المواد</div><div style="font-size:22px; font-weight:900;">10</div></div><div>📚</div></div>
+                <div class="stat-box" style="background:#fdf3df;" onclick="alert('الحصة القادمة: لغتي الخالدة - 10:00 ص')"><div><div style="font-size:10px; color:#8c6239; font-weight:bold;">الحصة القادمة</div><div style="font-size:15px; font-weight:900; color:#1b5e20;">لغتي الخالدة</div></div><div>⏳</div></div>
+            </div>
+
+            <!-- صندوق التوجيهات والمدرسة -->
+            <div class="info-row">
+                <div class="info-box">
+                    <div style="font-size: 26px;">✒️</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 900; margin-bottom: 2px;">📢 التوجيهات الوزارية</div>
+                        <p style="font-size: 11.5px; color: var(--ink-brown); line-height: 1.6; font-weight: 700;">
+                            «إن التعليم في المملكة العربية السعودية هو الركيزة الأساسية التي نحقق بها تطلعات شعبنا نحو التقدم والازدهار، والشباب هم أمل الأمة وعماد المستقبل.»
+                        </p>
+                    </div>
+                </div>
+                <div class="info-box" style="justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 900;">متوسطة أوس بن حبيب</div>
+                        <div style="font-size: 11px; color: var(--ink-brown); font-weight: 700; margin-top: 2px;">مكتب تعليم خميس مشيط • إدارة التعليم بعسير</div>
+                    </div>
+                    <button class="btn-arrow" onclick="AppFlow.go('view-school')">عرض المدرسة ◀</button>
+                </div>
+            </div>
+
+            <!-- شريط الأسبوع -->
+            <div class="week-bar">
+                <div id="week-txt" style="font-size: 13px; font-weight: 900;">
+                    📅 الأسبوع الأول (الحالي): من الأحد 10 ربيع الأول 1448 هـ إلي الخميس 14 ربيع الأول 1448 هـ
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-arrow" onclick="AppFlow.navWeek(-1)">◀ السابق</button>
+                    <button class="btn-arrow" onclick="AppFlow.navWeek(1)">التالي ▶</button>
+                </div>
+            </div>
+
+            <!-- الفلاتر والإجراءات -->
+            <div class="controls-row">
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <select class="select-parchment"><option>الفصل: الأول متوسط ▾</option><option>الثاني متوسط ▾</option></select>
+                    <select class="select-parchment"><option>النوع: بنين 👦</option></select>
+                    <select class="select-parchment"><option>نمط الأسبوع: حضوري 🏫</option></select>
+                    <button class="btn-arrow" onclick="alert('📣 تم نشر الخطة في منصة مدرستي ولأولياء الأمور')">📣 نشر الخطة ▾</button>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-prep-all" onclick="AppFlow.prepAll()">⚡ تحضير أسبوعي كامل</button>
+                    <button class="btn-del-all" onclick="AppFlow.delAll()">🗑️ حذف التحضير الأسبوعي</button>
+                </div>
+            </div>
+
+            <!-- جدول الحصص الأسبوعي الكامل -->
+            <div class="schedule-wrap">
+                <table>
+                    <thead>
+                        <tr><th>اليوم</th><th>الحصة 1</th><th>الحصة 2</th><th>الحصة 3</th><th>الحصة 4</th><th>الحصة 5</th><th>الحصة 6</th><th>الحصة 7</th><th>إجراءات اليوم ⚡</th></tr>
+                    </thead>
+                    <tbody id="schedule-tbody-full"></tbody>
+                </table>
+            </div>
+
+            <!-- البطاقات السبع السفلية -->
+            <div class="services-row">
+                <div class="svc-box" onclick="alert('🗓️ الخطة الفصلية')"><div style="font-size:18px;">🗓️</div><div style="font-size:11.5px; font-weight:900;">الخطة الفصلية</div></div>
+                <div class="svc-box" onclick="alert('📝 تصحيح الواجبات')"><div style="font-size:18px;">📝</div><div style="font-size:11.5px; font-weight:900;">تصحيح الواجبات</div></div>
+                <div class="svc-box" onclick="alert('📊 تقارير الواجبات')"><div style="font-size:18px;">📊</div><div style="font-size:11.5px; font-weight:900;">تقارير الواجبات</div></div>
+                <div class="svc-box" onclick="alert('🎯 تصحيح الاختبارات')"><div style="font-size:18px;">🎯</div><div style="font-size:11.5px; font-weight:900;">تصحيح الاختبارات</div></div>
+                <div class="svc-box" onclick="alert('📈 تقارير الاختبارات')"><div style="font-size:18px;">📈</div><div style="font-size:11.5px; font-weight:900;">تقارير الاختبارات</div></div>
+                <div class="svc-box" onclick="alert('📄 أوراق العمل')"><div style="font-size:18px;">📄</div><div style="font-size:11.5px; font-weight:900;">أوراق العمل</div></div>
+                <div class="svc-box" onclick="alert('🎯 نماذج الاختبارات')"><div style="font-size:18px;">🎯</div><div style="font-size:11.5px; font-weight:900;">نماذج الاختبارات</div></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- كود المحرك والتنقل -->
+    <script>
+        const AppFlow = {
+            week: 1,
+            data: [
+                { day: "الأحد ☀️", slots: [{c:"لغتي الخالدة", g:"أولى متوسط (1)", l:"اسم المفعول", r:true}, {c:"لغتي الخالدة", g:"أولى متوسط (2)", l:"التواصل اللغوي", r:true}, {c:"لغتي الخالدة", g:"أولى متوسط (2)", l:"الضمائر المنفصلة", r:true}, {c:"لغتي الخالدة", g:"أولى متوسط (1)", l:"الإكمال والخمسة", r:true}, null, null, null] },
+                { day: "الإثنين ☁️", slots: [{c:"لغتي الخالدة", g:"ثاني متوسط (1)", l:"التواصل اللغوي", r:true}, {c:"لغتي الخالدة", g:"ثاني متوسط (2)", l:"الأفعال الخمسة", r:true}, null, null, null, null, null] },
+                { day: "الثلاثاء ☀️", slots: [null, null, {c:"لغتي الخالدة", g:"ثاني متوسط (1)", l:"الظروف والحال فيها", r:true}, {c:"لغتي الخالدة", g:"ثاني متوسط (1)", l:"التواصل الكتابي", r:true}, null, {c:"لغتي الخالدة", g:"ثاني متوسط (2)", l:"أسماء الأفعال", r:true}, null] },
+                { day: "الأربعاء ☁️", slots: [null, {c:"لغتي الخالدة", g:"أولى متوسط (1)", l:"المصدر المتصل", r:true}, {c:"لغتي الخالدة", g:"ثاني متوسط (2)", l:"المفعول فيه", r:true}, {c:"لغتي الخالدة", g:"ثاني متوسط (2)", l:"المفعول به", r:true}, {c:"لغتي الخالدة", g:"ثاني متوسط (1)", l:"التوكيد", r:true}, null, null] },
+                { day: "الخميس ☀️", slots: [{c:"لغتي الخالدة", g:"أولى متوسط (1)", l:"التواصل اللغوي", r:true}, {c:"لغتي الخالدة", g:"أولى متوسط (1)", l:"مراجعة عامة", r:true}, null, null, null, null, null] }
+            ],
+
+            go: function(screenId) {
+                document.querySelectorAll('.app-view-screen').forEach(s => s.classList.remove('active'));
+                const target = document.getElementById(screenId);
+                if (target) {
+                    target.classList.add('active');
+                    window.scrollTo(0, 0);
+                }
+            },
+
+            render: function() {
+                const tbody = document.getElementById('schedule-tbody-full');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+
+                this.data.forEach((dayRow, dIdx) => {
+                    const tr = document.createElement('tr');
+                    let html = `<td class="cell-day">${dayRow.day}</td>`;
+
+                    dayRow.slots.forEach((slot, sIdx) => {
+                        if (!slot) {
+                            html += `<td style="color:#bfa27b; vertical-align:middle; font-weight:bold;">-</td>`;
+                        } else {
+                            const isReady = slot.r ? 'ready' : '';
+                            html += `
+                                <td class="${isReady}">
+                                    <div class="card-slot ${isReady}">
+                                        <span class="slot-tag">🏫 حضوري</span>
+                                        <div class="slot-title">📚 ${slot.c}</div>
+                                        <div class="slot-sub">${slot.g} - بنين</div>
+                                        <select class="slot-select">
+                                            <option selected>${slot.r ? '✅ ' : '⚪ '}${slot.l}</option>
+                                        </select>
+                                        <div style="display:flex; gap:2px;">
+                                            <button class="btn-card-micro" style="background:#b8915c; color:#fff; flex:1;" onclick="alert('🖨️ طباعة: ${slot.l}')">🖨️</button>
+                                            <button class="btn-card-micro" style="background:var(--red-btn); color:#fff;" onclick="AppFlow.toggle(${dIdx}, ${sIdx})">${slot.r ? '🗑️' : '⚡'}</button>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                        }
+                    });
+
+                    html += `
+                        <td style="vertical-align:middle; width:95px; background:#f7e8cf;">
+                            <button class="btn-card-micro" style="background:var(--ink-green); color:#fff; width:100%; margin-bottom:3px;" onclick="AppFlow.prepD(${dIdx})">⚡ تحضير يومي</button>
+                            <button class="btn-card-micro" style="background:#fff; color:var(--red-btn); border:1px solid var(--red-btn); width:100%;" onclick="AppFlow.delD(${dIdx})">🗑️ حذف اليوم</button>
+                        </td>
+                    `;
+                    tr.innerHTML = html;
+                    tbody.appendChild(tr);
+                });
+            },
+
+            toggle: function(d, s) { this.data[d].slots[s].r = !this.data[d].slots[s].r; this.render(); },
+            prepD: function(d) { this.data[d].slots.forEach(s => { if(s) s.r = true; }); this.render(); },
+            delD: function(d) { this.data[d].slots.forEach(s => { if(s) s.r = false; }); this.render(); },
+            prepAll: function() { this.data.forEach(d => d.slots.forEach(s => { if(s) s.r = true; })); this.render(); alert('⚡ تم تحضير الأسبوع كاملاً!'); },
+            delAll: function() { this.data.forEach(d => d.slots.forEach(s => { if(s) s.r = false; })); this.render(); alert('🗑️ تم حذف تحضير الأسبوع!'); },
+            navWeek: function(delta) {
+                this.week = Math.max(1, this.week + delta);
+                document.getElementById('week-txt').innerText = `📅 الأسبوع رقم (${this.week}): الفصل الدراسي الأول 1448 هـ`;
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => AppFlow.render());
+    </script>
+</body>
+</html>
