@@ -1,0 +1,1052 @@
+/* --- تنسيقات ورقة مدرستي المطابقة للصور --- */
+#waraqah-extension-root {
+  --bg-dark: #12161a;
+  --panel-bg: #1a2228;
+  --card-bg: #0f171c;
+  --card-border: #22323d;
+  --primary-blue: #0284c7;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-teal: #0d9488;
+  --accent-purple: #8b5cf6;
+  --accent-orange: #ea580c;
+  --accent-crimson: #dc2626;
+  --text-light: #f1f5f9;
+  --text-muted: #94a3b8;
+}
+
+#waraqah-extension-root {
+  direction: rtl;
+  font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  padding: 16px;
+  border-radius: 14px;
+  margin: 15px auto;
+  width: 98%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  border: 1px solid var(--card-border);
+  box-sizing: border-box;
+}
+
+/* الشريط العلوي */
+#waraqah-extension-root .wq-header-bar{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--panel-bg);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#waraqah-extension-root .wq-week-title{
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#waraqah-extension-root .wq-btn-nav{
+  background: #0369a1;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+#waraqah-extension-root .wq-btn-nav:hover{ background: #0284c7; }
+
+/* شريط التحكم والإحصائيات */
+#waraqah-extension-root .wq-stats-controls{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#waraqah-extension-root .wq-badges-group, #waraqah-extension-root .wq-actions-group{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+#waraqah-extension-root .wq-badge{
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+#waraqah-extension-root .wq-badge.green{ background: #064e3b; border-color: #059669; color: #a7f3d0; }
+#waraqah-extension-root .wq-badge.orange{ background: #451a03; border-color: #d97706; color: #fde68a; }
+
+#waraqah-extension-root .wq-select{
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid #475569;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  outline: none;
+}
+
+#waraqah-extension-root .wq-btn-prep-all{
+  background: linear-gradient(180deg, #10b981 0%, #047857 100%);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+#waraqah-extension-root .wq-btn-del-all{
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* جدول الحصص */
+#waraqah-extension-root .wq-table-wrap{
+  overflow-x: auto;
+  background: #0b0f12;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+#waraqah-extension-root .wq-table{
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  min-width: 1050px;
+}
+
+#waraqah-extension-root .wq-table th{
+  background: #1e293b;
+  color: #cbd5e1;
+  padding: 10px 6px;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid var(--card-border);
+}
+
+#waraqah-extension-root .wq-table td{
+  border: 1px solid var(--card-border);
+  padding: 6px 4px;
+  vertical-align: middle;
+  background: #0f172a;
+}
+
+#waraqah-extension-root .wq-cell-day{
+  background: #0284c7 !important;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 14px;
+  width: 85px;
+}
+
+/* بطاقة الحصة داخل الجدول */
+#waraqah-extension-root .wq-slot-card{
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 6px 6px;
+  min-height: 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#waraqah-extension-root .wq-slot-tag{
+  background: #065f46;
+  color: #6ee7b7;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: center;
+  margin-bottom: 3px;
+}
+
+#waraqah-extension-root .wq-slot-title{
+  font-size: 12px;
+  font-weight: 900;
+  color: #38bdf8;
+}
+
+#waraqah-extension-root .wq-slot-grade{
+  font-size: 9.5px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+#waraqah-extension-root .wq-slot-lesson{
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 5px;
+  padding: 3px 5px;
+  font-size: 10px;
+  font-weight: 800;
+  margin: 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#waraqah-extension-root .wq-btn-card-print{
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  padding: 3px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+#waraqah-extension-root .wq-btn-card-del{
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 3px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* عمود إجراءات اليوم */
+#waraqah-extension-root .wq-day-actions{
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px;
+}
+
+#waraqah-extension-root .wq-btn-day-prep{
+  background: #10b981;
+  color: #fff;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+#waraqah-extension-root .wq-btn-day-del{
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* بطاقات الخدمات السفلية الملونة */
+#waraqah-extension-root .wq-services-row{
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+@media (max-width: 1100px) { .wq-services-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 650px) { .wq-services-row { grid-template-columns: repeat(2, 1fr); } }
+
+#waraqah-extension-root .wq-svc-card{
+  padding: 12px 10px;
+  border-radius: 8px;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+}
+#waraqah-extension-root .wq-svc-card:hover{ transform: translateY(-2px); }
+
+#waraqah-extension-root .wq-svc-title{ font-size: 13px; font-weight: 900; margin-bottom: 3px; }
+#waraqah-extension-root .wq-svc-sub{ font-size: 10px; opacity: 0.9; }
+
+#waraqah-extension-root .wq-svc-blue{ background: #1d4ed8; }
+#waraqah-extension-root .wq-svc-teal{ background: #0d9488; }
+#waraqah-extension-root .wq-svc-purple{ background: #7c3aed; }
+#waraqah-extension-root .wq-svc-cyan{ background: #0284c7; }
+#waraqah-extension-root .wq-svc-orange{ background: #ea580c; }
+#waraqah-extension-root .wq-svc-red{ background: #dc2626; }
+
+/* WARAQAH FLOATING LAUNCHER */
+#waraqah-launcher {
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 2147483646;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 18px;
+  background: linear-gradient(135deg,#0284c7,#0369a1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: 'Tajawal',sans-serif;
+  font-size: 25px;
+  box-shadow: 0 8px 24px rgba(2,132,199,.35),0 3px 8px rgba(0,0,0,.22);
+  transition: transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+
+#waraqah-launcher:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(2,132,199,.42),0 5px 12px rgba(0,0,0,.25);
+}
+
+#waraqah-launcher:active {
+  transform: scale(.96);
+}
+
+#waraqah-launcher.is-open {
+  background: linear-gradient(135deg,#075985,#0c4a6e);
+}
+
+@media (max-width:650px) {
+  #waraqah-launcher {
+    right:12px;
+    bottom:14px;
+    width:54px;
+    height:54px;
+    border-radius:16px;
+    font-size:23px;
+  }
+}
+
+
+/* ============================================================
+   WARAQAH PREMIUM WELCOME V4
+   Welcome → Name → Collapse → Logo → Compact Launcher
+   ============================================================ */
+
+#waraqah-launcher {
+  position: fixed !important;
+  top: 14px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+
+  width: 300px !important;
+  min-width: 300px !important;
+  height: 62px !important;
+
+  transform: translate(-50%, -110px) scale(.96) !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: 1px solid rgba(13,92,70,.16) !important;
+  border-radius: 20px !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.985),
+      rgba(242,250,247,.98)
+    ) !important;
+
+  overflow: hidden !important;
+  z-index: 2147483646 !important;
+  opacity: 0 !important;
+
+  box-shadow:
+    0 18px 45px rgba(13,92,70,.16),
+    0 5px 18px rgba(15,23,42,.12) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-family:
+    "Tajawal",
+    "Noto Kufi Arabic",
+    Arial,
+    sans-serif !important;
+
+  cursor: pointer !important;
+
+  transition:
+    width .55s cubic-bezier(.22,1,.36,1),
+    min-width .55s cubic-bezier(.22,1,.36,1),
+    height .55s cubic-bezier(.22,1,.36,1),
+    border-radius .55s cubic-bezier(.22,1,.36,1),
+    transform .55s cubic-bezier(.22,1,.36,1),
+    box-shadow .45s ease,
+    opacity .35s ease !important;
+}
+
+#waraqah-launcher::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    url("assets/waraqah-background.svg");
+
+  background-size: cover;
+  background-position: center;
+
+  opacity: .10;
+  pointer-events: none;
+}
+
+#waraqah-launcher.wq-intro-active {
+  opacity: 1 !important;
+
+  transform:
+    translate(-50%, 0)
+    scale(1) !important;
+
+  animation:
+    wq-intro-drop .72s cubic-bezier(.16,1,.3,1) both;
+}
+
+.wq-intro-message {
+  position: relative;
+  z-index: 4;
+
+  direction: rtl;
+
+  color: #155e52;
+
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  opacity: 1;
+
+  transition:
+    opacity .34s ease,
+    transform .42s cubic-bezier(.22,1,.36,1);
+}
+
+.wq-brand-mark {
+  position: absolute;
+  inset: 0;
+
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+
+  transform:
+    translateY(10px)
+    scale(.52);
+
+  transition:
+    opacity .34s ease,
+    transform .58s cubic-bezier(.16,1,.3,1);
+}
+
+.wq-brand-mark img {
+  width: 54px;
+  height: 54px;
+
+  object-fit: contain;
+
+  filter:
+    drop-shadow(0 5px 10px rgba(13,92,70,.20));
+}
+
+#waraqah-launcher.wq-ready {
+  width: 70px !important;
+  min-width: 70px !important;
+  height: 70px !important;
+
+  border-radius: 21px !important;
+  opacity: 1 !important;
+
+  transform:
+    translate(-50%, 0)
+    scale(1) !important;
+
+  box-shadow:
+    0 13px 32px rgba(13,92,70,.18),
+    0 4px 13px rgba(15,23,42,.12) !important;
+}
+
+#waraqah-launcher.wq-ready .wq-intro-message {
+  opacity: 0 !important;
+
+  transform:
+    translateY(-7px)
+    scale(.92) !important;
+}
+
+#waraqah-launcher.wq-ready .wq-brand-mark {
+  opacity: 1;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+#waraqah-launcher.wq-ready::after {
+  content: "";
+
+  position: absolute;
+  top: -20%;
+  left: -90%;
+
+  width: 52%;
+  height: 140%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.72),
+      transparent
+    );
+
+  transform: skewX(-18deg);
+
+  pointer-events: none;
+  z-index: 8;
+
+  animation:
+    wq-logo-shine .78s ease .10s both;
+}
+
+@keyframes wq-logo-shine {
+  0% {
+    left: -90%;
+    opacity: 0;
+  }
+
+  18% {
+    opacity: .9;
+  }
+
+  100% {
+    left: 150%;
+    opacity: 0;
+  }
+}
+
+@keyframes wq-intro-drop {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -110px)
+      scale(.94);
+  }
+
+  65% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, 5px)
+      scale(1.015);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, 0)
+      scale(1);
+  }
+}
+
+#waraqah-launcher:hover {
+  box-shadow:
+    0 20px 48px rgba(13,92,70,.20),
+    0 6px 18px rgba(15,23,42,.13) !important;
+}
+
+#waraqah-launcher.wq-ready:hover {
+  transform:
+    translate(-50%, -3px)
+    scale(1.03) !important;
+}
+
+#waraqah-launcher:active {
+  transform:
+    translate(-50%, 0)
+    scale(.96) !important;
+}
+
+#waraqah-launcher.wq-ready:active {
+  transform:
+    translate(-50%, 0)
+    scale(.94) !important;
+}
+
+@media (max-width: 600px) {
+  #waraqah-launcher {
+    top: 10px !important;
+
+    width: min(88vw, 300px) !important;
+    min-width: 0 !important;
+
+    height: 60px !important;
+
+    border-radius: 19px !important;
+  }
+
+  .wq-intro-message {
+    max-width: 82vw;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    font-size: 15px;
+  }
+
+  #waraqah-launcher.wq-ready {
+    width: 64px !important;
+    min-width: 64px !important;
+
+    height: 64px !important;
+
+    border-radius: 19px !important;
+  }
+
+  .wq-brand-mark img {
+    width: 49px;
+    height: 49px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #waraqah-launcher,
+  .wq-intro-message,
+  .wq-brand-mark {
+    animation: none !important;
+    transition: opacity .2s ease !important;
+  }
+
+  #waraqah-launcher.wq-intro-active {
+    transform: translate(-50%, 0) !important;
+  }
+}
+
+
+/* ============================================================
+   WARAQAH FINAL LOGO — CENTER / WHITE / LARGE
+   ============================================================ */
+
+/* الحالة النهائية للشعار */
+#waraqah-launcher.wq-ready {
+  position: fixed !important;
+
+  top: 8px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+
+  width: 96px !important;
+  min-width: 96px !important;
+  height: 96px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  transform: translateX(-50%) !important;
+
+  background: #ffffff !important;
+  background-image: none !important;
+
+  border: 1px solid rgba(13,92,70,.14) !important;
+  border-radius: 24px !important;
+
+  box-shadow:
+    0 8px 24px rgba(15,23,42,.14),
+    0 2px 8px rgba(13,92,70,.10) !important;
+
+  overflow: hidden !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  opacity: 1 !important;
+
+  z-index: 2147483647 !important;
+}
+
+/* إلغاء الخلفية المزخرفة */
+#waraqah-launcher.wq-ready::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+/* الشعار نفسه */
+#waraqah-launcher.wq-ready .wq-brand-mark {
+  position: absolute !important;
+  inset: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+
+  z-index: 5 !important;
+}
+
+/* تكبير اللوقو */
+#waraqah-launcher.wq-ready .wq-brand-mark img {
+  width: 78px !important;
+  height: 78px !important;
+
+  max-width: none !important;
+  max-height: none !important;
+
+  object-fit: contain !important;
+
+  filter:
+    drop-shadow(0 4px 8px rgba(13,92,70,.16)) !important;
+}
+
+/* إخفاء رسالة الترحيب بعد التحول */
+#waraqah-launcher.wq-ready .wq-intro-message {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* لمعان خفيف جدًا عند ظهور الشعار */
+#waraqah-launcher.wq-ready::after {
+  content: "" !important;
+
+  position: absolute !important;
+
+  top: 0 !important;
+  left: -90% !important;
+
+  width: 45% !important;
+  height: 100% !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.75),
+      transparent
+    ) !important;
+
+  transform: skewX(-18deg) !important;
+
+  pointer-events: none !important;
+
+  animation:
+    wq-logo-shine-final .8s ease .1s both !important;
+
+  z-index: 8 !important;
+}
+
+@keyframes wq-logo-shine-final {
+  0% {
+    left: -90%;
+    opacity: 0;
+  }
+
+  20% {
+    opacity: .8;
+  }
+
+  100% {
+    left: 150%;
+    opacity: 0;
+  }
+}
+
+/* تأثير المرور */
+#waraqah-launcher.wq-ready:hover {
+  transform: translateX(-50%) translateY(2px) !important;
+
+  box-shadow:
+    0 12px 30px rgba(15,23,42,.17),
+    0 4px 10px rgba(13,92,70,.12) !important;
+}
+
+/* الضغط */
+#waraqah-launcher.wq-ready:active {
+  transform:
+    translateX(-50%)
+    scale(.96) !important;
+}
+
+/* الهاتف */
+@media (max-width: 600px) {
+
+  #waraqah-launcher.wq-ready {
+    top: 6px !important;
+
+    width: 82px !important;
+    min-width: 82px !important;
+    height: 82px !important;
+
+    border-radius: 21px !important;
+  }
+
+  #waraqah-launcher.wq-ready .wq-brand-mark img {
+    width: 68px !important;
+    height: 68px !important;
+  }
+}
+
+
+/* ============================================================
+   WARAQAH LOGO ONLY — V2.0.6
+   شعار كبير جدًا بدون خلفية أو بطاقة
+   ============================================================ */
+
+#waraqah-launcher.wq-ready {
+  position: fixed !important;
+
+  top: 6px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+
+  width: 150px !important;
+  min-width: 150px !important;
+  height: 150px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  transform: translateX(-50%) !important;
+
+  /* إزالة البطاقة بالكامل */
+  background: transparent !important;
+  background-image: none !important;
+
+  border: none !important;
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+
+  overflow: visible !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  z-index: 2147483647 !important;
+}
+
+/* إزالة أي خلفية زخرفية */
+#waraqah-launcher.wq-ready::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+/* إزالة اللمعة */
+#waraqah-launcher.wq-ready::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* اللوقو فقط */
+#waraqah-launcher.wq-ready .wq-brand-mark {
+  position: absolute !important;
+  inset: 0 !important;
+
+  width: 150px !important;
+  height: 150px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  opacity: 1 !important;
+  transform: none !important;
+
+  background: transparent !important;
+
+  z-index: 5 !important;
+}
+
+/* تكبير اللوقو بشكل واضح */
+#waraqah-launcher.wq-ready .wq-brand-mark img {
+  width: 140px !important;
+  height: 140px !important;
+
+  max-width: none !important;
+  max-height: none !important;
+
+  object-fit: contain !important;
+
+  filter: none !important;
+
+  display: block !important;
+}
+
+/* إخفاء النص */
+#waraqah-launcher.wq-ready .wq-intro-message {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* لا توجد خلفية عند المرور */
+#waraqah-launcher.wq-ready:hover,
+#waraqah-launcher.wq-ready:active {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* الهاتف */
+@media (max-width: 600px) {
+  #waraqah-launcher.wq-ready {
+    top: 4px !important;
+    width: 125px !important;
+    min-width: 125px !important;
+    height: 125px !important;
+  }
+
+  #waraqah-launcher.wq-ready .wq-brand-mark {
+    width: 125px !important;
+    height: 125px !important;
+  }
+
+  #waraqah-launcher.wq-ready .wq-brand-mark img {
+    width: 118px !important;
+    height: 118px !important;
+  }
+}
+
+
+/* WARAQAH OVERSIZED CENTER LOGO V208 */
+
+/* الشعار نفسه بدون بطاقة أو خلفية */
+#waraqah-launcher {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* حجم كبير جداً */
+#waraqah-launcher.wq-ready {
+  width: 230px !important;
+  min-width: 230px !important;
+  height: 230px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+
+/* إخفاء رسالة الترحيب بعد ظهور الشعار */
+#waraqah-launcher.wq-ready .wq-intro-message {
+  display: none !important;
+}
+
+/* مساحة الشعار */
+#waraqah-launcher.wq-ready .wq-brand-mark {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 230px !important;
+  height: 230px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  transform: translateY(-25px) !important;
+}
+
+/* تكبير اللوقو نفسه */
+#waraqah-launcher.wq-ready .wq-brand-mark img {
+  width: 225px !important;
+  height: 225px !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  filter: drop-shadow(0 7px 16px rgba(0,0,0,.12)) !important;
+}
+
+/* لا لمعان ولا طبقة بيضاء */
+#waraqah-launcher.wq-ready::before,
+#waraqah-launcher.wq-ready::after {
+  display: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* عند الضغط: يختفي الشعار بالكامل */
+#waraqah-launcher.wq-launcher-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -8px) scale(.7) !important;
+  transition:
+    opacity .22s ease,
+    transform .22s ease,
+    visibility 0s linear .22s !important;
+}
+
+/* الجوال */
+@media (max-width: 600px) {
+  #waraqah-launcher.wq-ready {
+    width: 175px !important;
+    min-width: 175px !important;
+    height: 175px !important;
+  }
+
+  #waraqah-launcher.wq-ready .wq-brand-mark {
+    width: 175px !important;
+    height: 175px !important;
+  }
+
+  #waraqah-launcher.wq-ready .wq-brand-mark img {
+    width: 170px !important;
+    height: 170px !important;
+  }
+}

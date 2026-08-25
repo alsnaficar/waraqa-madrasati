@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "ورقة مدرستي - المساعد الذكي والتحضير الآلي",
+  "version": "2.0.9",
+  "description": "إضافة متقدمة لإدارة الجدول المدرسي والتحضير الآلي في منصة مدرستي",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://schools.madrasati.sa/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ورقة مدرستي"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://schools.madrasati.sa/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/waraqah-logo.svg",
+        "assets/waraqah-background.svg"
+      ],
+      "matches": [
+        "*://schools.madrasati.sa/*"
+      ]
+    }
+  ]
+}

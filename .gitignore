@@ -41,3 +41,11 @@ supabase/.temp/
 AA
 AA.save
 dashboard.tar.gz
+
+# Waraqa extension local backups
+extension/*.backup*
+
+# Generated Waraqa extension ZIPs
+/waraqah-extension.zip
+/waraqa-extension.zip
+/public/waraqa-extension.zip
