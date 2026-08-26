@@ -1,4 +1,4 @@
-import type { CalculatedLessonEntry } from "../services/planner-engine";
+import type { CalculatedLessonEntry } from "../services/planner-types";
 import {
   buildPlanQrPayload,
   uniqueLessons,

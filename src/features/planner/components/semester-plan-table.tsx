@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
 
-import type { CalculatedLessonEntry } from "../services/planner-engine";
+import type { CalculatedLessonEntry } from "../services/planner-types";
 import { uniqueLessons } from "../services/semester-plan.service";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";

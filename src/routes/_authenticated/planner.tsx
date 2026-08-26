@@ -47,7 +47,7 @@ import {
 } from "@/features/calendar/services/calendar.service";
 import { Button } from "@/shared/ui/button";
 import { cn } from "@/shared/utils/utils";
-import type { CalculatedLessonEntry } from "@/features/planner/services/planner-engine";
+import type { CalculatedLessonEntry } from "@/features/planner/services/planner-types";
 
 export const Route = createFileRoute("/_authenticated/planner")({
   component: PlannerPage,

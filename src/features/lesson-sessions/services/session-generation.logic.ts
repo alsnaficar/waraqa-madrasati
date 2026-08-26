@@ -1,4 +1,4 @@
-import type { CalculatedLessonEntry } from "@/features/planner/services/planner-engine";
+import type { CalculatedLessonEntry } from "@/features/planner/services/planner-types";
 import type { PlanEntryForTimetableMatch } from "./match-plan-entry-to-timetable-slot";
 import type { TeacherTimetableEntry } from "@/features/teacher-timetable/types";
 import type { Database } from "@/platform/database/supabase/types";

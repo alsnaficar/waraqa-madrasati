@@ -1,4 +1,4 @@
-import type { CalculatedLessonEntry } from "@/features/planner/services/planner-engine";
+import type { CalculatedLessonEntry } from "@/features/planner/services/planner-types";
 import type { TeacherTimetableEntry } from "@/features/teacher-timetable/types";
 
 export type PlanEntryForTimetableMatch = CalculatedLessonEntry & { grade?: string };

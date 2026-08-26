@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { supabase } from "@/platform/database/supabase/client";
-import type { CalculatedLessonEntry } from "../services/planner-engine";
+import type { CalculatedLessonEntry } from "../services/planner-types";
 import { loadOrGeneratePlan } from "../services/semester-plan.service";
 
 type Assignment = {

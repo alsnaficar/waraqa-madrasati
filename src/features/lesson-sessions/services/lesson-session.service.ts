@@ -1,6 +1,6 @@
 import { resolveAcademicScope } from "@/features/calendar/services/academic-calendar";
 import { getPlanEntriesForDate } from "@/features/planner/services/semester-plan.service";
-import type { CalculatedLessonEntry } from "@/features/planner/services/planner-engine";
+import type { CalculatedLessonEntry } from "@/features/planner/services/planner-types";
 import { TeacherTimetableService } from "@/features/teacher-timetable/services/teacher-timetable.service";
 import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-management.functions";
 import { resolveUserContext, type SupabaseUserContext } from "@/platform/database/supabase/context";
