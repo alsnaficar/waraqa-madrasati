@@ -25,10 +25,10 @@ import {
   buildPlanTeachingSlots,
   buildTeachingDates,
   countWeeklyMatchingTimetableSlots,
-  loadCalendarConfig,
-  parseProfileTimetable,
-  type TimetableSlot,
-} from "./planner-engine.ts";
+} from "./scheduling-core.ts";
+import type { TimetableSlot } from "./planner-types.ts";
+import { loadCalendarConfig } from "@/features/calendar/services/planner-calendar-config.ts";
+import { parseProfileTimetable } from "@/features/teacher-timetable/services/timetable-parser";
 
 type AdminClient = Awaited<
   typeof import("@/platform/database/supabase/client.server")

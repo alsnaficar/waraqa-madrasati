@@ -2,7 +2,7 @@ import {
   LessonSessionService,
   todayIso,
 } from "@/features/lesson-sessions/services/lesson-session.service";
-import { parseProfileTimetable } from "@/features/planner/services/planner-engine";
+import { parseProfileTimetable } from "@/features/teacher-timetable/services/timetable-parser";
 import { TeacherTimetableService } from "@/features/teacher-timetable/services/teacher-timetable.service";
 import type { TeacherTimetableEntry } from "@/features/teacher-timetable/types";
 import { resolveUserContext, type SupabaseUserContext } from "@/platform/database/supabase/context";

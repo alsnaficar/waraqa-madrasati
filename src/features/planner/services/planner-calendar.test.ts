@@ -10,14 +10,16 @@ import {
   WESTERN_VARIANT_CODE,
   resolveCalendarForPlan,
 } from "@/features/calendar/services/resolve-calendar.ts";
+import { buildTeachingDates } from "./scheduling-core.ts";
 import {
-  buildTeachingDates,
   loadCalendarConfig,
   mapResolvedCalendarToPlannerConfig,
-} from "./planner-engine.ts";
+} from "@/features/calendar/services/planner-calendar-config.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const ENGINE_FILE = "src/features/planner/services/planner-engine.ts";
+const CALENDAR_CONFIG_FILE =
+  "src/features/calendar/services/planner-calendar-config.ts";
 const LIFECYCLE_FILE = "src/features/planner/services/semester-plan-lifecycle.ts";
 const SHEETS_FILE = "src/features/planner/sheets.functions.ts";
 
@@ -370,20 +372,22 @@ describe("planner calendar variant wiring", () => {
 describe("planner calendar source guards", () => {
   it("wires generateSchedule to the plan variant and never succeeds via DEFAULT_CALENDAR", () => {
     const engine = readFileSync(join(ROOT, ENGINE_FILE), "utf8");
-    const loadFn = engine.slice(
-      engine.indexOf("export async function loadCalendarConfig"),
-      engine.indexOf("export async function saveCalendarConfig"),
+    const calendarConfig = readFileSync(
+      join(ROOT, CALENDAR_CONFIG_FILE),
+      "utf8",
     );
-    const generateFn = engine.slice(engine.indexOf("export async function generateSchedule"));
+    const generateFn = engine.slice(
+      engine.indexOf("export async function generateSchedule"),
+    );
 
-    assert.match(loadFn, /resolveCalendarForPlan/);
-    assert.match(loadFn, /resolveCalendar\(/);
-    assert.equal(/getHolidayDates/.test(loadFn), false);
-    assert.equal(/DEFAULT_CALENDAR/.test(loadFn), false);
+    assert.match(calendarConfig, /resolveCalendarForPlan/);
+    assert.match(calendarConfig, /resolveCalendar\(/);
+    assert.equal(/getHolidayDates/.test(calendarConfig), false);
+    assert.equal(/DEFAULT_CALENDAR/.test(calendarConfig), false);
     assert.equal(/return DEFAULT_CALENDAR/.test(engine), false);
     assert.match(generateFn, /loadCalendarConfig\(resolved,\s*plan\)/);
     assert.match(generateFn, /calendar_variant_id/);
-    assert.equal(/1447/.test(loadFn), false);
+    assert.equal(/1447/.test(calendarConfig), false);
   });
 
   it("does not alter lifecycle writes, Sheets, or DB schemas", () => {

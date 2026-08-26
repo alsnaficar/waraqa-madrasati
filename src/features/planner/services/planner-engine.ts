@@ -1,19 +1,51 @@
-import type {
-  CalendarAcademicYear,
-  CalendarTerm,
-} from "@/features/calendar/services/calendar.service";
+export type {
+  CalculatedLessonEntry,
+  TimetableSlot,
+} from "./planner-types";
+
+export {
+  loadCalendarConfig,
+  mapResolvedCalendarToPlannerConfig,
+  resolvePlannerCalendarConfig,
+  PLANNER_CALENDAR_REQUIRED_MESSAGE,
+  type AcademicCalendarConfig,
+} from "@/features/calendar/services/planner-calendar-config";
+
 import {
-  resolveCalendar,
-  resolveCalendarForPlan,
-  type ResolvedCalendar,
-} from "@/features/calendar/services/resolve-calendar";
+  loadCalendarConfig,
+  PLANNER_CALENDAR_REQUIRED_MESSAGE,
+  type AcademicCalendarConfig,
+} from "@/features/calendar/services/planner-calendar-config";
+import {
+  CONFIG_ACADEMIC_CALENDAR_DATE,
+  CONFIG_SCHEDULE_OVERRIDES_DATE,
+  type PlanSyncScope,
+  type ScheduleOverride,
+} from "./planner-types.ts";
+import {
+  assertPlanSyncScope,
+  loadUserOverrides,
+  saveUserOverrides,
+} from "./planner-overrides.ts";
 import { resolveUserContext, type SupabaseUserContext } from "@/platform/database/supabase/context";
+import type {
+  CalculatedLessonEntry,
+  TimetableSlot,
+} from "./planner-types";
+
 import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-management.functions";
 import { TeacherTimetableService } from "@/features/teacher-timetable/services/teacher-timetable.service";
+import { parseProfileTimetable } from "@/features/teacher-timetable/services/timetable-parser";
 import {
   resolveDistributionScheduleLessons,
   type ScheduleSourceLesson,
 } from "./distribution-schedule-source";
+import {
+  buildTeachingDates as buildSchedulingTeachingDates,
+  buildPlanTeachingSlots as buildSchedulingPlanTeachingSlots,
+  countWeeklyMatchingTimetableSlots as countSchedulingWeeklyMatchingTimetableSlots,
+  type AcademicCalendarConfig as SchedulingAcademicCalendarConfig,
+} from "./scheduling-core";
 
 function createPlannerId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -26,78 +58,6 @@ function createPlannerId(): string {
     return v.toString(16);
   });
 }
-
-export interface AcademicCalendarConfig {
-  academicYear: string;
-  semesterId: string;
-  semesterStart: string; // YYYY-MM-DD
-  semesterEnd: string; // YYYY-MM-DD
-  teachingWeeksCount: number;
-  periodsPerDay: number;
-  workingDays: number[]; // e.g. [0, 1, 2, 3, 4] for Sun-Thu
-  holidays: Array<{ date: string; label: string }>;
-  examWeeks: number[]; // Week numbers when exams are held, e.g. [14, 15]
-}
-
-export interface TimetableSlot {
-  dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
-  period: number; // 1-based period number
-  className: string; // e.g., "5-أ" or "1/أ"
-  subject?: string;
-  grade?: string;
-}
-
-export type OverrideType = "skip" | "swap" | "move" | "insert";
-
-export interface ScheduleOverride {
-  id: string;
-  type: OverrideType;
-  lessonId?: string; // ID of the curriculum_lessons entry
-  lessonIdA?: string; // For swaps
-  lessonIdB?: string; // For swaps
-  targetDate?: string; // For move / insert (YYYY-MM-DD)
-  targetPeriod?: number; // For move / insert
-  customTitle?: string; // For insert
-  customUnit?: string; // For insert
-  periodsCount?: number; // For insert
-}
-
-export interface CalculatedLessonEntry {
-  id: string; // unique ID
-  academicYear: string;
-  semester: string;
-  weekNumber: number; // overall academic week
-  teachingWeek: number; // week excluding holidays/exams
-  suggestedDate: string; // YYYY-MM-DD
-  dayOfWeek: number;
-  period: number;
-  unit: string;
-  lessonId: string | null; // null for custom inserts
-  lessonTitle: string;
-  lessonOrder: number;
-  periodsCount: number;
-  remainingPeriods: number;
-  status: "Upcoming" | "Current" | "Completed" | "Skipped";
-  className: string;
-  subject: string;
-  /** General objectives — sourced from curriculum_lessons, not duplicated. */
-  objectives: string;
-  /** Teaching resources / activities from curriculum notes JSON. */
-  teachingResources: string;
-  /** Assessment methods from curriculum notes JSON. */
-  assessmentMethods: string;
-  /** Free-form curriculum notes carried into the plan row. */
-  planNotes: string;
-  /**
-   * Distribution snapshot that generated this operational row.
-   * Null for legacy curriculum-generated plans. Persisted in planner_entries.notes.
-   */
-  distributionSnapshotId?: string | null;
-}
-
-// Fallback / default configs to ensure zero-cold-start
-export const CONFIG_ACADEMIC_CALENDAR_DATE = "1970-01-01";
-export const CONFIG_SCHEDULE_OVERRIDES_DATE = "1970-01-02";
 
 /** Normalises a row that may predate pedagogical fields on the Semester Plan JSON. */
 export function normalisePlanEntry(
@@ -158,30 +118,6 @@ const DEFAULT_TIMETABLE: TimetableSlot[] = [
 /**
  * Reads the timetable slots the Madrasati connector stores on `profiles.classes`.
  */
-export function parseProfileTimetable(classes: unknown): TimetableSlot[] {
-  if (!classes || typeof classes !== "object") return [];
-
-  const slots = (classes as { timetable?: unknown }).timetable;
-
-  if (!Array.isArray(slots)) return [];
-
-  return slots.flatMap((slot) => {
-    if (!slot || typeof slot !== "object") return [];
-
-    const { dayOfWeek, period, className } = slot as Record<string, unknown>;
-
-    if (typeof dayOfWeek !== "number" || typeof period !== "number") return [];
-
-    return [
-      {
-        dayOfWeek,
-        period,
-        className: typeof className === "string" ? className : "",
-      },
-    ];
-  });
-}
-
 /**
  * Resolves the teacher's weekly timetable.
  *
@@ -225,370 +161,49 @@ export async function loadTimetable(context?: SupabaseUserContext): Promise<Time
   return DEFAULT_TIMETABLE;
 }
 
-export const PLANNER_CALENDAR_REQUIRED_MESSAGE =
-  "لا يمكن توليد خطة الفصل بدون تقويم دراسي رسمي صالح.";
-
-/**
- * Maps an official year/term into planner calendar config.
- *
- * Official complete dates win. A null academic-year end date is irrelevant.
- * Missing or incomplete official dates fail closed — DEFAULT_CALENDAR is never
- * a generation success path.
- */
-export function resolvePlannerCalendarConfig(
-  year: CalendarAcademicYear | null,
-  term: CalendarTerm | null,
-): AcademicCalendarConfig {
-  if (year && term?.startDate && term.endDate) {
-    return {
-      academicYear: year.label,
-      semesterId: term.id,
-      semesterStart: term.startDate,
-      semesterEnd: term.endDate,
-      teachingWeeksCount: 15,
-      periodsPerDay: 7,
-      workingDays: [0, 1, 2, 3, 4],
-      holidays: [],
-      examWeeks: [],
-    };
-  }
-
-  throw new Error(PLANNER_CALENDAR_REQUIRED_MESSAGE);
-}
-
-function expandIsoDateRange(start: string, end: string): string[] {
-  const dates: string[] = [];
-  const cursor = new Date(`${start}T00:00:00Z`);
-  const last = new Date(`${end}T00:00:00Z`);
-  if (Number.isNaN(cursor.getTime()) || Number.isNaN(last.getTime()) || start > end) {
-    return dates;
-  }
-  while (cursor <= last) {
-    dates.push(cursor.toISOString().slice(0, 10));
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-  }
-  return dates;
-}
-
-/**
- * Maps the official resolved calendar onto planner config.
- * Holidays, cancelled days, and exam ranges skip teaching dates.
- * Effective semester bounds include variant term overrides.
- */
-export function mapResolvedCalendarToPlannerConfig(
-  calendar: ResolvedCalendar,
-): AcademicCalendarConfig {
-  const config = resolvePlannerCalendarConfig(
-    {
-      id: calendar.year.id,
-      label: calendar.year.label,
-      startDate: calendar.year.startDate,
-      endDate: calendar.year.endDate,
-      isActive: calendar.year.isActive,
-    },
-    {
-      id: calendar.semester.id,
-      label: calendar.semester.label,
-      startDate: calendar.effectiveSemesterStart,
-      endDate: calendar.effectiveSemesterEnd,
-      orderIndex: calendar.semester.orderIndex,
-    },
-  );
-
-  const holidays = new Map<string, string>();
-  for (const item of calendar.holidays) {
-    holidays.set(item.date, item.label);
-  }
-  for (const date of calendar.cancelledDays) {
-    if (!holidays.has(date)) holidays.set(date, "");
-  }
-  for (const range of calendar.examRanges) {
-    for (const date of expandIsoDateRange(range.startDate, range.endDate)) {
-      if (!holidays.has(date)) holidays.set(date, range.label);
-    }
-  }
-
-  return {
-    ...config,
-    holidays: [...holidays.entries()].map(([date, label]) => ({ date, label })),
-  };
-}
-
-export async function loadCalendarConfig(
-  context?: SupabaseUserContext,
-  plan?: {
-    academic_year_id?: string | null;
-    semester_id?: string | null;
-    calendar_variant_id?: string | null;
-  } | null,
-): Promise<AcademicCalendarConfig> {
-  const calendar = plan
-    ? await resolveCalendarForPlan(plan, context)
-    : await resolveCalendar({}, context);
-  return mapResolvedCalendarToPlannerConfig(calendar);
-}
-
-export async function saveCalendarConfig(_config: AcademicCalendarConfig): Promise<void> {
+export async function saveCalendarConfig(
+  _config: AcademicCalendarConfig,
+): Promise<void> {
   console.warn(
     "saveCalendarConfig() is deprecated. Academic calendar is now managed from academic_years, semesters and calendar_events.",
   );
 }
 
-export interface PlanSyncScope {
-  planId: string;
-  versionId: string;
-  subject: string;
-}
+export {
+  loadUserOverrides,
+  saveUserOverrides,
+} from "./planner-overrides.ts";
+export type {
+  PlanSyncScope,
+  ScheduleOverride,
+} from "./planner-types.ts";
+export {
+  CONFIG_ACADEMIC_CALENDAR_DATE,
+  CONFIG_SCHEDULE_OVERRIDES_DATE,
+} from "./planner-types.ts";
 
-function assertPlanSyncScope(scope: PlanSyncScope | undefined | null): PlanSyncScope {
-  if (!scope?.planId || !scope.versionId || !scope.subject) {
-    throw new Error("مزامنة الجدول تتطلب نطاق خطة فصل صالحاً (planId و versionId و subject).");
-  }
-  return scope;
-}
+export const buildTeachingDates: (
+  config: SchedulingAcademicCalendarConfig,
+) => ReturnType<typeof buildSchedulingTeachingDates> =
+  buildSchedulingTeachingDates;
 
-function parseOverrideNotes(notes: string | null | undefined): ScheduleOverride[] {
-  if (!notes) return [];
-  try {
-    const parsed = JSON.parse(notes) as ScheduleOverride[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
+export type PlanTeachingSlot = ReturnType<
+  typeof buildSchedulingPlanTeachingSlots
+>[number];
 
-/**
- * Loads schedule overrides with plan/legacy compatibility:
- *
- * - Prefer plan-scoped OVERRIDES row when `planId` is provided.
- * - Always merge readable null-plan (legacy) overrides so they are never
- *   silently dropped when a semester plan is introduced.
- * - Plan-scoped entries win on conflicting lesson override ids/types.
- *
- * This function never deletes legacy override rows.
- */
-export async function loadUserOverrides(
-  planId?: string,
-  context?: SupabaseUserContext,
-): Promise<ScheduleOverride[]> {
-  try {
-    const resolved = await resolveUserContext(context);
-    if (!resolved) return [];
-
-    const { data: legacyRow } = await resolved.client
-      .from("planner_entries")
-      .select("notes")
-      .eq("week_start_date", CONFIG_SCHEDULE_OVERRIDES_DATE)
-      .eq("user_id", resolved.userId)
-      .eq("subject", "OVERRIDES")
-      .is("semester_plan_id", null)
-      .maybeSingle();
-
-    const legacy = parseOverrideNotes(legacyRow?.notes);
-
-    if (!planId) {
-      return legacy;
-    }
-
-    const { data: planRow } = await resolved.client
-      .from("planner_entries")
-      .select("notes")
-      .eq("week_start_date", CONFIG_SCHEDULE_OVERRIDES_DATE)
-      .eq("user_id", resolved.userId)
-      .eq("subject", "OVERRIDES")
-      .eq("semester_plan_id", planId)
-      .maybeSingle();
-
-    const scoped = parseOverrideNotes(planRow?.notes);
-    if (scoped.length === 0) return legacy;
-    if (legacy.length === 0) return scoped;
-
-    const byKey = new Map<string, ScheduleOverride>();
-    for (const item of legacy) {
-      byKey.set(item.id || `${item.type}:${item.lessonId ?? ""}:${item.lessonIdA ?? ""}`, item);
-    }
-    for (const item of scoped) {
-      byKey.set(item.id || `${item.type}:${item.lessonId ?? ""}:${item.lessonIdA ?? ""}`, item);
-    }
-    return [...byKey.values()];
-  } catch (err) {
-    console.warn("Failed to load overrides:", err);
-    return [];
-  }
-}
-
-/**
- * Saves overrides for a semester plan draft into the plan-scoped sentinel row.
- * Legacy null-plan OVERRIDES rows are left untouched.
- */
-export async function saveUserOverrides(
-  overrides: ScheduleOverride[],
-  scope?: PlanSyncScope,
-  context?: SupabaseUserContext,
-): Promise<void> {
-  const resolvedContext = await resolveUserContext(context);
-  if (!resolvedContext) throw new Error("Unauthorized");
-
-  const resolved = assertPlanSyncScope(scope);
-
-  const { data: existing } = await resolvedContext.client
-    .from("planner_entries")
-    .select("id")
-    .eq("user_id", resolvedContext.userId)
-    .eq("week_start_date", CONFIG_SCHEDULE_OVERRIDES_DATE)
-    .eq("subject", "OVERRIDES")
-    .eq("semester_plan_id", resolved.planId)
-    .maybeSingle();
-
-  const { error } = await resolvedContext.client.from("planner_entries").upsert({
-    id: existing?.id ?? createPlannerId(),
-    user_id: resolvedContext.userId,
-    week_start_date: CONFIG_SCHEDULE_OVERRIDES_DATE,
-    day_of_week: 0,
-    period: 0,
-    subject: "OVERRIDES",
-    notes: JSON.stringify(overrides),
-    semester_plan_id: resolved.planId,
-    semester_plan_version_id: resolved.versionId,
-  });
-
-  if (error) throw error;
-}
-
-/**
- * Generates the clean calendar schedule list of slots, skipping holidays and exam weeks.
- */
-export function buildTeachingDates(config: AcademicCalendarConfig): Array<{
-  date: string; // YYYY-MM-DD
-  weekNumber: number;
-  teachingWeek: number;
-  dayOfWeek: number;
-  isHoliday: boolean;
-  isExamWeek: boolean;
-  holidayLabel?: string;
-}> {
-  const dates: Array<{
-    date: string;
-    weekNumber: number;
-    teachingWeek: number;
-    dayOfWeek: number;
-    isHoliday: boolean;
-    isExamWeek: boolean;
-    holidayLabel?: string;
-  }> = [];
-
-  const start = new Date(config.semesterStart);
-  const end = new Date(config.semesterEnd);
-
-  const current = new Date(start);
-  let teachingWeekCounter = 1;
-
-  while (current <= end) {
-    const dayOfWeek = current.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const isSchoolDay = config.workingDays.includes(dayOfWeek);
-
-    const isoDate = current.toISOString().slice(0, 10);
-    const msDiff = current.getTime() - start.getTime();
-    const weekNumber = Math.floor(msDiff / (7 * 24 * 60 * 60 * 1000)) + 1;
-
-    const isExamWeek = config.examWeeks.includes(weekNumber);
-    const holidayHit = config.holidays.find((h) => h.date === isoDate);
-    const isHoliday = !!holidayHit;
-
-    // Determine teaching week increment
-    // If it's a new week start and not an exam week or fully holiday, we increment.
-    // To keep it simple, teaching week maps to academic week unless skipped.
-    if (dayOfWeek === config.workingDays[0] && isSchoolDay) {
-      if (isExamWeek) {
-        // Exam weeks don't count towards teaching weeks
-      } else {
-        // Check if there's at least one teaching day in this week
-        teachingWeekCounter = weekNumber;
-      }
-    }
-
-    if (isSchoolDay) {
-      dates.push({
-        date: isoDate,
-        weekNumber,
-        teachingWeek: isExamWeek ? 0 : teachingWeekCounter,
-        dayOfWeek,
-        isHoliday,
-        isExamWeek,
-        holidayLabel: holidayHit?.label,
-      });
-    }
-
-    current.setDate(current.getDate() + 1);
-  }
-
-  return dates;
-}
-
-export interface PlanTeachingSlot {
-  date: string;
-  weekNumber: number;
-  teachingWeek: number;
-  dayOfWeek: number;
-  period: number;
-  className: string;
-}
-
-function timetableMatchesPlan(
-  slot: TimetableSlot,
-  activeSubject: string,
-  activeGrade: string,
-): boolean {
-  return (
-    (!slot.subject || slot.subject === activeSubject) && (!slot.grade || slot.grade === activeGrade)
-  );
-}
-
-export function countWeeklyMatchingTimetableSlots(
+export const countWeeklyMatchingTimetableSlots: (
   timetable: TimetableSlot[],
   activeSubject: string,
   activeGrade: string,
-): number {
-  return timetable.filter((slot) => timetableMatchesPlan(slot, activeSubject, activeGrade)).length;
-}
+) => number = countSchedulingWeeklyMatchingTimetableSlots;
 
-/**
- * Same teaching-slot grid the scheduler uses.
- * Holidays are skipped. Matching is subject/grade, not every school period.
- */
-export function buildPlanTeachingSlots(
-  schoolDates: ReturnType<typeof buildTeachingDates>,
+export const buildPlanTeachingSlots: (
+  schoolDates: ReturnType<typeof buildSchedulingTeachingDates>,
   timetable: TimetableSlot[],
   activeSubject: string,
   activeGrade: string,
-): PlanTeachingSlot[] {
-  const teachingSlots: PlanTeachingSlot[] = [];
-
-  for (const day of schoolDates) {
-    // Skip holidays and exam-range days mapped into holidays.
-    if (day.isHoliday) continue;
-    // سنضيف دعم أسابيع الاختبارات من calendar_events لاحقًا
-
-    const slotsForDay = timetable.filter(
-      (slot) =>
-        slot.dayOfWeek === day.dayOfWeek && timetableMatchesPlan(slot, activeSubject, activeGrade),
-    );
-    slotsForDay.sort((a, b) => a.period - b.period);
-
-    for (const slot of slotsForDay) {
-      teachingSlots.push({
-        date: day.date,
-        weekNumber: day.weekNumber,
-        teachingWeek: day.teachingWeek,
-        dayOfWeek: day.dayOfWeek,
-        period: slot.period,
-        className: slot.className,
-      });
-    }
-  }
-
-  return teachingSlots;
-}
+) => ReturnType<typeof buildSchedulingPlanTeachingSlots> =
+  buildSchedulingPlanTeachingSlots;
 
 /**
  * The Smart Scheduler Engine.

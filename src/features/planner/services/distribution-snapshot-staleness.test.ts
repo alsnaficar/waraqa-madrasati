@@ -388,7 +388,11 @@ describe("H. regression contracts", () => {
     assert.ok(syncIdx > generateIdx);
     assert.match(service, /throw new Error\(DISTRIBUTION_SNAPSHOT_REQUIRED_MESSAGE\)/);
     const engine = readFileSync(ENGINE_FILE, "utf8");
-    assert.match(engine, /distributionSnapshotId\?: string \| null/);
+    const plannerTypes = readFileSync(
+      join(ROOT, "src/features/planner/services/planner-types.ts"),
+      "utf8",
+    );
+    assert.match(plannerTypes, /distributionSnapshotId\?: string \| null/);
     assert.doesNotMatch(engine, /create_semester_plan_version/);
   });
 });
