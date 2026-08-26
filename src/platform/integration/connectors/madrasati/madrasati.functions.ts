@@ -340,6 +340,24 @@ export const applyMockMadrasatiTimetable = createServerFn({ method: "POST" })
   });
 
 /**
+ * Applies the authenticated user's LIVE Madrasati timetable.
+ *
+ * Uses the existing authenticated server-side browser session.
+ * Never creates a second Madrasati session.
+ */
+export const applyLiveMadrasatiTimetable = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { applyAuthenticatedMadrasatiLiveTimetable } =
+      await import("./madrasati-auth.server.ts");
+
+    return applyAuthenticatedMadrasatiLiveTimetable(context.userId, {
+      userId: context.userId,
+      client: context.supabase,
+    });
+  });
+
+/**
  * Click inside the authenticated user's server-side Madrasati session.
  */
 export const clickMadrasatiAuthentication = createServerFn({ method: "POST" })

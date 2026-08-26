@@ -6,7 +6,7 @@ import { Mail, ArrowLeft, CheckCircle2, Lock, User, Chrome } from "lucide-react"
 
 import { Button } from "@/shared/ui/button";
 import { supabase, isSupabaseConfigured } from "@/platform/database/supabase/client";
-import { resolvePostLoginPath } from "@/platform/auth/admin-access.functions";
+import { resolveDomainLogin } from "@/platform/auth/domain-login.functions";
 import { ar } from "@/i18n/ar";
 import { BrandLogo } from "@/components/layout/brand-logo";
 
@@ -104,15 +104,31 @@ export function AuthForm({
         if (onSuccess) {
           onSuccess();
         }
-        // Role-based home: admin → /admin, otherwise → /dashboard (server-resolved).
-        let destination: "/admin" | "/dashboard" = "/dashboard";
+        // Domain-aware home:
+        // waraqa.alsnafi.app → admin only
+        // waragh.alsnafi.app → teacher interface
+        // unknown/local domain → existing role-based fallback
         try {
-          const home = await resolvePostLoginPath();
-          destination = home.path;
+          const decision = await resolveDomainLogin();
+
+          if (!decision.allowed) {
+            toast.error(
+              decision.domain === "admin"
+                ? "هذا الحساب ليس لديه صلاحية الدخول إلى لوحة الإدارة."
+                : "لا يمكن فتح هذه الواجهة بهذا الحساب.",
+            );
+            await supabase.auth.signOut();
+            return;
+          }
+
+          navigate({ to: decision.redirectPath });
         } catch (resolveErr) {
-          console.error("[auth] post-login path resolve failed:", resolveErr);
+          console.error("[auth] domain login resolution failed:", resolveErr);
+
+          // Keep the existing safe fallback if the domain-resolution
+          // server function is temporarily unavailable.
+          navigate({ to: "/dashboard" });
         }
-        navigate({ to: destination });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "حدث خطأ");

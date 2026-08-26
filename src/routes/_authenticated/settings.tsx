@@ -15,6 +15,7 @@ import {
   getMadrasatiSubjects,
   getMadrasatiTimetable,
   verifyMadrasatiLiveExtraction,
+  applyLiveMadrasatiTimetable,
   MADRASATI_DRY_RUN_DISCLAIMER,
   type MadrasatiDryRunPreviewResult,
   type MadrasatiAuthenticationStatusResult,
@@ -111,6 +112,11 @@ function SettingsPage() {
     null,
   );
   const [liveVerificationLoading, setLiveVerificationLoading] = useState(false);
+  const [liveApplyLoading, setLiveApplyLoading] = useState(false);
+  const [liveApplyResult, setLiveApplyResult] = useState<{
+    slotsWritten: number;
+    warnings: string[];
+  } | null>(null);
   const previewFn = useServerFn(previewMadrasatiSync);
   const madrasatiStatusFn = useServerFn(getMadrasatiAuthenticationStatus);
   const teacherProfileFn = useServerFn(getMadrasatiTeacherProfile);
@@ -118,6 +124,7 @@ function SettingsPage() {
   const madrasatiSubjectsFn = useServerFn(getMadrasatiSubjects);
   const madrasatiTimetableFn = useServerFn(getMadrasatiTimetable);
   const liveVerificationFn = useServerFn(verifyMadrasatiLiveExtraction);
+  const applyLiveMadrasatiTimetableFn = useServerFn(applyLiveMadrasatiTimetable);
 
   useEffect(() => {
     let active = true;
@@ -460,6 +467,59 @@ function SettingsPage() {
                 >
                   {liveVerificationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   تحقق من استخراج مدرستي
+                </Button>
+
+                <Button
+                  type="button"
+                  className="h-11 w-full sm:w-auto text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                  disabled={
+                    liveApplyLoading ||
+                    liveVerificationLoading ||
+                    !madrasatiStatus?.hasSession ||
+                    !liveVerification?.authenticated ||
+                    liveVerification.connection !== "LIVE" ||
+                    liveVerification.isMock ||
+                    !liveVerification.timetable.success ||
+                    liveVerification.timetable.empty
+                  }
+                  onClick={() => {
+                    void (async () => {
+                      setLiveApplyLoading(true);
+                      setLiveApplyResult(null);
+
+                      try {
+                        const result = await applyLiveMadrasatiTimetableFn();
+
+                        if (!result.success) {
+                          throw new Error("تعذر تطبيق جدول مدرستي.");
+                        }
+
+                        setLiveApplyResult({
+                          slotsWritten: result.slotsWritten,
+                          warnings: result.warnings,
+                        });
+
+                        toast.success(
+                          `تم تطبيق جدول مدرستي بنجاح — ${result.slotsWritten} حصة`,
+                        );
+                      } catch (error) {
+                        const text =
+                          error instanceof Error
+                            ? error.message
+                            : "تعذر تطبيق جدول مدرستي.";
+                        toast.error(text);
+                      } finally {
+                        setLiveApplyLoading(false);
+                      }
+                    })();
+                  }}
+                >
+                  {liveApplyLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4" />
+                  )}
+                  تطبيق جدول مدرستي على ورقة
                 </Button>
               </div>
 

@@ -13,6 +13,7 @@ import {
 import { MockMadrasatiProvider } from "../mock/mock-madrasati-provider.ts";
 import { createMadrasatiProvider } from "../provider/create-madrasati-provider.server.ts";
 import type { MadrasatiProvider } from "../provider/madrasati-provider.ts";
+import type { MadrasatiTimetableEntry } from "../provider/models.ts";
 import { MadrasatiNotConnectedError } from "../provider/madrasati-provider.ts";
 import { MadrasatiSyncService } from "../sync/madrasati-sync.service.ts";
 import { normalizeTimetableEntries } from "../sync/normalize-timetable.ts";
@@ -194,5 +195,182 @@ describe("Madrasati foundation — security invariants in source", () => {
         `${relative} must not perform direct network requests`,
       );
     }
+  });
+});
+
+describe("Madrasati foundation — live atomic timetable apply", () => {
+  const AUTH = {
+    userId: WARAQA_USER,
+    client: {},
+  };
+
+  function createLiveProvider(
+    timetable = [...MOCK_MADRASATI_TIMETABLE],
+  ): MadrasatiProvider {
+    const status = {
+      state: "connected" as const,
+      authenticationState: "authenticated" as const,
+      message: "Live test provider connected.",
+      isMock: false,
+      browserAutomationAvailable: true,
+    };
+
+    return {
+      async connect() {
+        return status;
+      },
+      async beginAuthentication() {
+        return status;
+      },
+      async inspectAuthenticationPage() {
+        return {
+          url: "https://schools.madrasati.sa/",
+          title: "Madrasati",
+          text: "authenticated",
+          authenticationState: "authenticated" as const,
+        };
+      },
+      async disconnect() {
+        return {
+          ...status,
+          state: "disconnected" as const,
+        };
+      },
+      async getConnectionStatus() {
+        return status;
+      },
+      async getTeacherProfile() {
+        return {
+          displayName: "معلم الاختبار",
+          schoolName: "مدرسة الاختبار الأهلية",
+        };
+      },
+      async getTimetable() {
+        return timetable;
+      },
+      async getClasses() {
+        return [
+          {
+            grade: "الصف الأول المتوسط",
+            className: "1",
+          },
+        ];
+      },
+      async getSubjects() {
+        return [
+          {
+            name: "لغتي الخالدة",
+          },
+        ];
+      },
+      async getHomework() {
+        return [];
+      },
+    };
+  }
+
+  it("applies a complete valid live snapshot through the atomic writer", async () => {
+    const provider = createLiveProvider();
+    const sync = new MadrasatiSyncService(provider);
+
+    let calls = 0;
+    let receivedEntries: MadrasatiTimetableEntry[] = [];
+
+    const result = await sync.applyLiveTimetable(WARAQA_USER, AUTH, {
+      applyAtomic: async (entries, auth) => {
+        calls += 1;
+        receivedEntries = entries;
+        assert.equal(auth.userId, WARAQA_USER);
+        return entries.length;
+      },
+    });
+
+    assert.equal(result.success, true);
+    assert.equal(result.dryRun, false);
+    assert.equal(result.isMockApply, false);
+    assert.equal(result.waraqaUserId, WARAQA_USER);
+    assert.equal(result.slotsWritten, MOCK_MADRASATI_TIMETABLE.length);
+    assert.equal(calls, 1);
+    assert.deepEqual(receivedEntries, MOCK_MADRASATI_TIMETABLE);
+    assert.equal(result.timetable.rejected.length, 0);
+    assert.equal(result.timetable.duplicates.length, 0);
+  });
+
+  it("rejects an empty live snapshot before calling the atomic writer", async () => {
+    const sync = new MadrasatiSyncService(createLiveProvider([]));
+
+    let calls = 0;
+
+    await assert.rejects(
+      () =>
+        sync.applyLiveTimetable(WARAQA_USER, AUTH, {
+          applyAtomic: async () => {
+            calls += 1;
+            return 1;
+          },
+        }),
+      /empty/i,
+    );
+
+    assert.equal(calls, 0);
+  });
+
+  it("rejects duplicate or invalid rows before calling the atomic writer", async () => {
+    const invalidRows: MadrasatiTimetableEntry[] = [
+      ...MOCK_MADRASATI_TIMETABLE,
+      {
+        ...MOCK_MADRASATI_TIMETABLE[0]!,
+      },
+      {
+        dayOfWeek: 0,
+        period: 99,
+        subject: "مادة غير صالحة",
+        grade: "الصف الأول المتوسط",
+        className: "1",
+      },
+    ];
+
+    const sync = new MadrasatiSyncService(createLiveProvider(invalidRows));
+
+    let calls = 0;
+
+    await assert.rejects(
+      () =>
+        sync.applyLiveTimetable(WARAQA_USER, AUTH, {
+          applyAtomic: async () => {
+            calls += 1;
+            return 1;
+          },
+        }),
+      /rejected|duplicate/i,
+    );
+
+    assert.equal(calls, 0);
+  });
+
+  it("rejects authentication owner mismatch before any atomic write", async () => {
+    const sync = new MadrasatiSyncService(createLiveProvider());
+
+    let calls = 0;
+
+    await assert.rejects(
+      () =>
+        sync.applyLiveTimetable(
+          WARAQA_USER,
+          {
+            userId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            client: {},
+          },
+          {
+            applyAtomic: async () => {
+              calls += 1;
+              return 1;
+            },
+          },
+        ),
+      /mismatch|context\.userId/i,
+    );
+
+    assert.equal(calls, 0);
   });
 });

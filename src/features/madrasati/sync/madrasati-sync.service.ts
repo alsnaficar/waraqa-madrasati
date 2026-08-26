@@ -125,6 +125,33 @@ export interface MadrasatiApplyOptions {
   saveTimetable?: SaveTeacherTimetableFn;
 }
 
+export interface MadrasatiAtomicApplyOptions {
+  /**
+   * Injected for tests. Production uses the authenticated Supabase client RPC.
+   */
+  applyAtomic?: ApplyMadrasatiTimetableAtomicFn;
+}
+
+export interface MadrasatiAtomicApplyResult {
+  success: true;
+  dryRun: false;
+  isMockApply: false;
+  waraqaUserId: string;
+  slotsWritten: number;
+  connection: MadrasatiConnectionStatus;
+  timetable: {
+    accepted: MadrasatiTimetableEntry[];
+    rejected: RejectedTimetableEntry[];
+    duplicates: RejectedTimetableEntry[];
+  };
+  warnings: string[];
+}
+
+export type ApplyMadrasatiTimetableAtomicFn = (
+  entries: MadrasatiTimetableEntry[],
+  auth: MadrasatiApplyAuthContext,
+) => Promise<number>;
+
 function timetableIdentity(entry: MadrasatiTimetableEntry): string {
   return `${entry.dayOfWeek}|${entry.period}|${entry.subject}|${entry.grade}|${entry.className}|${entry.classroom ?? ""}`;
 }
@@ -231,6 +258,129 @@ export class MadrasatiSyncService {
       },
       warnings,
       errors: collected.errors,
+    };
+  }
+
+  /**
+   * Applies a complete LIVE Madrasati timetable atomically.
+   *
+   * The provider must be non-mock and the source must be complete.
+   * Validation/normalization happens before the atomic database operation.
+   * The database operation itself is performed by the authenticated-user RPC.
+   *
+   * Never touches lesson_sessions.
+   */
+  async applyLiveTimetable(
+    waraqaUserId: string,
+    auth: MadrasatiApplyAuthContext,
+    options: MadrasatiAtomicApplyOptions = {},
+  ): Promise<MadrasatiAtomicApplyResult> {
+    if (!waraqaUserId || typeof waraqaUserId !== "string" || !waraqaUserId.trim()) {
+      throw new Error("waraqaUserId is required and must come from authenticated Waraqa context.");
+    }
+
+    if (!auth?.userId || auth.userId.trim() !== waraqaUserId.trim()) {
+      throw new Error("Authenticated user mismatch: apply owner must equal context.userId.");
+    }
+
+    if (!auth.client) {
+      throw new Error("Authenticated Supabase client is required for timetable apply.");
+    }
+
+    const ownerId = waraqaUserId.trim();
+    const collected = await this.collectSnapshot();
+    const normalized = normalizeTimetableEntries(collected.rawTimetable);
+
+    const warnings = [
+      ...collected.warnings,
+      ...normalized.rejected.map(
+        (r) => `Rejected timetable row (${r.reason}): ${r.message}`,
+      ),
+      ...normalized.duplicates.map(
+        (r) => `Duplicate timetable row (${r.reason}): ${r.message}`,
+      ),
+    ];
+
+    const timetable = {
+      accepted: normalized.accepted,
+      rejected: normalized.rejected,
+      duplicates: normalized.duplicates,
+    };
+
+    if (collected.connection.isMock) {
+      throw new Error(
+        "Live Madrasati apply requires a real browser provider; mock data cannot be applied as live data.",
+      );
+    }
+
+    if (!collected.sourceComplete || collected.connection.state !== "connected") {
+      throw new Error(
+        "Madrasati source is incomplete or not connected; the existing timetable was not modified.",
+      );
+    }
+
+    if (normalized.accepted.length === 0) {
+      throw new Error(
+        "Cannot apply an empty Madrasati timetable; the existing timetable was not modified.",
+      );
+    }
+
+    if (normalized.rejected.length > 0 || normalized.duplicates.length > 0) {
+      throw new Error(
+        "Madrasati timetable contains rejected or duplicate rows; the existing timetable was not modified.",
+      );
+    }
+
+    const applyAtomic =
+      options.applyAtomic ??
+      (async (entries: MadrasatiTimetableEntry[], context: MadrasatiApplyAuthContext) => {
+        const client = context.client as {
+          rpc: (
+            functionName: string,
+            args: { p_entries: MadrasatiTimetableEntry[] },
+          ) => Promise<{
+            data: unknown;
+            error: { message: string } | null;
+          }>;
+        };
+
+        const response = await client.rpc("apply_madrasati_timetable_atomic", {
+          p_entries: entries,
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message || "Madrasati timetable atomic apply failed.");
+        }
+
+        if (!response.data || typeof response.data !== "object") {
+          throw new Error("Madrasati timetable atomic apply returned an invalid response.");
+        }
+
+        const slotsWritten = Number(
+          (response.data as { slots_written?: unknown }).slots_written,
+        );
+
+        if (!Number.isInteger(slotsWritten) || slotsWritten <= 0) {
+          throw new Error("Madrasati timetable atomic apply returned an invalid slot count.");
+        }
+
+        return slotsWritten;
+      });
+
+    const slotsWritten = await applyAtomic(normalized.accepted, {
+      userId: ownerId,
+      client: auth.client,
+    });
+
+    return {
+      success: true,
+      dryRun: false,
+      isMockApply: false,
+      waraqaUserId: ownerId,
+      slotsWritten,
+      connection: collected.connection,
+      timetable,
+      warnings,
     };
   }
 
@@ -408,7 +558,7 @@ export class MadrasatiSyncService {
       timetableReadOk = false;
     }
 
-    const sourceComplete = connection.isMock && connection.state === "connected" && timetableReadOk;
+    const sourceComplete = connection.state === "connected" && timetableReadOk;
 
     return {
       connection,

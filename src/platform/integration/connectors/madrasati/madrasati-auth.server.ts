@@ -131,6 +131,28 @@ export async function verifyAuthenticatedMadrasatiLiveExtraction(
 /**
  * Closes only a session owned by the authenticated Waraqa user.
  */
+/**
+ * Applies the authenticated user's LIVE Madrasati timetable.
+ *
+ * Reuses the existing browser session owned by the authenticated Waraqa user.
+ * Never starts another Madrasati browser session.
+ */
+export async function applyAuthenticatedMadrasatiLiveTimetable(
+  waraqaUserId: string,
+  auth: {
+    userId: string;
+    client: unknown;
+  },
+) {
+  const userId = requireAuthenticatedUserId(waraqaUserId);
+
+  if (auth.userId !== userId) {
+    throw new Error("Authenticated user mismatch: apply owner must equal context.userId.");
+  }
+
+  return madrasatiBrowserSessionManager.applyLiveTimetable(userId, auth);
+}
+
 export async function closeAuthenticatedMadrasatiAuthentication(
   waraqaUserId: string,
   sessionId: string,

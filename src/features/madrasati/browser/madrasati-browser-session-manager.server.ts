@@ -10,6 +10,12 @@ import type {
 } from "../provider/models.ts";
 import { MadrasatiProviderError } from "../provider/madrasati-provider.ts";
 import {
+  MadrasatiSyncService,
+  type MadrasatiApplyAuthContext,
+  type MadrasatiAtomicApplyOptions,
+  type MadrasatiAtomicApplyResult,
+} from "../sync/madrasati-sync.service.ts";
+import {
   EMPTY_TIMETABLE_VALIDATION,
   buildMissingSessionReport,
   buildMockSessionStopReport,
@@ -304,6 +310,64 @@ export class MadrasatiBrowserSessionManager {
    * Reuses the existing owned session. Never starts a browser, never writes,
    * and never returns HTML, cookies, or Playwright objects.
    */
+  /**
+   * Applies the authenticated user's LIVE Madrasati timetable using
+   * the already-owned browser session.
+   *
+   * IMPORTANT:
+   * - Never creates a second browser session.
+   * - Never creates a second provider.
+   * - The provider is the one attached to the user's existing session.
+   * - Database ownership is still enforced by auth.uid() inside the RPC.
+   */
+  async applyLiveTimetable(
+    userId: string,
+    auth: MadrasatiApplyAuthContext,
+    options: MadrasatiAtomicApplyOptions = {},
+  ): Promise<MadrasatiAtomicApplyResult> {
+    const ownerId = this.requireUserId(userId);
+
+    if (!auth?.userId || auth.userId.trim() !== ownerId) {
+      throw new Error("Authenticated user mismatch: apply owner must equal context.userId.");
+    }
+
+    if (!auth.client) {
+      throw new Error("Authenticated Supabase client is required for timetable apply.");
+    }
+
+    await this.cleanupExpired();
+
+    const existingId = this.sessionsByUser.get(ownerId);
+
+    if (!existingId) {
+      throw new Error("Madrasati browser session was not found or has expired.");
+    }
+
+    const record = this.requireOwnedSession(ownerId, existingId);
+
+    record.lastUsedAt = Date.now();
+
+    const connection = await record.provider.getConnectionStatus();
+
+    if (connection.isMock) {
+      throw new Error(
+        "Live Madrasati apply requires the real authenticated browser session.",
+      );
+    }
+
+    const authState = await record.provider.inspectAuthenticationPage();
+
+    if (authState.authenticationState !== "authenticated") {
+      throw new Error(
+        "Madrasati browser session is not authenticated; the existing timetable was not modified.",
+      );
+    }
+
+    const sync = new MadrasatiSyncService(record.provider);
+
+    return sync.applyLiveTimetable(ownerId, auth, options);
+  }
+
   async verifyLiveExtraction(userId: string): Promise<MadrasatiLiveVerificationReport> {
     const ownerId = this.requireUserId(userId);
 

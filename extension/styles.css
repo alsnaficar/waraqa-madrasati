@@ -670,325 +670,32 @@
 
 
 /* ============================================================
-   WARAQAH FINAL LOGO — CENTER / WHITE / LARGE
+   WARAQAH FINAL LOGO
+   Single source of truth — V2.0.9
+   شعار كبير، شفاف، مرفوع 25px، بدون بطاقة أو لمعان
    ============================================================ */
 
-/* الحالة النهائية للشعار */
-#waraqah-launcher.wq-ready {
-  position: fixed !important;
-
-  top: 8px !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-
-  width: 96px !important;
-  min-width: 96px !important;
-  height: 96px !important;
-
-  padding: 0 !important;
-  margin: 0 !important;
-
-  transform: translateX(-50%) !important;
-
-  background: #ffffff !important;
-  background-image: none !important;
-
-  border: 1px solid rgba(13,92,70,.14) !important;
-  border-radius: 24px !important;
-
-  box-shadow:
-    0 8px 24px rgba(15,23,42,.14),
-    0 2px 8px rgba(13,92,70,.10) !important;
-
-  overflow: hidden !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  opacity: 1 !important;
-
-  z-index: 2147483647 !important;
-}
-
-/* إلغاء الخلفية المزخرفة */
-#waraqah-launcher.wq-ready::before {
-  content: none !important;
-  display: none !important;
-  background: none !important;
-}
-
-/* الشعار نفسه */
-#waraqah-launcher.wq-ready .wq-brand-mark {
-  position: absolute !important;
-  inset: 0 !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  width: 100% !important;
-  height: 100% !important;
-
-  opacity: 1 !important;
-  transform: translateY(0) scale(1) !important;
-
-  z-index: 5 !important;
-}
-
-/* تكبير اللوقو */
-#waraqah-launcher.wq-ready .wq-brand-mark img {
-  width: 78px !important;
-  height: 78px !important;
-
-  max-width: none !important;
-  max-height: none !important;
-
-  object-fit: contain !important;
-
-  filter:
-    drop-shadow(0 4px 8px rgba(13,92,70,.16)) !important;
-}
-
-/* إخفاء رسالة الترحيب بعد التحول */
-#waraqah-launcher.wq-ready .wq-intro-message {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
-/* لمعان خفيف جدًا عند ظهور الشعار */
-#waraqah-launcher.wq-ready::after {
-  content: "" !important;
-
-  position: absolute !important;
-
-  top: 0 !important;
-  left: -90% !important;
-
-  width: 45% !important;
-  height: 100% !important;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255,255,255,.75),
-      transparent
-    ) !important;
-
-  transform: skewX(-18deg) !important;
-
-  pointer-events: none !important;
-
-  animation:
-    wq-logo-shine-final .8s ease .1s both !important;
-
-  z-index: 8 !important;
-}
-
-@keyframes wq-logo-shine-final {
-  0% {
-    left: -90%;
-    opacity: 0;
-  }
-
-  20% {
-    opacity: .8;
-  }
-
-  100% {
-    left: 150%;
-    opacity: 0;
-  }
-}
-
-/* تأثير المرور */
-#waraqah-launcher.wq-ready:hover {
-  transform: translateX(-50%) translateY(2px) !important;
-
-  box-shadow:
-    0 12px 30px rgba(15,23,42,.17),
-    0 4px 10px rgba(13,92,70,.12) !important;
-}
-
-/* الضغط */
-#waraqah-launcher.wq-ready:active {
-  transform:
-    translateX(-50%)
-    scale(.96) !important;
-}
-
-/* الهاتف */
-@media (max-width: 600px) {
-
-  #waraqah-launcher.wq-ready {
-    top: 6px !important;
-
-    width: 82px !important;
-    min-width: 82px !important;
-    height: 82px !important;
-
-    border-radius: 21px !important;
-  }
-
-  #waraqah-launcher.wq-ready .wq-brand-mark img {
-    width: 68px !important;
-    height: 68px !important;
-  }
-}
-
-
-/* ============================================================
-   WARAQAH LOGO ONLY — V2.0.6
-   شعار كبير جدًا بدون خلفية أو بطاقة
-   ============================================================ */
-
-#waraqah-launcher.wq-ready {
-  position: fixed !important;
-
-  top: 6px !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-
-  width: 150px !important;
-  min-width: 150px !important;
-  height: 150px !important;
-
-  padding: 0 !important;
-  margin: 0 !important;
-
-  transform: translateX(-50%) !important;
-
-  /* إزالة البطاقة بالكامل */
-  background: transparent !important;
-  background-image: none !important;
-
-  border: none !important;
-  border-radius: 0 !important;
-
-  box-shadow: none !important;
-
-  overflow: visible !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  z-index: 2147483647 !important;
-}
-
-/* إزالة أي خلفية زخرفية */
-#waraqah-launcher.wq-ready::before {
-  content: none !important;
-  display: none !important;
-  background: none !important;
-}
-
-/* إزالة اللمعة */
-#waraqah-launcher.wq-ready::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* اللوقو فقط */
-#waraqah-launcher.wq-ready .wq-brand-mark {
-  position: absolute !important;
-  inset: 0 !important;
-
-  width: 150px !important;
-  height: 150px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  opacity: 1 !important;
-  transform: none !important;
-
-  background: transparent !important;
-
-  z-index: 5 !important;
-}
-
-/* تكبير اللوقو بشكل واضح */
-#waraqah-launcher.wq-ready .wq-brand-mark img {
-  width: 140px !important;
-  height: 140px !important;
-
-  max-width: none !important;
-  max-height: none !important;
-
-  object-fit: contain !important;
-
-  filter: none !important;
-
-  display: block !important;
-}
-
-/* إخفاء النص */
-#waraqah-launcher.wq-ready .wq-intro-message {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
-/* لا توجد خلفية عند المرور */
-#waraqah-launcher.wq-ready:hover,
-#waraqah-launcher.wq-ready:active {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* الهاتف */
-@media (max-width: 600px) {
-  #waraqah-launcher.wq-ready {
-    top: 4px !important;
-    width: 125px !important;
-    min-width: 125px !important;
-    height: 125px !important;
-  }
-
-  #waraqah-launcher.wq-ready .wq-brand-mark {
-    width: 125px !important;
-    height: 125px !important;
-  }
-
-  #waraqah-launcher.wq-ready .wq-brand-mark img {
-    width: 118px !important;
-    height: 118px !important;
-  }
-}
-
-
-/* WARAQAH OVERSIZED CENTER LOGO V208 */
-
-/* الشعار نفسه بدون بطاقة أو خلفية */
 #waraqah-launcher {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-/* حجم كبير جداً */
 #waraqah-launcher.wq-ready {
   width: 230px !important;
   min-width: 230px !important;
   height: 230px !important;
   background: transparent !important;
   border: none !important;
-  box-shadow: none !important;
   border-radius: 0 !important;
+  box-shadow: none !important;
   overflow: visible !important;
 }
 
-/* إخفاء رسالة الترحيب بعد ظهور الشعار */
 #waraqah-launcher.wq-ready .wq-intro-message {
   display: none !important;
 }
 
-/* مساحة الشعار */
 #waraqah-launcher.wq-ready .wq-brand-mark {
   position: absolute !important;
   inset: 0 !important;
@@ -1001,7 +708,6 @@
   transform: translateY(-25px) !important;
 }
 
-/* تكبير اللوقو نفسه */
 #waraqah-launcher.wq-ready .wq-brand-mark img {
   width: 225px !important;
   height: 225px !important;
@@ -1012,7 +718,6 @@
   filter: drop-shadow(0 7px 16px rgba(0,0,0,.12)) !important;
 }
 
-/* لا لمعان ولا طبقة بيضاء */
 #waraqah-launcher.wq-ready::before,
 #waraqah-launcher.wq-ready::after {
   display: none !important;
@@ -1020,7 +725,6 @@
   box-shadow: none !important;
 }
 
-/* عند الضغط: يختفي الشعار بالكامل */
 #waraqah-launcher.wq-launcher-hidden {
   opacity: 0 !important;
   visibility: hidden !important;
@@ -1032,7 +736,6 @@
     visibility 0s linear .22s !important;
 }
 
-/* الجوال */
 @media (max-width: 600px) {
   #waraqah-launcher.wq-ready {
     width: 175px !important;
@@ -1050,3 +753,4 @@
     height: 170px !important;
   }
 }
+
