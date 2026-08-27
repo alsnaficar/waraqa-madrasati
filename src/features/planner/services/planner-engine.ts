@@ -33,7 +33,7 @@ import type {
   TimetableSlot,
 } from "./planner-types";
 
-import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-management.functions";
+import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-lesson-notes";
 import { TeacherTimetableService } from "@/features/teacher-timetable/services/teacher-timetable.service";
 import { parseProfileTimetable } from "@/features/teacher-timetable/services/timetable-parser";
 import {

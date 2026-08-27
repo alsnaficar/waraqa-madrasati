@@ -29,7 +29,6 @@ import {
   MAX_CURRICULUM_PDF_BYTES,
 } from "./curriculum-pdf-limits.ts";
 
-export { deserializeLessonNotes, serializeLessonNotes } from "./curriculum-lesson-notes.ts";
 export {
   acquireCurriculumPdfExtraction,
   curriculumPdfGuardReasonMessage,
