@@ -1,7 +1,5 @@
-import {
-  generateSchedule,
-  type CalculatedLessonEntry,
-} from "@/features/planner/services/planner-engine";
+import { generateSchedule } from "@/features/planner/services/planner-engine";
+import type { CalculatedLessonEntry } from "@/features/planner/services/planner-types";
 
 export async function getTodayLessons(): Promise<CalculatedLessonEntry[]> {
   const schedule = await generateSchedule();

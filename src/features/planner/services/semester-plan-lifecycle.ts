@@ -14,9 +14,9 @@ import {
 import {
   CONFIG_ACADEMIC_CALENDAR_DATE,
   CONFIG_SCHEDULE_OVERRIDES_DATE,
-  normalisePlanEntry,
   type CalculatedLessonEntry,
-} from "./planner-engine";
+} from "./planner-types";
+import { normalisePlanEntry } from "./planner-engine";
 
 export type SemesterPlanStatus = Database["public"]["Enums"]["semester_plan_status"];
 export type SemesterPlanVersionStatus = Database["public"]["Enums"]["semester_plan_version_status"];

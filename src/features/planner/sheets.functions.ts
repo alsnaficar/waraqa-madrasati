@@ -7,7 +7,7 @@ import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-managem
 import {
   CONFIG_ACADEMIC_CALENDAR_DATE,
   CONFIG_SCHEDULE_OVERRIDES_DATE,
-} from "@/features/planner/services/planner-engine";
+} from "@/features/planner/services/planner-types";
 
 export interface SheetConnectionInfo {
   isConnected: boolean;

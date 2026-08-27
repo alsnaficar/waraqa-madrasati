@@ -43,7 +43,7 @@ import { downloadStructuredLessonPrepDocx, copyToClipboard } from "@/platform/ai
 import {
   CONFIG_ACADEMIC_CALENDAR_DATE,
   CONFIG_SCHEDULE_OVERRIDES_DATE,
-} from "@/features/planner/services/planner-engine";
+} from "@/features/planner/services/planner-types";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 

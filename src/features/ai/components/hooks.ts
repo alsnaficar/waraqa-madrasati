@@ -8,7 +8,7 @@ import { supabase } from "@/platform/database/supabase/client";
 import {
   CONFIG_ACADEMIC_CALENDAR_DATE,
   CONFIG_SCHEDULE_OVERRIDES_DATE,
-} from "@/features/planner/services/planner-engine";
+} from "@/features/planner/services/planner-types";
 
 // 1. useAIClipboard hook
 export function useAIClipboard() {
