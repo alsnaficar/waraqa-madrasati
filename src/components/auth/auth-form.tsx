@@ -55,9 +55,11 @@ function validatePasswordPolicy(password: string) {
 export function AuthForm({
   onSuccess,
   defaultMode = "signin",
+  redirectPath,
 }: {
   onSuccess?: () => void;
   defaultMode?: "signin" | "signup";
+  redirectPath?: string;
 } = {}) {
   const [mode, setMode] = useState<"signin" | "signup">(defaultMode);
   const [loading, setLoading] = useState(false);
@@ -100,16 +102,19 @@ export function AuthForm({
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("مرحباً بعودتك");
-        if (onSuccess) {
-          onSuccess();
-        }
-        // Domain-aware home:
+        // Domain-aware post-login routing:
         // waraqa.alsnafi.app → admin only
         // waragh.alsnafi.app → teacher interface
         // unknown/local domain → existing role-based fallback
         try {
           const decision = await resolveDomainLogin();
+
+          console.info("[auth] domain login decision:", {
+            domain: decision.domain,
+            role: decision.role,
+            allowed: decision.allowed,
+            redirectPath: decision.redirectPath,
+          });
 
           if (!decision.allowed) {
             toast.error(
@@ -121,13 +126,39 @@ export function AuthForm({
             return;
           }
 
-          navigate({ to: decision.redirectPath });
+          const targetPath =
+            redirectPath === "/admin" && decision.redirectPath === "/admin"
+              ? "/admin"
+              : decision.redirectPath;
+
+          toast.success("مرحباً بعودتك");
+
+          if (onSuccess) {
+            onSuccess();
+          }
+
+          await navigate({
+            to: targetPath,
+            replace: true,
+          });
         } catch (resolveErr) {
           console.error("[auth] domain login resolution failed:", resolveErr);
 
-          // Keep the existing safe fallback if the domain-resolution
-          // server function is temporarily unavailable.
-          navigate({ to: "/dashboard" });
+          // Never silently move an admin-domain login to the teacher dashboard.
+          // The server-side admin gate remains the security boundary.
+          if (window.location.hostname === "waraqa.alsnafi.app") {
+            toast.error(
+              "تعذر التحقق من صلاحيات الإدارة. يرجى المحاولة مرة أخرى.",
+            );
+            await supabase.auth.signOut();
+            return;
+          }
+
+          // Teacher domain keeps the normal teacher fallback.
+          await navigate({
+            to: "/dashboard",
+            replace: true,
+          });
         }
       }
     } catch (err) {

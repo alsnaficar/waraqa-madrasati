@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useMemo } from "react";
 
 import { prepareLessonSession } from "@/platform/lesson-sessions/prepare-lesson-session.functions";
+import { updateLessonSessionDeliveryMode } from "@/platform/lesson-sessions/update-delivery-mode.functions";
 import { lessonSessionsQueryKey } from "./useLessonSessions";
 import { LessonSessionService } from "../services/lesson-session.service";
 import { schoolWeekDatesFromSunday } from "../services/weekly-preparation.logic";
@@ -27,6 +28,7 @@ export type WeeklyLessonDayState = {
 export function useWeeklyLessonSessions(weekStartIso: string) {
   const queryClient = useQueryClient();
   const prepareFn = useServerFn(prepareLessonSession);
+  const updateDeliveryModeFn = useServerFn(updateLessonSessionDeliveryMode);
 
   const dates = useMemo(() => schoolWeekDatesFromSunday(weekStartIso), [weekStartIso]);
 
@@ -82,10 +84,21 @@ export function useWeeklyLessonSessions(weekStartIso: string) {
     mutationFn: (id: string) => LessonSessionService.completeSession(id),
     onSuccess: refreshWeek,
   });
+  const updateDeliveryMode = useMutation({
+    mutationFn: (input: {
+      id: string;
+      deliveryMode: "classroom" | "remote";
+    }) => updateDeliveryModeFn({ data: input }),
+    onSuccess: refreshWeek,
+  });
 
   // Match daily hook: disable actions only while a mutation is in flight,
   // not during background refetch (avoids locking the whole week UI).
-  const busy = prepare.isPending || resetPreparation.isPending || complete.isPending;
+  const busy =
+    prepare.isPending ||
+    resetPreparation.isPending ||
+    complete.isPending ||
+    updateDeliveryMode.isPending;
 
   return {
     weekStartIso,
@@ -96,6 +109,7 @@ export function useWeeklyLessonSessions(weekStartIso: string) {
     prepare,
     resetPreparation,
     complete,
+    updateDeliveryMode,
     refreshWeek,
     busy,
   };

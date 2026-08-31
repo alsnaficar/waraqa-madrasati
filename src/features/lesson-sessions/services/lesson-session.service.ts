@@ -2,7 +2,7 @@ import { resolveAcademicScope } from "@/features/calendar/services/academic-cale
 import { getPlanEntriesForDate } from "@/features/planner/services/semester-plan.service";
 import type { CalculatedLessonEntry } from "@/features/planner/services/planner-types";
 import { TeacherTimetableService } from "@/features/teacher-timetable/services/teacher-timetable.service";
-import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-management.functions";
+import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-lesson-notes";
 import { resolveUserContext, type SupabaseUserContext } from "@/platform/database/supabase/context";
 import type { Database } from "@/platform/database/supabase/types";
 import {
@@ -57,6 +57,7 @@ function toSession(row: SessionRow): LessonSession {
     curriculumLessonSource: toCurriculumLessonSource(row.curriculum_lesson_source),
     sessionDate: row.session_date,
     dayOfWeek: row.day_of_week,
+    deliveryMode: row.delivery_mode,
     periodNumber: row.period_number,
     lessonLocked: row.lesson_locked,
     status: toStatus(row.status),
@@ -578,6 +579,53 @@ export class LessonSessionService {
     }
 
     return this.applyUpdate(id, { status: "cancelled" }, context);
+  }
+
+  /**
+   * Changes the delivery mode of an unlocked lesson session.
+   * classroom = حضوري
+   * remote = عن بعد
+   *
+   * The delivery mode belongs to the daily lesson session, not the timetable.
+   * Prepared or currently-preparing sessions cannot be changed.
+   */
+  static async updateDeliveryMode(
+    sessionId: string,
+    deliveryMode: "classroom" | "remote",
+    context?: SupabaseUserContext,
+  ): Promise<LessonSession | null> {
+    const resolved = await resolveUserContext(context);
+    if (!resolved) return null;
+
+    const id = sessionId?.trim();
+    if (!id) {
+      throw new Error("معرّف الحصة مطلوب.");
+    }
+
+    if (deliveryMode !== "classroom" && deliveryMode !== "remote") {
+      throw new Error("نمط الحصة غير صالح.");
+    }
+
+    const session = await this.getSessionById(id, resolved);
+    if (!session) {
+      throw new Error("الحصة غير موجودة أو لا تملك صلاحية الوصول إليها.");
+    }
+
+    if (session.status === "preparing") {
+      throw new LessonSessionPreparingError();
+    }
+
+    if (session.lessonLocked) {
+      throw new LessonSessionLockedError();
+    }
+
+    return this.applyUpdate(
+      id,
+      {
+        delivery_mode: deliveryMode,
+      },
+      resolved,
+    );
   }
 
   static async changeLesson(

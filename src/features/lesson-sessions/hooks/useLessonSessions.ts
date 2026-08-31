@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useCallback } from "react";
 
 import { prepareLessonSession } from "@/platform/lesson-sessions/prepare-lesson-session.functions";
+import { updateLessonSessionDeliveryMode } from "@/platform/lesson-sessions/update-delivery-mode.functions";
 import { LessonSessionService, todayIso } from "../services/lesson-session.service";
 import type { LessonSessionGenerationResult } from "../types";
 
@@ -18,6 +19,7 @@ export const lessonSessionsQueryKey = (date: string) => ["lesson-sessions", date
 export function useLessonSessions(date: string = todayIso()) {
   const queryClient = useQueryClient();
   const prepareFn = useServerFn(prepareLessonSession);
+  const updateDeliveryModeFn = useServerFn(updateLessonSessionDeliveryMode);
 
   const query = useQuery<LessonSessionGenerationResult>({
     queryKey: lessonSessionsQueryKey(date),
@@ -52,6 +54,14 @@ export function useLessonSessions(date: string = todayIso()) {
     onSuccess: invalidateAfterReset,
   });
 
+  const updateDeliveryMode = useMutation({
+    mutationFn: (input: {
+      lessonSessionId: string;
+      deliveryMode: "classroom" | "remote";
+    }) => updateDeliveryModeFn({ data: input }),
+    onSuccess: invalidate,
+  });
+
   const complete = useMutation({
     mutationFn: (id: string) => LessonSessionService.completeSession(id),
     onSuccess: invalidate,
@@ -67,6 +77,7 @@ export function useLessonSessions(date: string = todayIso()) {
     regenerate,
     prepare,
     resetPreparation,
+    updateDeliveryMode,
     complete,
   };
 }

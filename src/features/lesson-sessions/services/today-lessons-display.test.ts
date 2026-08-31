@@ -20,6 +20,7 @@ function sessionView(overrides: Partial<LessonSessionView> = {}): LessonSessionV
     sessionDate: "2026-08-14",
     dayOfWeek: 5,
     periodNumber: 1,
+    deliveryMode: "classroom",
     lessonLocked: false,
     status: "scheduled",
     preparedAt: null,

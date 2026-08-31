@@ -1051,6 +1051,7 @@ export type Database = {
           curriculum_lesson_id: string;
           curriculum_lesson_source: "plan" | "manual";
           day_of_week: number;
+          delivery_mode: "classroom" | "remote";
           grade_id: string | null;
           id: string;
           lesson_locked: boolean;
@@ -1070,6 +1071,7 @@ export type Database = {
           curriculum_lesson_id: string;
           curriculum_lesson_source?: "plan" | "manual";
           day_of_week: number;
+          delivery_mode?: "classroom" | "remote";
           grade_id?: string | null;
           id?: string;
           lesson_locked?: boolean;
@@ -1089,6 +1091,7 @@ export type Database = {
           curriculum_lesson_id?: string;
           curriculum_lesson_source?: "plan" | "manual";
           day_of_week?: number;
+          delivery_mode?: "classroom" | "remote";
           grade_id?: string | null;
           id?: string;
           lesson_locked?: boolean;

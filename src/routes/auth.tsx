@@ -10,10 +10,14 @@ export const Route = createFileRoute("/auth")({
   beforeLoad: ({ search }) => {
     throw redirect({
       to: "/",
-      search: {
-        login: "true",
-        redirect: search.redirect,
-      },
+      search: search.redirect
+        ? {
+            login: "true",
+            redirect: search.redirect,
+          }
+        : {
+            login: "true",
+          },
     });
   },
   component: () => null,

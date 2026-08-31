@@ -14,7 +14,7 @@ import {
   isAiGeminiTimeoutError,
 } from "@/features/ai/providers/ai-request-limits.ts";
 import { getGemini } from "@/features/ai/providers/gemini";
-import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-management.functions";
+import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-lesson-notes";
 import type {
   GenerationExecuteResult,
   SessionBoundGenerationContext,

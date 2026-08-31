@@ -43,7 +43,7 @@ const features = [
 ];
 
 function Landing() {
-  const { login } = Route.useSearch();
+  const { login, redirect: redirectPath } = Route.useSearch();
   const navigate = useNavigate();
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -181,7 +181,11 @@ function Landing() {
                 <X className="h-5 w-5" />
               </button>
 
-              <AuthForm defaultMode={authModalMode} onSuccess={handleCloseModal} />
+              <AuthForm
+                defaultMode={authModalMode}
+                redirectPath={redirectPath}
+                onSuccess={handleCloseModal}
+              />
             </motion.div>
           </div>
         )}

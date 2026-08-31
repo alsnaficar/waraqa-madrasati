@@ -11,9 +11,11 @@ import {
 import type {
   BrowserAutomation,
   BrowserPageHandle,
-  BrowserSessionHandle,
+    BrowserSessionHandle,
   BrowserSessionOpenOptions,
+  MadrasatiPageLink,
 } from "./browser-automation.ts";
+
 import {
   mapRemoteDomInputType,
   sanitizeFocusedControl,
@@ -175,6 +177,63 @@ export class PlaywrightBrowserAutomation implements BrowserAutomation {
     });
 
     return new Uint8Array(buffer);
+  }
+    async getPageLinks(page: BrowserPageHandle): Promise<readonly MadrasatiPageLink[]> {
+    const pageObject = this.requirePage(page);
+    const links: MadrasatiPageLink[] = [];
+
+    for (const frame of pageObject.frames()) {
+      try {
+        const frameLinks = await frame.evaluate(`(() => {
+          function clean(value) {
+            return String(value || "").replace(/\\s+/g, " ").trim();
+          }
+
+          return Array.from(document.querySelectorAll("a[href]"))
+            .map(function(el) {
+              if (!(el instanceof HTMLAnchorElement)) {
+                return null;
+              }
+
+              const name = clean(el.getAttribute("aria-label") || el.innerText || el.textContent);
+              const href = clean(el.href);
+
+              if (!name || !href) {
+                return null;
+              }
+
+              return {
+                name: name.slice(0, 200),
+                href: href.slice(0, 1000),
+              };
+            })
+            .filter(Boolean);
+        })()`) as Array<{ name: string; href: string } | null>;
+
+        for (const link of frameLinks) {
+          if (!link?.name || !link.href) {
+            continue;
+          }
+
+          links.push({
+            name: link.name,
+            href: link.href,
+          });
+        }
+      } catch {
+        // Cross-origin frames such as Microsoft SSO cannot be inspected.
+      }
+    }
+
+    const seen = new Set<string>();
+    return links.filter((link) => {
+      const key = `${link.name}\n${link.href}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    }).slice(0, 200);
   }
 
   async clickPage(page: BrowserPageHandle, x: number, y: number): Promise<void> {

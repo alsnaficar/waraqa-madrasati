@@ -3,7 +3,7 @@ import { z } from "zod";
 import crypto from "crypto";
 import { assertAdmin } from "@/platform/auth/assert-admin";
 import { requireSupabaseAuth } from "@/platform/database/supabase/auth-middleware";
-import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-management.functions";
+import { deserializeLessonNotes } from "@/platform/curriculum/curriculum-lesson-notes";
 import {
   CONFIG_ACADEMIC_CALENDAR_DATE,
   CONFIG_SCHEDULE_OVERRIDES_DATE,
