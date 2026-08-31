@@ -3,6 +3,7 @@ import { test } from "node:test";
 
 import type {
   BrowserAutomation,
+  MadrasatiPageLink,
   BrowserPageHandle,
   BrowserSessionHandle,
   BrowserSessionOpenOptions,
@@ -85,6 +86,11 @@ class FakeBrowserAutomation implements BrowserAutomation {
 
   async inspectFocusedControl(_page: BrowserPageHandle): Promise<MadrasatiFocusedControl> {
     return { isEditable: false, inputType: "none" };
+  }
+
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
   }
 
   async readPageLandmarks(_page: BrowserPageHandle) {
@@ -182,7 +188,12 @@ test("MadrasatiBrowserAdapter — reads teacher profile from authenticated home 
       return "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url: "https://schools.madrasati.sa/",
         title: "مدرستي",
@@ -230,7 +241,12 @@ test("MadrasatiBrowserAdapter — navigates to مقرراتي and returns normal
       return "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       if (this.view === "courses") {
         return {
           url: "https://schools.madrasati.sa/Courses",
@@ -344,7 +360,12 @@ test("MadrasatiBrowserAdapter — confirmed empty مقرراتي list is not a f
         : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url:
           this.view === "courses"
@@ -405,7 +426,12 @@ test("MadrasatiBrowserAdapter — getSubjects fails closed when unauthenticated 
         : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url:
           this.view === "courses"
@@ -478,7 +504,12 @@ test("MadrasatiBrowserAdapter — navigates to جدولي and returns normalized
       return "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       if (this.view === "timetable") {
         return {
           url: "https://schools.madrasati.sa/Timetable",
@@ -566,7 +597,12 @@ test("MadrasatiBrowserAdapter — already on جدولي does not navigate again"
       return "جدولي\nالأحد\nالحصة الأولى\nالرياضيات\nتسجيل الخروج\nالمقررات";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url: "https://schools.madrasati.sa/Timetable",
         title: "جدولي",
@@ -620,7 +656,12 @@ test("MadrasatiBrowserAdapter — getTimetable fails closed when unauthenticated
         : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url:
           this.view === "timetable"
@@ -672,7 +713,12 @@ test("MadrasatiBrowserAdapter — confirmed empty جدولي is not a fake succe
         : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url:
           this.view === "timetable"
@@ -723,7 +769,12 @@ test("MadrasatiBrowserAdapter — navigates to الواجبات and returns norm
         : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       if (this.view === "homework") {
         return {
           url: "https://schools.madrasati.sa/Homework",
@@ -804,7 +855,12 @@ test("MadrasatiBrowserAdapter — already on الواجبات does not navigate 
       return "الواجبات\nتدريب حروف الجر\nلغتي\n2026-08-25";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url: "https://schools.madrasati.sa/Homework",
         title: "الواجبات",
@@ -872,7 +928,12 @@ test("MadrasatiBrowserAdapter — confirmed empty الواجبات returns an em
         : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url:
           this.view === "homework"
@@ -933,7 +994,12 @@ test("MadrasatiBrowserAdapter — getHomework fails closed when unauthenticated 
         : "مرحباً، معلم الاختبار\nجدولي\nالمقررات والمصادر\nالواجبات\nتسجيل الخروج";
     }
 
-    async readPageLandmarks() {
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
+  }
+
+  async readPageLandmarks() {
       return {
         url:
           this.view === "homework"

@@ -48,11 +48,25 @@ function LessonSessionsPage() {
 
   const date = useMemo(() => toIso(addDays(new Date(), dayOffset)), [dayOffset]);
 
-  const { sessions, skipped, loading, refresh, regenerate, prepare, resetPreparation, complete } =
-    useLessonSessions(date);
+  const {
+    sessions,
+    skipped,
+    loading,
+    refresh,
+    regenerate,
+    prepare,
+    resetPreparation,
+    updateDeliveryMode,
+    complete,
+  } = useLessonSessions(date);
 
   const busy =
-    prepare.isPending || resetPreparation.isPending || complete.isPending || regenerate.isPending;
+    prepare.isPending ||
+    resetPreparation.isPending ||
+    complete.isPending ||
+    regenerate.isPending;
+
+  const deliveryModeBusy = updateDeliveryMode.isPending;
 
   const preparedCount = sessions.filter((session) => session.lessonLocked).length;
 
@@ -102,6 +116,30 @@ function LessonSessionsPage() {
       },
       onError: () => toast.error("تعذّر حذف التحضير."),
     });
+  }
+
+  function handleDeliveryModeChange(
+    id: string,
+    deliveryMode: "classroom" | "remote",
+  ) {
+    updateDeliveryMode.mutate(
+      { lessonSessionId: id, deliveryMode },
+      {
+        onSuccess: () =>
+          toast.success(
+            deliveryMode === "remote"
+              ? "تم تغيير نمط الحصة إلى عن بعد."
+              : "تم تغيير نمط الحصة إلى حضوري.",
+          ),
+        onError: (error) => {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "تعذّر تحديث نمط الحصة.";
+          toast.error(message);
+        },
+      },
+    );
   }
 
   function handleComplete(id: string) {
@@ -195,6 +233,8 @@ function LessonSessionsPage() {
                 onPrepare={handlePrepare}
                 onResetPreparation={handleResetRequest}
                 onComplete={handleComplete}
+                onDeliveryModeChange={handleDeliveryModeChange}
+                deliveryModeBusy={deliveryModeBusy}
               />
             ))}
           </div>

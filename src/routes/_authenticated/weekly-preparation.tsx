@@ -36,8 +36,15 @@ function WeeklyPreparationPage() {
   const [weekStartIso, setWeekStartIso] = useState(() => resolveSchoolWeekStart(todayIso()));
   const [deleteTarget, setDeleteTarget] = useState<LessonSessionView | null>(null);
 
-  const { days, prepare, resetPreparation, complete, refreshWeek, busy } =
-    useWeeklyLessonSessions(weekStartIso);
+  const {
+    days,
+    prepare,
+    resetPreparation,
+    complete,
+    updateDeliveryMode,
+    refreshWeek,
+    busy,
+  } = useWeeklyLessonSessions(weekStartIso);
 
   const weekRangeLabel = useMemo(() => {
     const first = days[0]?.date;
@@ -102,6 +109,23 @@ function WeeklyPreparationPage() {
       onSuccess: () => toast.success("تم إنهاء الحصة."),
       onError: () => toast.error("تعذّر إنهاء الحصة."),
     });
+  }
+
+  function handleDeliveryModeChange(
+    id: string,
+    deliveryMode: "classroom" | "remote",
+  ) {
+    updateDeliveryMode.mutate(
+      { id, deliveryMode },
+      {
+        onSuccess: () => toast.success("تم تحديث نمط الحصة."),
+        onError: (error) => {
+          const message =
+            error instanceof Error ? error.message : "تعذّر تحديث نمط الحصة.";
+          toast.error(message);
+        },
+      },
+    );
   }
 
   return (
@@ -214,6 +238,8 @@ function WeeklyPreparationPage() {
                       onPrepare={handlePrepare}
                       onResetPreparation={handleResetRequest}
                       onComplete={handleComplete}
+                      onDeliveryModeChange={handleDeliveryModeChange}
+                      deliveryModeBusy={updateDeliveryMode.isPending}
                     />
                   ))}
                 </div>

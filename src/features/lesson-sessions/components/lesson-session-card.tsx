@@ -12,6 +12,13 @@ import {
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select";
 import type { LessonSessionView } from "../types";
 import { LessonSessionStatusBadge } from "./lesson-session-status-badge";
 
@@ -30,6 +37,11 @@ export interface LessonSessionCardProps {
   /** Prepared: request confirmed delete. Preparing: cancel in-progress prepare. */
   onResetPreparation: (id: string) => void;
   onComplete: (id: string) => void;
+  onDeliveryModeChange: (
+    id: string,
+    deliveryMode: "classroom" | "remote",
+  ) => void;
+  deliveryModeBusy?: boolean;
   busy?: boolean;
 }
 
@@ -38,6 +50,8 @@ export function LessonSessionCard({
   onPrepare,
   onResetPreparation,
   onComplete,
+  onDeliveryModeChange,
+  deliveryModeBusy = false,
   busy = false,
 }: LessonSessionCardProps) {
   const shortGrade = session.grade.replace(/^الصف\s+/, "");
@@ -57,6 +71,7 @@ export function LessonSessionCard({
   const canPrepare = session.status === "scheduled" && !session.lessonLocked;
   const canDeletePreparation = isPrepared;
   const canCancelPreparing = isPreparing;
+  const canChangeDeliveryMode = !isPreparing && !session.lessonLocked;
 
   return (
     <Card>
@@ -100,6 +115,41 @@ export function LessonSessionCard({
             ) : null}
           </div>
         </div>
+
+        {canChangeDeliveryMode ? (
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
+            <span className="shrink-0 text-xs font-medium text-muted-foreground">
+              نمط الحصة
+            </span>
+            <Select
+              value={session.deliveryMode}
+              onValueChange={(value) =>
+                onDeliveryModeChange(
+                  session.id,
+                  value as "classroom" | "remote",
+                )
+              }
+              disabled={deliveryModeBusy || busy}
+            >
+              <SelectTrigger className="h-10 flex-1 bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="classroom">حضوري</SelectItem>
+                <SelectItem value="remote">عن بعد</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 px-3 py-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              نمط الحصة
+            </span>
+            <Badge variant="secondary">
+              {session.deliveryMode === "remote" ? "عن بعد" : "حضوري"}
+            </Badge>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2 border-t border-border pt-3">
           <Button variant="outline" size="sm" className="h-11 flex-1 min-w-[132px] gap-1.5" asChild>

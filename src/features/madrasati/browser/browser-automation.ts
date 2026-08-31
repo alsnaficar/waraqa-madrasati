@@ -34,6 +34,10 @@ export class BrowserAutomationUnavailableError extends Error {
  * Opaque server-side browser session handle.
  * Never serialize this with browser state, cookies or page objects.
  */
+export type MadrasatiPageLink = {
+  readonly name: string;
+  readonly href: string;
+};
 export type BrowserSessionHandle = {
   readonly id: string;
 };
@@ -80,7 +84,13 @@ export interface BrowserAutomation {
    * Browser/page objects and cookies remain server-side.
    */
   getPageScreenshot(page: BrowserPageHandle): Promise<Uint8Array>;
-  clickPage(page: BrowserPageHandle, x: number, y: number): Promise<void>;
+    /**
+   * Returns safe navigation links from the current page.
+   *
+   * Never returns HTML, cookies, credentials, or Playwright objects.
+   */
+  getPageLinks(page: BrowserPageHandle): Promise<readonly MadrasatiPageLink[]>;
+ clickPage(page: BrowserPageHandle, x: number, y: number): Promise<void>;
 
   typePage(page: BrowserPageHandle, text: string): Promise<void>;
 
@@ -190,6 +200,11 @@ export class UnavailableBrowserAutomation implements BrowserAutomation {
   async getPageScreenshot(_page: BrowserPageHandle): Promise<Uint8Array> {
     await this.assertAvailable();
     return new Uint8Array();
+  }
+
+    async getPageLinks(_page: BrowserPageHandle): Promise<readonly MadrasatiPageLink[]> {
+    await this.assertAvailable();
+    return [];
   }
 
   async clickPage(_page: BrowserPageHandle, _x: number, _y: number): Promise<void> {

@@ -7,6 +7,13 @@ export type LessonSessionStatus =
  */
 export type CurriculumLessonSource = "plan" | "manual";
 
+/**
+ * Delivery mode for daily lesson preparation.
+ * classroom = حضوري
+ * remote = عن بعد
+ */
+export type DeliveryMode = "classroom" | "remote";
+
 const CURRICULUM_LESSON_SOURCES: readonly CurriculumLessonSource[] = ["plan", "manual"];
 
 /** Strict parser — invalid DB values must not silently default. */
@@ -41,6 +48,8 @@ export interface LessonSession {
   sessionDate: string;
 
   dayOfWeek: number;
+
+  deliveryMode: DeliveryMode;
 
   periodNumber: number;
 

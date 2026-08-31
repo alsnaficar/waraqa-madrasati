@@ -84,6 +84,7 @@ export function buildSessionInsertsForTimetableSlots(
       curriculum_lesson_source: "plan",
       session_date: input.sessionDate,
       day_of_week: input.dayOfWeek,
+      delivery_mode: "classroom",
       period_number: slot.period,
       lesson_locked: false,
       status: "scheduled",

@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import { MadrasatiBrowserAdapter } from "./madrasati-browser-adapter.server.ts";
 import type {
   BrowserAutomation,
+  MadrasatiPageLink,
   BrowserPageHandle,
   BrowserSessionHandle,
   BrowserSessionOpenOptions,
@@ -76,6 +77,11 @@ class InspectionAutomation implements BrowserAutomation {
 
   async inspectFocusedControl(_page: BrowserPageHandle): Promise<MadrasatiFocusedControl> {
     return { isEditable: false, inputType: "none" };
+  }
+
+
+  async getPageLinks(): Promise<readonly MadrasatiPageLink[]> {
+    return [];
   }
 
   async readPageLandmarks(_page: BrowserPageHandle) {
