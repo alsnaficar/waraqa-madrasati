@@ -13,6 +13,9 @@ export type TodayLessonDisplay = {
   lessonLocked?: boolean;
   curriculumLessonId?: string;
   curriculumLessonSource?: "plan" | "manual";
+  deliveryMode?: "classroom" | "remote";
+  startsAt?: string | null;
+  endsAt?: string | null;
 };
 
 export type TimetableSlotForTodayDisplay = {
@@ -51,6 +54,9 @@ export function resolveTodayLessonDisplay(input: {
         lessonLocked: session.lessonLocked,
         curriculumLessonId: session.curriculumLessonId,
         curriculumLessonSource: session.curriculumLessonSource,
+        deliveryMode: session.deliveryMode,
+        startsAt: session.startsAt,
+        endsAt: session.endsAt,
       }));
   }
 

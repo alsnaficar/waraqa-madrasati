@@ -1,5 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, FileText, FlaskConical } from "lucide-react";
+import {
+  BookOpen,
+  FileText,
+  FlaskConical,
+  Clock3,
+  Monitor,
+  School,
+} from "lucide-react";
 
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -16,6 +23,10 @@ export interface TodayLessonCardProps {
     subject: string;
     /** When set, AI deep links are session-bound (P3 Step 2). */
     lessonSessionId?: string;
+    deliveryMode?: "classroom" | "remote";
+    status?: string;
+    startsAt?: string | null;
+    endsAt?: string | null;
   };
 }
 
@@ -25,6 +36,29 @@ export function TodayLessonCard({ entry }: TodayLessonCardProps) {
   const displayKlass = entry.klass || "";
 
   const hasSession = Boolean(entry.lessonSessionId);
+
+  const statusLabel =
+    entry.status === "prepared" || entry.status === "completed"
+      ? "تم التحضير"
+      : entry.status === "preparing"
+        ? "جارٍ التحضير"
+        : entry.status === "cancelled"
+          ? "ملغاة"
+          : "مجدولة";
+
+  const formatTime = (value?: string | null) => {
+    if (!value) return null;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+
+    return new Intl.DateTimeFormat("ar-SA", {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(date);
+  };
+
+  const startTime = formatTime(entry.startsAt);
+  const endTime = formatTime(entry.endsAt);
   const searchParams = hasSession
     ? {
         lessonSessionId: entry.lessonSessionId!,
@@ -58,6 +92,31 @@ export function TodayLessonCard({ entry }: TodayLessonCardProps) {
           </div>
 
           <p className="mt-1 truncate text-sm font-semibold">{entry.lessonTitle}</p>
+
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+            {entry.deliveryMode && (
+              <span className="inline-flex items-center gap-1">
+                {entry.deliveryMode === "remote" ? (
+                  <Monitor className="h-3 w-3" />
+                ) : (
+                  <School className="h-3 w-3" />
+                )}
+                {entry.deliveryMode === "remote" ? "عن بُعد" : "حضوري"}
+              </span>
+            )}
+
+            {startTime && (
+              <span className="inline-flex items-center gap-1">
+                <Clock3 className="h-3 w-3" />
+                {startTime}
+                {endTime ? ` - ${endTime}` : ""}
+              </span>
+            )}
+
+            {entry.lessonSessionId && (
+              <span>{statusLabel}</span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-1">
