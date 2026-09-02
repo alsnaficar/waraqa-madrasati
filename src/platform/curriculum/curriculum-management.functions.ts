@@ -88,6 +88,28 @@ export type CurriculumPdfExtractionResult = {
   lessons: CurriculumPdfExtractedLesson[];
 };
 
+const curriculumPdfExtractedLessonSchema = z.object({
+  unitNumber: z.string().optional(),
+  unitName: z.string().optional(),
+  lessonNumber: z.string().optional(),
+  lessonTitle: z.string(),
+  objectives: z.string().optional(),
+  outcomes: z.string().optional(),
+  activities: z.string().optional(),
+  assessment: z.string().optional(),
+  periods: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+const curriculumPdfExtractionResultSchema = z.object({
+  academicYear: z.string().optional(),
+  semester: z.string().optional(),
+  stage: z.string().optional(),
+  grade: z.string(),
+  subject: z.string(),
+  lessons: z.array(curriculumPdfExtractedLessonSchema),
+});
+
 /**
  * Reject oversized, empty, or non-PDF Base64 payloads before any Gemini call.
  * Order: Base64 length → decode → decoded size → PDF magic bytes.
@@ -248,7 +270,20 @@ export async function extractCurriculumFromPdfAuthorized(
     });
 
     const text = response.text?.trim() ?? "{}";
-    return JSON.parse(text) as CurriculumPdfExtractionResult;
+
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(text);
+    } catch {
+      throw new Error("تعذر قراءة بيانات المنهج المستخرجة.");
+    }
+
+    const parsedResult = curriculumPdfExtractionResultSchema.safeParse(parsedJson);
+    if (!parsedResult.success) {
+      throw new Error("بيانات المنهج المستخرجة غير مطابقة للصيغة المطلوبة.");
+    }
+
+    return parsedResult.data;
   } catch (err: unknown) {
     if (
       err instanceof Error &&

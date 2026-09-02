@@ -88,7 +88,13 @@ function mockGeminiCounter(): {
       models: {
         async generateContent() {
           geminiCalls += 1;
-          return { text: "{}" };
+          return {
+            text: JSON.stringify({
+              grade: "الصف الخامس",
+              subject: "رياضيات",
+              lessons: [{ lessonTitle: "خصائص الضرب" }],
+            }),
+          };
         },
       },
     },
@@ -516,6 +522,55 @@ describe("curriculum PDF extraction concurrency + cooldown guard", () => {
     hold.resolve();
     await Promise.all([p1, p2, p3]);
     assert.equal(getCurriculumPdfGuardSnapshotForTests().globalInFlight, 0);
+  });
+
+  it("F1. malformed Gemini JSON is rejected with a safe message", async () => {
+    const { client } = mockRoleClient("admin");
+    const ai = {
+      models: {
+        async generateContent() {
+          return { text: "{not-valid-json" };
+        },
+      },
+    };
+
+    await assert.rejects(
+      () =>
+        extractCurriculumFromPdfAuthorized(client, ADMIN, base64OfExactBytes(64), {
+          ai,
+        }),
+      (err: unknown) =>
+        err instanceof Error &&
+        err.message === "Failed to extract curriculum details: تعذر قراءة بيانات المنهج المستخرجة.",
+    );
+  });
+
+  it("F2. schema-invalid Gemini JSON is rejected without exposing validation details", async () => {
+    const { client } = mockRoleClient("admin");
+    const ai = {
+      models: {
+        async generateContent() {
+          return {
+            text: JSON.stringify({
+              grade: 123,
+              subject: "رياضيات",
+              lessons: [{ lessonTitle: "خصائص الضرب" }],
+            }),
+          };
+        },
+      },
+    };
+
+    await assert.rejects(
+      () =>
+        extractCurriculumFromPdfAuthorized(client, ADMIN, base64OfExactBytes(64), {
+          ai,
+        }),
+      (err: unknown) =>
+        err instanceof Error &&
+        err.message ===
+          "Failed to extract curriculum details: بيانات المنهج المستخرجة غير مطابقة للصيغة المطلوبة.",
+    );
   });
 
   it("F. release after success allows later acquire after cooldown", async () => {
