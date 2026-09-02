@@ -140,30 +140,36 @@ export function assertCurriculumPdfBase64WithinLimit(pdfBase64: string): void {
 }
 
 // Schema for curriculum save inputs
-const LessonInput = z.object({
+const MAX_CURRICULUM_LESSONS = 500;
+const MAX_CURRICULUM_METADATA_LENGTH = 200;
+const MAX_CURRICULUM_LESSON_TITLE_LENGTH = 500;
+const MAX_CURRICULUM_LESSON_DETAIL_LENGTH = 10_000;
+const MAX_CURRICULUM_LESSON_SHORT_FIELD_LENGTH = 100;
+
+export const LessonInput = z.object({
   id: z.string().optional(),
-  unitNumber: z.string().optional().default(""),
-  unitName: z.string().optional().default(""),
-  lessonNumber: z.string().optional().default(""),
-  lessonTitle: z.string(),
-  objectives: z.string().optional().default(""),
-  outcomes: z.string().optional().default(""),
-  activities: z.string().optional().default(""),
-  assessment: z.string().optional().default(""),
-  periods: z.string().optional().default("1"),
-  notes: z.string().optional().default(""),
+  unitNumber: z.string().max(MAX_CURRICULUM_LESSON_SHORT_FIELD_LENGTH).optional().default(""),
+  unitName: z.string().max(MAX_CURRICULUM_LESSON_TITLE_LENGTH).optional().default(""),
+  lessonNumber: z.string().max(MAX_CURRICULUM_LESSON_SHORT_FIELD_LENGTH).optional().default(""),
+  lessonTitle: z.string().min(1).max(MAX_CURRICULUM_LESSON_TITLE_LENGTH),
+  objectives: z.string().max(MAX_CURRICULUM_LESSON_DETAIL_LENGTH).optional().default(""),
+  outcomes: z.string().max(MAX_CURRICULUM_LESSON_DETAIL_LENGTH).optional().default(""),
+  activities: z.string().max(MAX_CURRICULUM_LESSON_DETAIL_LENGTH).optional().default(""),
+  assessment: z.string().max(MAX_CURRICULUM_LESSON_DETAIL_LENGTH).optional().default(""),
+  periods: z.string().max(MAX_CURRICULUM_LESSON_SHORT_FIELD_LENGTH).optional().default("1"),
+  notes: z.string().max(MAX_CURRICULUM_LESSON_DETAIL_LENGTH).optional().default(""),
 });
 
-const SaveCurriculumInput = z.object({
+export const SaveCurriculumInput = z.object({
   id: z.string().optional(),
-  originalName: z.string(),
-  academicYear: z.string(),
-  semester: z.string(),
-  stage: z.string(),
-  grade: z.string(),
-  subject: z.string(),
-  version: z.string().optional().default("1.0"),
-  lessons: z.array(LessonInput),
+  originalName: z.string().min(1).max(MAX_CURRICULUM_METADATA_LENGTH),
+  academicYear: z.string().min(1).max(MAX_CURRICULUM_METADATA_LENGTH),
+  semester: z.string().min(1).max(MAX_CURRICULUM_METADATA_LENGTH),
+  stage: z.string().min(1).max(MAX_CURRICULUM_METADATA_LENGTH),
+  grade: z.string().min(1).max(MAX_CURRICULUM_METADATA_LENGTH),
+  subject: z.string().min(1).max(MAX_CURRICULUM_METADATA_LENGTH),
+  version: z.string().max(MAX_CURRICULUM_METADATA_LENGTH).optional().default("1.0"),
+  lessons: z.array(LessonInput).max(MAX_CURRICULUM_LESSONS),
 });
 
 const extractCurriculumPdfInputSchema = z.object({

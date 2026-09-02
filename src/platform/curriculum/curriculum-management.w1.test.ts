@@ -8,6 +8,7 @@ import {
   adminListCurriculumFiles,
   adminPublishCurriculum,
 } from "./curriculum-admin.ops.ts";
+import { LessonInput, SaveCurriculumInput } from "./curriculum-management.functions.ts";
 
 const TEACHER = {
   userId: "11111111-1111-4111-8111-111111111111",
@@ -211,6 +212,55 @@ function assertDeniedBeforeCurriculum(fn: () => Promise<unknown>, trace: Trace) 
     return true;
   });
 }
+
+describe("curriculum save input hardening", () => {
+  const validLesson = {
+    lessonTitle: "خصائص الضرب",
+  };
+
+  const validSave = {
+    originalName: "منهج الرياضيات",
+    academicYear: "1448",
+    semester: "1",
+    stage: "intermediate",
+    grade: "الصف الأول المتوسط",
+    subject: "الرياضيات",
+    lessons: [validLesson],
+  };
+
+  it("accepts a normal curriculum lesson", () => {
+    assert.doesNotThrow(() => LessonInput.parse(validLesson));
+  });
+
+  it("rejects more than 500 lessons", () => {
+    assert.throws(() => SaveCurriculumInput.parse({
+      ...validSave,
+      lessons: Array.from({ length: 501 }, (_, i) => ({
+        lessonTitle: `درس ${i + 1}`,
+      })),
+    }));
+  });
+
+  it("rejects an oversized lesson title", () => {
+    assert.throws(() => LessonInput.parse({
+      lessonTitle: "أ".repeat(501),
+    }));
+  });
+
+  it("rejects an oversized lesson detail field", () => {
+    assert.throws(() => LessonInput.parse({
+      lessonTitle: "درس صالح",
+      objectives: "أ".repeat(10_001),
+    }));
+  });
+
+  it("rejects oversized curriculum metadata", () => {
+    assert.throws(() => SaveCurriculumInput.parse({
+      ...validSave,
+      subject: "أ".repeat(201),
+    }));
+  });
+});
 
 describe("W1 curriculum admin authorization", () => {
   it("A. Non-admin → getAdminCurriculumFiles denied", async () => {
