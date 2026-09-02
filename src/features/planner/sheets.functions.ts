@@ -883,6 +883,7 @@ export const syncSheetsToSupabaseAdmin = createServerFn({ method: "POST" })
         return {
           success: result.success,
           syncedCount: result.count,
+          error: result.errors?.length ? result.errors.join(" | ") : undefined,
           executionTimeMs: Date.now() - startTime,
         };
       } catch (err: unknown) {

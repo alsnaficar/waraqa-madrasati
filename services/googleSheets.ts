@@ -183,7 +183,7 @@ export async function getCurriculumFromSheet(
 // 2. Synchronize Curriculum into Supabase (System of Record)
 export async function syncCurriculumToSupabase(
   userId: string,
-): Promise<{ success: boolean; count: number }> {
+): Promise<{ success: boolean; count: number; errors?: string[] }> {
   const records = await getCurriculumFromSheet();
   if (records.length === 0) {
     return { success: true, count: 0 };
@@ -191,17 +191,14 @@ export async function syncCurriculumToSupabase(
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
       "Missing Supabase configuration (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) for server-side synchronization.",
     );
   }
 
-  // Initialize service-role admin client to bypass RLS policies
   const adminClient = createClient<Database>(supabaseUrl, serviceRoleKey);
 
-  // Group lessons by unique file attributes: subject, grade, semester
   const groups = new Map<
     string,
     { subject: string; grade: string; semester: string; lessons: CurriculumRecord[] }
@@ -221,82 +218,58 @@ export async function syncCurriculumToSupabase(
   }
 
   let totalSynced = 0;
+  const errors: string[] = [];
 
   for (const group of groups.values()) {
-    // 1. Check if curriculum file exists or create it
-    const { data: existingFiles, error: fileQueryErr } = await adminClient
-      .from("curriculum_files")
-      .select("id")
-      .eq("subject", group.subject)
-      .eq("grade", group.grade)
-      .eq("semester", group.semester)
-      .eq("user_id", userId);
-
-    if (fileQueryErr) {
-      console.error("Error querying existing curriculum files:", fileQueryErr);
-      continue;
-    }
-
-    let fileId: string;
-
-    if (existingFiles && existingFiles.length > 0) {
-      fileId = existingFiles[0].id;
-    } else {
-      const { data: newFile, error: fileInsertErr } = await adminClient
-        .from("curriculum_files")
-        .insert({
-          original_name: `Google Sheets: ${group.subject} - ${group.grade}`,
-          subject: group.subject,
-          grade: group.grade,
-          semester: group.semester,
-          mime_type: "application/vnd.google-apps.spreadsheet",
-          status: "completed",
-          storage_path: "google-sheet",
-          size_bytes: 0,
-          user_id: userId,
-        })
-        .select("id")
-        .single();
-
-      if (fileInsertErr || !newFile) {
-        console.error("Error creating curriculum file:", fileInsertErr);
-        continue;
-      }
-      fileId = newFile.id;
-    }
-
-    // 2. Clear old lessons for this fileId
-    const { error: deleteErr } = await adminClient
-      .from("curriculum_lessons")
-      .delete()
-      .eq("curriculum_file_id", fileId);
-
-    if (deleteErr) {
-      console.error("Error clearing old lessons:", deleteErr);
-      continue;
-    }
-
-    // 3. Bulk insert the new lessons
-    const lessonsToInsert = group.lessons.map((les, index) => ({
-      curriculum_file_id: fileId,
-      title: les.lessonTitle,
-      objectives: les.objectives || les.unitTitle || null,
-      notes: les.notes || null,
-      order_index: index,
-      lesson_date: les.lessonDate || null,
-      user_id: userId,
-      week_number: index + 1,
+    const lessons = group.lessons.map((lesson, index) => ({
+      lessonTitle: lesson.lessonTitle,
+      lessonDate: lesson.lessonDate || null,
+      objectives: lesson.objectives || null,
+      notes: lesson.notes || null,
+      unitTitle: lesson.unitTitle || null,
+      weekNumber: index + 1,
     }));
 
-    const { error: insertErr } = await adminClient
-      .from("curriculum_lessons")
-      .insert(lessonsToInsert);
+    const { data, error } = await adminClient.rpc(
+      "sync_google_sheets_curriculum_atomic",
+      {
+        p_user_id: userId,
+        p_subject: group.subject,
+        p_grade: group.grade,
+        p_semester: group.semester,
+        p_academic_year: null,
+        p_original_name: `Google Sheets: ${group.subject} - ${group.grade}`,
+        p_lessons: lessons,
+      },
+    );
 
-    if (insertErr) {
-      console.error("Error inserting lessons into Supabase:", insertErr);
-    } else {
-      totalSynced += lessonsToInsert.length;
+    if (error) {
+      errors.push(
+        `Failed to sync curriculum for ${group.subject} - ${group.grade} - ${group.semester}: ${error.message}`,
+      );
+      continue;
     }
+
+    const result = data as
+      | { success?: boolean; lessons_written?: number; file_id?: string }
+      | null;
+
+    if (!result?.success) {
+      errors.push(
+        `Curriculum sync returned an unsuccessful result for ${group.subject} - ${group.grade} - ${group.semester}.`,
+      );
+      continue;
+    }
+
+    totalSynced += result.lessons_written ?? 0;
+  }
+
+  if (errors.length > 0) {
+    return {
+      success: false,
+      count: totalSynced,
+      errors,
+    };
   }
 
   return { success: true, count: totalSynced };
