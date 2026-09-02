@@ -2324,6 +2324,18 @@ export type Database = {
         };
         Returns: string;
       };
+      sync_google_sheets_curriculum_atomic: {
+        Args: {
+          p_user_id: string;
+          p_subject: string;
+          p_grade: string;
+          p_semester: string;
+          p_academic_year: string | null;
+          p_original_name: string;
+          p_lessons: Json;
+        };
+        Returns: Json;
+      };
       teardown_p2e2e_test_user: {
         Args: { p_email: string };
         Returns: Json;

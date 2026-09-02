@@ -195,7 +195,7 @@ export function isClassNameValue(value: string): boolean {
     return false;
   }
 
-  return /^(?:\d{1,3}|[أ-ي]|[أ-ي]\s*[/\-]\s*\d{1,3}|\d{1,3}\s*[/\-]\s*[أ-ي0-9]+)$/.test(trimmed);
+  return /^(?:\d{1,3}|[أ-ي]|[أ-ي]\s*[/-]\s*\d{1,3}|\d{1,3}\s*[/-]\s*[أ-ي0-9]+)$/.test(trimmed);
 }
 
 function collectFromTableRows(
