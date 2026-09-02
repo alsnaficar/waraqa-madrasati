@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { assertAdmin } from "@/platform/auth/assert-admin";
 import {
-  getCurrentAppDomain,
+  resolveAppDomain,
   type AppDomain,
 } from "@/platform/auth/domain-access";
 import { requireSupabaseAuth } from "@/platform/database/supabase/auth-middleware";
@@ -30,14 +31,36 @@ export const resolveDomainLogin = createServerFn({ method: "GET" })
         "[auth] domain login role lookup failed:",
         error.message,
       );
-
       throw new Error("تعذر التحقق من صلاحيات الحساب.");
     }
 
     const role = data?.role === "admin" ? "admin" : "teacher";
 
-    const requestDomain = await getCurrentAppDomain();
-    const domain = requestDomain.domain;
+    const request = getRequest();
+    const forwardedHost = request?.headers.get("x-forwarded-host");
+    const host = request?.headers.get("host");
+    const origin = request?.headers.get("origin");
+
+    const hostname =
+      forwardedHost ||
+      host ||
+      (origin ? new URL(origin).hostname : "");
+
+    const normalisedHostname = hostname
+      .trim()
+      .toLowerCase()
+      .split(",")[0]
+      .trim()
+      .split(":")[0];
+
+    const domain = resolveAppDomain(normalisedHostname);
+
+    console.log("[auth] domain login decision:", {
+      userId: context.userId,
+      role,
+      hostname: normalisedHostname,
+      domain,
+    });
 
     /*
      * No recognised application hostname:
@@ -82,8 +105,8 @@ export const resolveDomainLogin = createServerFn({ method: "GET" })
      * TEACHER DOMAIN
      *
      * waragh.alsnafi.app
-     * Normal teachers go to the teacher dashboard.
-     * Administrators are also allowed to use the teacher interface.
+     * Teachers use the teacher dashboard.
+     * Administrators may also access the teacher interface.
      */
     return {
       domain,

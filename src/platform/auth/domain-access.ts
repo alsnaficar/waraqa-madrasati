@@ -42,24 +42,25 @@ export function getConfiguredAppDomainFromBrowser(): AppDomain | null {
  * Reverse-proxy safe:
  * x-forwarded-host → host → origin
  */
+function getCurrentAppDomainFromRequest() {
+  const request = getRequest();
+  const forwardedHost = request?.headers.get("x-forwarded-host");
+  const host = request?.headers.get("host");
+  const origin = request?.headers.get("origin");
+
+  const hostname =
+    forwardedHost ||
+    host ||
+    (origin ? new URL(origin).hostname : "");
+
+  const normalisedHostname = normaliseHostname(hostname);
+
+  return {
+    hostname: normalisedHostname,
+    domain: resolveAppDomain(normalisedHostname),
+  };
+}
+
 export const getCurrentAppDomain = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
-    const request = getRequest();
-
-    const forwardedHost = request?.headers.get("x-forwarded-host");
-    const host = request?.headers.get("host");
-    const origin = request?.headers.get("origin");
-
-    const hostname =
-      forwardedHost ||
-      host ||
-      (origin ? new URL(origin).hostname : "");
-
-    const normalisedHostname = normaliseHostname(hostname);
-
-    return {
-      hostname: normalisedHostname,
-      domain: resolveAppDomain(normalisedHostname),
-    };
-  });
+  .handler(async () => getCurrentAppDomainFromRequest());
