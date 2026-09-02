@@ -508,7 +508,10 @@ export const exportDataToGoogleSheets = createServerFn({ method: "POST" })
           ];
 
           // Fetch curriculum files & lessons
-          const { data: files } = await supabaseAdmin.from("curriculum_files").select("*");
+          const { data: files } = await supabaseAdmin
+            .from("curriculum_files")
+            .select("*")
+            .eq("status", "published");
 
           for (const f of files || []) {
             const { data: lessons } = await supabaseAdmin

@@ -184,6 +184,21 @@ describe("fetchDriveScheduleRows server-fn contracts", () => {
     assert.ok(loadIdx > assertIdx, "assertAdmin must run before loadDriveScheduleRows");
   });
 
+  it("exports only published curriculum files to the published curriculum sheet", () => {
+    const sheets = readFileSync(SHEETS_FILE, "utf8");
+    const curriculumStart = sheets.indexOf('if (t === "curriculum")');
+    const plannerStart = sheets.indexOf('} else if (t === "planner")', curriculumStart);
+    assert.ok(curriculumStart >= 0, "curriculum export branch must exist");
+    assert.ok(plannerStart > curriculumStart, "curriculum branch boundary must exist");
+
+    const curriculumBody = sheets.slice(curriculumStart, plannerStart);
+    assert.match(
+      curriculumBody,
+      /from\("curriculum_files"\)[\s\S]*?\.select\("\*"\)[\s\S]*?\.eq\("status",\s*"published"\)/,
+    );
+    assert.doesNotMatch(curriculumBody, /from\("curriculum_files"\)\.select\("\*"\);/);
+  });
+
   it("matches admin Sheets authorization pattern (JWT userId → assertAdmin)", () => {
     const drive = readFileSync(DRIVE_FILE, "utf8");
     const sheets = readFileSync(SHEETS_FILE, "utf8");
