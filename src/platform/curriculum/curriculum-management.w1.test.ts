@@ -7,6 +7,7 @@ import {
   adminGetCurriculumLessons,
   adminListCurriculumFiles,
   adminPublishCurriculum,
+  adminSaveCurriculumDraft,
 } from "./curriculum-admin.ops.ts";
 import { LessonInput, SaveCurriculumInput } from "./curriculum-management.functions.ts";
 
@@ -303,6 +304,22 @@ describe("W1 curriculum admin authorization", () => {
     );
   });
 
+  it("K. Non-admin → saveCurriculumDraft denied", async () => {
+    const { client, trace } = mockAdminClient({ role: "teacher" });
+    await assertDeniedBeforeCurriculum(
+      () =>
+        adminSaveCurriculumDraft(asAdmin(client), TEACHER, {
+          originalName: "منهج الرياضيات",
+          academicYear: "1448",
+          semester: "1",
+          grade: "الصف الأول المتوسط",
+          subject: "الرياضيات",
+          lessons: [{ lessonTitle: "خصائص الضرب" }],
+        }),
+      trace,
+    );
+  });
+
   it("F. Admin → allowed through the authorization gate (list)", async () => {
     const { client, trace } = mockAdminClient({ role: "admin" });
     const rows = await adminListCurriculumFiles(asAdmin(client), ADMIN);
@@ -381,5 +398,36 @@ describe("W1 curriculum admin authorization", () => {
     assert.equal(trace.tables[0], "user_roles");
     assert.ok(trace.deletes.some((d) => d.table === "curriculum_lessons"));
     assert.ok(trace.deletes.some((d) => d.table === "curriculum_files"));
+  });
+
+  it("L. Admin → publishCurriculum archives peers and publishes target", async () => {
+    const { client, trace } = mockAdminClient({
+      role: "admin",
+      fileStatus: "draft",
+      fileMeta: { subject: "رياضيات", grade: "5", semester: "1" },
+    });
+    const result = await adminPublishCurriculum(asAdmin(client), ADMIN, FILE_ID);
+    assert.deepEqual(result, { success: true });
+    assert.equal(trace.tables[0], "user_roles");
+    assert.ok(
+      trace.curriculumTables.filter((t) => t === "curriculum_files").length === 3,
+      "publish must access curriculum_files three times: fetch, archive-peers, publish-target",
+    );
+  });
+
+  it("M. Admin → archiveCurriculum succeeds", async () => {
+    const { client, trace } = mockAdminClient({ role: "admin", fileStatus: "published" });
+    const result = await adminArchiveCurriculum(asAdmin(client), ADMIN, FILE_ID);
+    assert.deepEqual(result, { success: true });
+    assert.equal(trace.tables[0], "user_roles");
+    assert.ok(trace.curriculumTables.includes("curriculum_files"));
+  });
+
+  it("N. Admin → getAdminCurriculumLessons returns lesson views", async () => {
+    const { client, trace } = mockAdminClient({ role: "admin" });
+    const lessons = await adminGetCurriculumLessons(asAdmin(client), ADMIN, FILE_ID);
+    assert.ok(Array.isArray(lessons));
+    assert.equal(trace.tables[0], "user_roles");
+    assert.ok(trace.curriculumTables.includes("curriculum_lessons"));
   });
 });
