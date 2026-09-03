@@ -25,6 +25,7 @@ type Trace = {
   tables: string[];
   curriculumTables: string[];
   deletes: Array<{ table: string; fileId?: string }>;
+  rpcCalls: Array<{ fn: string; args: Record<string, unknown> }>;
 };
 
 function isCurriculumTable(table: string): boolean {
@@ -42,10 +43,10 @@ function mockAdminClient(options: {
   fileMeta?: { subject: string; grade: string; semester: string } | null;
 }): {
   // Tests pass a behavioral mock; cast at call sites via `as never`.
-  client: { from: (table: string) => unknown };
+  client: { from: (table: string) => unknown; rpc: (fn: string, args: unknown) => unknown };
   trace: Trace;
 } {
-  const trace: Trace = { tables: [], curriculumTables: [], deletes: [] };
+  const trace: Trace = { tables: [], curriculumTables: [], deletes: [], rpcCalls: [] };
   const status = options.fileStatus ?? "draft";
   const meta =
     options.fileMeta === undefined
@@ -190,12 +191,19 @@ function mockAdminClient(options: {
 
       throw new Error(`unexpected table ${table}`);
     },
+    rpc(fn: string, args: unknown) {
+      trace.rpcCalls.push({ fn, args: (args ?? {}) as Record<string, unknown> });
+      return Promise.resolve({ data: FILE_ID, error: null });
+    },
   };
 
   return { client, trace };
 }
 
-function asAdmin(client: { from: (table: string) => unknown }) {
+function asAdmin(client: {
+  from: (table: string) => unknown;
+  rpc: (fn: string, args: unknown) => unknown;
+}) {
   return client as never;
 }
 
@@ -234,32 +242,40 @@ describe("curriculum save input hardening", () => {
   });
 
   it("rejects more than 500 lessons", () => {
-    assert.throws(() => SaveCurriculumInput.parse({
-      ...validSave,
-      lessons: Array.from({ length: 501 }, (_, i) => ({
-        lessonTitle: `درس ${i + 1}`,
-      })),
-    }));
+    assert.throws(() =>
+      SaveCurriculumInput.parse({
+        ...validSave,
+        lessons: Array.from({ length: 501 }, (_, i) => ({
+          lessonTitle: `درس ${i + 1}`,
+        })),
+      }),
+    );
   });
 
   it("rejects an oversized lesson title", () => {
-    assert.throws(() => LessonInput.parse({
-      lessonTitle: "أ".repeat(501),
-    }));
+    assert.throws(() =>
+      LessonInput.parse({
+        lessonTitle: "أ".repeat(501),
+      }),
+    );
   });
 
   it("rejects an oversized lesson detail field", () => {
-    assert.throws(() => LessonInput.parse({
-      lessonTitle: "درس صالح",
-      objectives: "أ".repeat(10_001),
-    }));
+    assert.throws(() =>
+      LessonInput.parse({
+        lessonTitle: "درس صالح",
+        objectives: "أ".repeat(10_001),
+      }),
+    );
   });
 
   it("rejects oversized curriculum metadata", () => {
-    assert.throws(() => SaveCurriculumInput.parse({
-      ...validSave,
-      subject: "أ".repeat(201),
-    }));
+    assert.throws(() =>
+      SaveCurriculumInput.parse({
+        ...validSave,
+        subject: "أ".repeat(201),
+      }),
+    );
   });
 });
 
@@ -429,5 +445,69 @@ describe("W1 curriculum admin authorization", () => {
     assert.ok(Array.isArray(lessons));
     assert.equal(trace.tables[0], "user_roles");
     assert.ok(trace.curriculumTables.includes("curriculum_lessons"));
+  });
+});
+
+describe("curriculum save draft — stage/version persistence", () => {
+  const saveInput = {
+    originalName: "منهج الرياضيات",
+    academicYear: "1448",
+    semester: "1",
+    grade: "الصف الأول المتوسط",
+    subject: "الرياضيات",
+    stage: "intermediate",
+    version: "2.3",
+    lessons: [{ lessonTitle: "خصائص الضرب" }],
+  };
+
+  function findSaveRpc(trace: Trace) {
+    return trace.rpcCalls.find((c) => c.fn === "save_curriculum_draft_atomic");
+  }
+
+  it("passes stage and version to save_curriculum_draft_atomic RPC", async () => {
+    const { client, trace } = mockAdminClient({ role: "admin" });
+    const result = await adminSaveCurriculumDraft(asAdmin(client), ADMIN, saveInput);
+    assert.equal(result.fileId, FILE_ID);
+
+    const rpc = findSaveRpc(trace);
+    assert.ok(rpc, "expected a save_curriculum_draft_atomic RPC call");
+    assert.equal(rpc.args.p_stage, "intermediate");
+    assert.equal(rpc.args.p_version, "2.3");
+    assert.equal(rpc.args.p_subject, "الرياضيات");
+  });
+
+  it("defaults version to 1.0 and stage to null when omitted", async () => {
+    const { client, trace } = mockAdminClient({ role: "admin" });
+    const { stage: _stage, version: _version, ...rest } = saveInput;
+    await adminSaveCurriculumDraft(asAdmin(client), ADMIN, rest);
+
+    const rpc = findSaveRpc(trace);
+    assert.ok(rpc, "expected a save_curriculum_draft_atomic RPC call");
+    assert.equal(rpc.args.p_stage, null);
+    assert.equal(rpc.args.p_version, "1.0");
+  });
+
+  it("preserves existing draft save behavior (file id, lessons, admin first)", async () => {
+    const { client, trace } = mockAdminClient({ role: "admin" });
+    const result = await adminSaveCurriculumDraft(asAdmin(client), ADMIN, saveInput);
+    assert.equal(result.fileId, FILE_ID);
+
+    const rpc = findSaveRpc(trace);
+    assert.ok(rpc, "expected a save_curriculum_draft_atomic RPC call");
+    assert.equal(rpc.args.p_file_id, null);
+    assert.equal(rpc.args.p_original_name, "منهج الرياضيات");
+    assert.equal(rpc.args.p_academic_year, "1448");
+    assert.equal(rpc.args.p_semester, "1");
+    assert.deepEqual(rpc.args.p_lessons, [{ lessonTitle: "خصائص الضرب" }]);
+    assert.equal(trace.tables[0], "user_roles", "assertAdmin must run before the RPC");
+  });
+
+  it("still enforces admin authorization (non-admin denied before any RPC)", async () => {
+    const { client, trace } = mockAdminClient({ role: "teacher" });
+    await assertDeniedBeforeCurriculum(
+      () => adminSaveCurriculumDraft(asAdmin(client), TEACHER, saveInput),
+      trace,
+    );
+    assert.equal(trace.rpcCalls.length, 0, "RPC must not be called for non-admins");
   });
 });

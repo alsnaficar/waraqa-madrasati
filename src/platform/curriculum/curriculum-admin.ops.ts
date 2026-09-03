@@ -186,6 +186,8 @@ export async function adminSaveCurriculumDraft(
     semester: string;
     grade: string;
     subject: string;
+    stage?: string;
+    version?: string;
     lessons: Array<{
       lessonTitle: string;
       objectives?: string;
@@ -211,6 +213,8 @@ export async function adminSaveCurriculumDraft(
     p_grade: data.grade,
     p_subject: data.subject,
     p_lessons: data.lessons,
+    p_stage: data.stage ?? null,
+    p_version: data.version ?? "1.0",
   });
 
   if (error) {

@@ -671,11 +671,13 @@ export type Database = {
           original_name: string;
           semester: string | null;
           size_bytes: number | null;
+          stage: string | null;
           status: string;
           storage_path: string;
           subject: string | null;
           updated_at: string;
           user_id: string;
+          version: string | null;
         };
         Insert: {
           academic_year?: string | null;
@@ -686,11 +688,13 @@ export type Database = {
           original_name: string;
           semester?: string | null;
           size_bytes?: number | null;
+          stage?: string | null;
           status?: string;
           storage_path: string;
           subject?: string | null;
           updated_at?: string;
           user_id: string;
+          version?: string | null;
         };
         Update: {
           academic_year?: string | null;
@@ -701,11 +705,13 @@ export type Database = {
           original_name?: string;
           semester?: string | null;
           size_bytes?: number | null;
+          stage?: string | null;
           status?: string;
           storage_path?: string;
           subject?: string | null;
           updated_at?: string;
           user_id?: string;
+          version?: string | null;
         };
         Relationships: [];
       };
@@ -2319,8 +2325,10 @@ export type Database = {
           p_lessons: Json;
           p_original_name: string;
           p_semester: string;
+          p_stage: string | null;
           p_subject: string;
           p_user_id: string;
+          p_version: string;
         };
         Returns: string;
       };
