@@ -25,11 +25,15 @@ export const Route = createFileRoute("/api/madrasati/live-session")({
           });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unauthorized";
-          const status = /Unauthorized|does not belong|not found|expired/i.test(message)
-            ? 401
-            : 500;
+          const isAuthError = /Unauthorized|does not belong|not found|expired/i.test(message);
 
-          return new Response(message, { status });
+          if (!isAuthError) {
+            console.error("[madrasati-live-session] request failed:", error);
+          }
+
+          return new Response(isAuthError ? message : "Internal server error.", {
+            status: isAuthError ? 401 : 500,
+          });
         }
       },
     },
