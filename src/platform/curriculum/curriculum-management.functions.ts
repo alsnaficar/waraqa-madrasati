@@ -307,6 +307,13 @@ export async function extractCurriculumFromPdfAuthorized(
     if (isCurriculumGeminiTimeoutError(err)) {
       throw new Error(CURRICULUM_PDF_TIMEOUT_MESSAGE);
     }
+    if (
+      err instanceof Error &&
+      (err.message === "تعذر قراءة بيانات المنهج المستخرجة." ||
+        err.message === "بيانات المنهج المستخرجة غير مطابقة للصيغة المطلوبة.")
+    ) {
+      throw new Error(`Failed to extract curriculum details: ${err.message}`);
+    }
     console.error("[curriculum-management] PDF extraction failed:", err);
     throw new Error("Failed to extract curriculum details");
   } finally {

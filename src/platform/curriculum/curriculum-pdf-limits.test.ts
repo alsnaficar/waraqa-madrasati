@@ -338,9 +338,12 @@ describe("extractCurriculumFromPdfAuthorized size + auth + magic", () => {
         extractCurriculumFromPdfAuthorized(client, ADMIN, base64OfExactBytes(128), {
           ai,
         }),
-      (err: unknown) =>
-        err instanceof Error &&
-        err.message === "Failed to extract curriculum details: provider boom: quota xyz",
+      (err: unknown) => {
+        assert.ok(err instanceof Error);
+        assert.equal(err.message, "Failed to extract curriculum details");
+        assert.doesNotMatch(err.message, /provider|quota|Gemini|boom/i);
+        return true;
+      },
     );
     assert.equal(geminiCalls, 1);
     assert.equal(getCurriculumPdfGuardSnapshotForTests().globalInFlight, 0);
