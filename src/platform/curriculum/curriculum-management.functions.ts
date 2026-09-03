@@ -307,9 +307,8 @@ export async function extractCurriculumFromPdfAuthorized(
     if (isCurriculumGeminiTimeoutError(err)) {
       throw new Error(CURRICULUM_PDF_TIMEOUT_MESSAGE);
     }
-    const errMsg = err instanceof Error ? err.message : String(err);
     console.error("[curriculum-management] PDF extraction failed:", err);
-    throw new Error(`Failed to extract curriculum details: ${errMsg}`);
+    throw new Error("Failed to extract curriculum details");
   } finally {
     guard.release();
   }
