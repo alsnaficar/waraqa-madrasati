@@ -838,13 +838,13 @@ export const exportDataToGoogleSheets = createServerFn({ method: "POST" })
         executionTimeMs: Date.now() - startTime,
       };
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : String(err);
+      console.error("[sheets-sync] curriculum export failed:", err);
       return {
         success: false,
         insertedRows: 0,
         updatedRows: 0,
         skippedRows: 0,
-        errors: [errMsg],
+        errors: ["فشل مزامنة جدول البيانات."],
         executionTimeMs: Date.now() - startTime,
       };
     }
@@ -890,11 +890,11 @@ export const syncSheetsToSupabaseAdmin = createServerFn({ method: "POST" })
           executionTimeMs: Date.now() - startTime,
         };
       } catch (err: unknown) {
-        const errMsg = err instanceof Error ? err.message : String(err);
+        console.error("[sheets-sync-admin] curriculum sync failed:", err);
         return {
           success: false,
           syncedCount: 0,
-          error: errMsg,
+          error: "فشل مزامنة جدول البيانات.",
           executionTimeMs: Date.now() - startTime,
         };
       }
