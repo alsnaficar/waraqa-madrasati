@@ -63,11 +63,14 @@ function mockAuth(
     active: boolean;
   }> = [],
   entitlementTables: EntitlementMockTables = allowEntitlementTables(userId),
+failNotificationsInsert = false,
 ): {
   auth: SupabaseUserContext;
   inserted: { current: Record<string, unknown> | null };
+  notifInserted: { current: Record<string, unknown> | null };
 } {
   const inserted: { current: Record<string, unknown> | null } = { current: null };
+  const notifInserted: { current: Record<string, unknown> | null } = { current: null };
   const billingFrom = createEntitlementTableHandler(entitlementTables);
 
   const client = {
@@ -176,11 +179,45 @@ function mockAuth(
         };
       }
 
+      if (table === "notifications") {
+        if (failNotificationsInsert) {
+          return {
+            insert() {
+              throw new Error("notification write failed");
+            },
+          };
+        }
+        return {
+          insert(row: Record<string, unknown>) {
+            notifInserted.current = row;
+            return {
+              select() {
+                return {
+                  async maybeSingle() {
+                    return {
+                      data: {
+                        id: "notif-1",
+                        user_id: row.user_id,
+                        title: row.title,
+                        body: row.body ?? null,
+                        read_at: null,
+                        created_at: "2026-08-08T12:00:01Z",
+                      },
+                      error: null,
+                    };
+                  },
+                };
+              },
+            };
+          },
+        };
+      }
+
       throw new Error(`unexpected table ${table}`);
     },
   };
 
-  return { auth: { client: client as never, userId }, inserted };
+  return { auth: { client: client as never, userId }, inserted, notifInserted };
 }
 
 describe("P3 Step 3 unified session-bound generation", () => {
@@ -189,7 +226,7 @@ describe("P3 Step 3 unified session-bound generation", () => {
   });
 
   it("runs bind → curriculum → strategy → persist for owned session", async () => {
-    const { auth, inserted } = mockAuth(TEACHER_A, makeSessionRow(), {
+    const { auth, inserted, notifInserted } = mockAuth(TEACHER_A, makeSessionRow(), {
       id: CURRICULUM_LESSON,
       title: "درس الجلسة",
       objectives: "هدف",
@@ -225,6 +262,76 @@ describe("P3 Step 3 unified session-bound generation", () => {
     assert.equal(inserted.current.lesson_session_id, SESSION_A);
     assert.equal(inserted.current.kind, "worksheet");
     assert.equal(inserted.current.user_id, TEACHER_A);
+
+    assert.ok(notifInserted.current);
+    assert.equal(notifInserted.current.user_id, TEACHER_A);
+    assert.equal(notifInserted.current.title, "تم توليد ورقة عمل");
+    assert.equal(notifInserted.current.body, "للدرس: درس الجلسة");
+  });
+
+  it("notifies with the kind-specific Arabic title after a quiz generation", async () => {
+    const { auth, notifInserted } = mockAuth(TEACHER_A, makeSessionRow(), {
+      id: CURRICULUM_LESSON,
+      title: "درس الاختبار",
+      objectives: null,
+      notes: null,
+    });
+
+    await runSessionBoundGeneration(
+      {
+        lessonSessionId: SESSION_A,
+        kind: "quiz",
+        auth,
+        supabase: auth.client,
+        userId: TEACHER_A,
+      },
+      async () => ({
+        content: "quiz",
+        model: "gemini-2.5-flash",
+        prompt: "x",
+        input: {},
+      }),
+    );
+
+    assert.ok(notifInserted.current);
+    assert.equal(notifInserted.current.title, "تم توليد اختبار");
+    assert.equal(notifInserted.current.body, "للدرس: درس الاختبار");
+  });
+
+  it("still returns the saved generation when notification insert fails", async () => {
+    const { auth, inserted } = mockAuth(
+      TEACHER_A,
+      makeSessionRow(),
+      {
+        id: CURRICULUM_LESSON,
+        title: "درس الجلسة",
+        objectives: null,
+        notes: null,
+      },
+      [],
+      allowEntitlementTables(TEACHER_A),
+      true,
+    );
+
+    const result = await runSessionBoundGeneration(
+      {
+        lessonSessionId: SESSION_A,
+        kind: "lesson_plan",
+        auth,
+        supabase: auth.client,
+        userId: TEACHER_A,
+      },
+      async () => ({
+        content: "plan",
+        model: "gemini-2.5-flash",
+        prompt: "x",
+        input: {},
+      }),
+    );
+
+    assert.equal(result.content, "plan");
+    assert.ok(inserted.current);
+    assert.equal(inserted.current.kind, "lesson_plan");
   });
 
   it("resolves the timetable entry from session day and period", async () => {

@@ -149,4 +149,36 @@ export class NotificationService {
     if (error) throw error;
     return unread;
   }
+
+  /**
+   * Create a notification for the authenticated user.
+   *
+   * The recipient is always the authenticated user resolved from the auth
+   * context — user_id is never accepted from client input. RLS
+   * (`auth.uid() = user_id`) remains the write boundary, so self-recipient
+   * writes through this service succeed while cross-user writes are still
+   * rejected server-side.
+   *
+   * @returns The created notification, or null if unauthenticated.
+   */
+  static async create(
+    params: { title: string; body?: string | null },
+    context?: SupabaseUserContext,
+  ): Promise<Notification | null> {
+    const resolved = await resolveUserContext(context);
+    if (!resolved) return null;
+
+    const { data, error } = await resolved.client
+      .from("notifications")
+      .insert({
+        user_id: resolved.userId,
+        title: params.title,
+        body: params.body ?? null,
+      })
+      .select("*")
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? toNotification(data) : null;
+  }
 }

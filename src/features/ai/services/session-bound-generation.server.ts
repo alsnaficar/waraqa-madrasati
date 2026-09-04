@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { saveAiGeneration, type AiGenerationKind } from "@/features/ai/services/persistence.server";
+import { NotificationService } from "@/features/notifications/services/notification.service";
 import {
   AI_PROMPT_CURRICULUM_NOTES_MAX,
   AI_PROMPT_CURRICULUM_OBJECTIVES_MAX,
@@ -25,6 +26,13 @@ import type {
   GenerationResult,
   SessionBoundGenerationContext,
 } from "./session-bound-generation.types";
+
+const AI_GENERATION_NOTIFICATION_TITLES: Record<AiGenerationKind, string> = {
+  lesson_plan: "تم توليد خطة الدرس",
+  worksheet: "تم توليد ورقة عمل",
+  quiz: "تم توليد اختبار",
+  activity_ideas: "تم توليد أفكار أنشطة",
+};
 
 /**
  * Build a prompt prefix from the session's authoritative curriculum lesson.
@@ -147,6 +155,20 @@ export async function runSessionBoundGeneration(
         },
       },
     });
+
+    try {
+      await NotificationService.create(
+        {
+          title: AI_GENERATION_NOTIFICATION_TITLES[params.kind],
+          body: curriculumLesson?.title
+            ? `للدرس: ${curriculumLesson.title}`
+            : undefined,
+        },
+        params.auth,
+      );
+    } catch (notificationError) {
+      console.error("ai_generations notification insert failed", notificationError);
+    }
 
     return {
       id: row.id,

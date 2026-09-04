@@ -26,7 +26,7 @@ function createMockClient(tables: { notifications: Row[] }) {
       const state: {
         filters: Record<string, unknown>;
         isFilters: Record<string, unknown>;
-        op: "select" | "update" | null;
+        op: "select" | "update" | "insert" | null;
         patch: Record<string, unknown>;
         order: { column: string; ascending: boolean } | null;
         range: { from: number; to: number } | null;
@@ -78,11 +78,16 @@ function createMockClient(tables: { notifications: Row[] }) {
 
       const chain = {
         select(_columns?: string, opts?: { count?: string; head?: boolean }) {
-          if (state.op !== "update") {
+          if (state.op !== "update" && state.op !== "insert") {
             state.op = "select";
           }
           if (opts?.count === "exact") state.countExact = true;
           if (opts?.head === true) state.headOnly = true;
+          return chain;
+        },
+        insert(patch: Record<string, unknown>) {
+          state.op = "insert";
+          state.patch = patch;
           return chain;
         },
         update(patch: Record<string, unknown>) {
@@ -114,6 +119,17 @@ function createMockClient(tables: { notifications: Row[] }) {
             if (!current) return { data: null, error: null, count: null };
             Object.assign(current, state.patch);
             return { data: { ...current }, error: null, count: null };
+          }
+          if (state.op === "insert") {
+            const target = tables[table as keyof typeof tables] ?? [];
+            const newRow: Row = {
+              id: `notif-${target.length + 1}`,
+              created_at: "2026-09-04T12:00:00Z",
+              read_at: null,
+              ...(state.patch as Row),
+            };
+            target.push(newRow);
+            return { data: { ...newRow }, error: null, count: null };
           }
           const rows = getRows();
           return { data: rows[0] ?? null, error: null, count: null };
@@ -329,6 +345,57 @@ describe("NotificationService", () => {
     assert.equal(result.notifications.length, 0);
     assert.equal(result.total, 0);
     assert.equal(result.unreadCount, 0);
+  });
+
+  it("creates a notification for the authenticated user", async () => {
+    const tables = { notifications: [] as Row[] };
+
+    const created = await NotificationService.create(
+      { title: "تم توليد ورقة عمل", body: "للدرس: درس الجلسة" },
+      authFor(tables),
+    );
+
+    assert.ok(created);
+    assert.equal(created.id, "notif-1");
+    assert.equal(created.userId, USER_A);
+    assert.equal(created.title, "تم توليد ورقة عمل");
+    assert.equal(created.body, "للدرس: درس الجلسة");
+    assert.equal(created.readAt, null);
+    assert.ok(created.createdAt);
+    assert.equal(tables.notifications.length, 1);
+    assert.equal(tables.notifications[0]?.user_id, USER_A);
+    assert.equal(tables.notifications[0]?.title, "تم توليد ورقة عمل");
+    assert.equal(tables.notifications[0]?.body, "للدرس: درس الجلسة");
+  });
+
+  it("defaults body to null when omitted", async () => {
+    const tables = { notifications: [] as Row[] };
+
+    const created = await NotificationService.create(
+      { title: "تم توليد خطة الدرس" },
+      authFor(tables),
+    );
+
+    assert.ok(created);
+    assert.equal(created.body, null);
+    assert.equal(tables.notifications[0]?.body, null);
+  });
+
+  it("derives the recipient from the auth context, never from input", async () => {
+    const tables = { notifications: [] as Row[] };
+    const maliciousInput = {
+      title: "تم توليد اختبار",
+      body: "للدرس: درس الجلسة",
+    };
+
+    const created = await NotificationService.create(
+      maliciousInput,
+      authFor(tables, USER_B),
+    );
+
+    assert.ok(created);
+    assert.equal(created.userId, USER_B);
+    assert.equal(tables.notifications[0]?.user_id, USER_B);
   });
 
   it("maps row fields to domain types correctly", async () => {
