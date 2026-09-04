@@ -16,6 +16,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 
 import type { Notification } from "../services/notification.service";
 import { useNotifications } from "../hooks/useNotifications";
+import { useNotificationsRealtime } from "../hooks/useNotificationsRealtime";
 
 function formatDate(iso: string): string {
   try {
@@ -33,6 +34,8 @@ function formatDate(iso: string): string {
 
 export function NotificationsPageContent() {
   const [page, setPage] = useState(0);
+
+  useNotificationsRealtime();
 
   const {
     items,
