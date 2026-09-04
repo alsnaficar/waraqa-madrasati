@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 
 const landingSearchSchema = z.object({
-  login: z.string().optional(),
+  login: z.union([z.string(), z.boolean()]).optional(),
   redirect: z.string().optional(),
 });
 
@@ -46,8 +46,10 @@ function Landing() {
   const { login, redirect: redirectPath } = Route.useSearch();
   const navigate = useNavigate();
 
+  const isLoginRequested = login === "true" || login === true;
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(login === "true");
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(isLoginRequested);
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
 
   useEffect(() => {
@@ -65,7 +67,7 @@ function Landing() {
   }, []);
 
   useEffect(() => {
-    setIsAuthModalOpen(login === "true");
+    setIsAuthModalOpen(login === "true" || login === true);
   }, [login]);
 
   const handleCloseModal = () => {
