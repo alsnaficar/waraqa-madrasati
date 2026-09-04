@@ -1,23 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bell } from "lucide-react";
 
 import { PageShell } from "@/components/layout/page-shell";
-import { SectionHeader } from "@/shared/components/section-header";
-import { EmptyState } from "@/shared/components/empty-state";
+import { NotificationsPageContent } from "@/features/notifications/components/notifications-page-content";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   component: NotificationsPage,
+  head: () => ({
+    meta: [
+      { title: "الإشعارات | ورقة" },
+      {
+        name: "description",
+        content: "إشعارات وتنبيهات المعلم في منصة ورقة.",
+      },
+    ],
+  }),
 });
 
 function NotificationsPage() {
   return (
     <PageShell>
-      <SectionHeader title="الإشعارات" description="آخر التحديثات والتنبيهات." />
-      <EmptyState
-        icon={Bell}
-        title="لا توجد إشعارات"
-        description="ستظهر تنبيهاتك هنا فور توفرها."
-      />
+      <NotificationsPageContent />
     </PageShell>
   );
 }
