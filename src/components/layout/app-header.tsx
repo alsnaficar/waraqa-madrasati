@@ -5,13 +5,16 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/shared/ui/button";
 import { BackButton } from "@/shared/components/back-button";
+import { Badge } from "@/shared/ui/badge";
 import { supabase } from "@/platform/database/supabase/client";
+import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { BrandLogo } from "./brand-logo";
 
 export function AppHeader() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { unreadCount } = useNotifications();
   const showBack = pathname !== "/dashboard";
 
   // Presentation only — Admin route/server still enforce authorization.
@@ -64,11 +67,22 @@ export function AppHeader() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-11 w-11 min-h-[44px] min-w-[44px]"
-          aria-label="الإشعارات"
+          className="relative h-11 w-11 min-h-[44px] min-w-[44px]"
+          aria-label={
+            unreadCount > 0 ? `الإشعارات، ${unreadCount} غير مقروء` : "الإشعارات"
+          }
           onClick={() => navigate({ to: "/notifications" })}
         >
           <Bell className="h-5 w-5" />
+          {unreadCount > 0 ? (
+            <Badge
+              variant="destructive"
+              aria-hidden="true"
+              className="absolute -top-1 -right-1 h-4 min-w-4 rounded-full px-1.5 text-[10px] leading-none"
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Badge>
+          ) : null}
         </Button>
         <Button
           variant="ghost"
