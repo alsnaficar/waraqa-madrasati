@@ -25,6 +25,7 @@ import {
   type MadrasatiTimetableEntryResult,
   type MadrasatiLiveVerificationResult,
 } from "@/platform/integration/connectors/madrasati/madrasati.functions";
+import { MadrasatiPairingCard } from "@/platform/integration/connectors/madrasati/components/madrasati-pairing-card";
 import { StudentsPanel } from "@/features/homework/components/students-panel";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
@@ -556,6 +557,8 @@ function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        <MadrasatiPairingCard />
 
         <GradesClassesPanel />
 
