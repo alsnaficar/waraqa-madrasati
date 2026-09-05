@@ -1147,6 +1147,42 @@ export type Database = {
           },
         ];
       };
+      madrasati_pairings: {
+        Row: {
+          created_at: string;
+          expires_at: string;
+          id: string;
+          last_used_at: string | null;
+          paired_at: string | null;
+          revoked_at: string | null;
+          status: string;
+          token_hash: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          expires_at: string;
+          id?: string;
+          last_used_at?: string | null;
+          paired_at?: string | null;
+          revoked_at?: string | null;
+          status?: string;
+          token_hash: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          last_used_at?: string | null;
+          paired_at?: string | null;
+          revoked_at?: string | null;
+          status?: string;
+          token_hash?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       notifications: {
         Row: {
           body: string | null;
