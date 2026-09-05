@@ -8,8 +8,12 @@
     "activeTab",
     "scripting"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "host_permissions": [
-    "*://schools.madrasati.sa/*"
+    "*://schools.madrasati.sa/*",
+    "https://waragh.alsnafi.app/*"
   ],
   "action": {
     "default_popup": "popup.html",

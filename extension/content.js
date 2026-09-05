@@ -1019,4 +1019,31 @@
         startWaraqahAuthenticationGuard();
     }
 
+    // ------------------------------------------------------------
+    // WARAGH PAIRING (claim) — content script side
+    // The content script makes NO network request and holds NO storage.
+    // Every claim is delegated to the service worker (background.js) via
+    // chrome.runtime.sendMessage. The worker owns the fetch to
+    // POST /api/madrasati/pairing/claim and never returns the token here.
+    // ------------------------------------------------------------
+    window.__waraghPairingClaim = function (token) {
+        return new Promise(function (resolve) {
+            try {
+                chrome.runtime.sendMessage(
+                    { type: "WARAGH_PAIRING_CLAIM", token: String(token) },
+                    function (response) {
+                        if (chrome.runtime.lastError) {
+                            resolve({ ok: false, code: "error" });
+                            return;
+                        }
+                        resolve(response || { ok: false, code: "error" });
+                    }
+                );
+            } catch (error) {
+                resolve({ ok: false, code: "error" });
+            }
+        });
+    };
+    window.__waraghHasPairingBridge = true;
+
 })();
