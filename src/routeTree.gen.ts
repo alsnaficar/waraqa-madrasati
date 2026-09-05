@@ -45,6 +45,7 @@ import { Route as AuthenticatedAdminGoogleSheetsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as ApiMadrasatiLiveSessionRouteImport } from './routes/api/madrasati/live-session'
+import { Route as ApiMadrasatiPairingClaimRouteImport } from './routes/api/madrasati/pairing/claim'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -241,6 +242,12 @@ const ApiMadrasatiLiveSessionRoute = ApiMadrasatiLiveSessionRouteImport.update({
   path: '/api/madrasati/live-session',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMadrasatiPairingClaimRoute =
+  ApiMadrasatiPairingClaimRouteImport.update({
+    id: '/api/madrasati/pairing/claim',
+    path: '/api/madrasati/pairing/claim',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/madrasati/live-session': typeof ApiMadrasatiLiveSessionRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/madrasati/pairing/claim': typeof ApiMadrasatiPairingClaimRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -314,6 +322,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/madrasati/live-session': typeof ApiMadrasatiLiveSessionRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/api/madrasati/pairing/claim': typeof ApiMadrasatiPairingClaimRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -353,6 +362,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/madrasati/live-session': typeof ApiMadrasatiLiveSessionRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/madrasati/pairing/claim': typeof ApiMadrasatiPairingClaimRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/madrasati/live-session'
     | '/admin/'
+    | '/api/madrasati/pairing/claim'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -428,6 +439,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/madrasati/live-session'
     | '/admin'
+    | '/api/madrasati/pairing/claim'
   id:
     | '__root__'
     | '/'
@@ -466,6 +478,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/api/madrasati/live-session'
     | '/_authenticated/admin/'
+    | '/api/madrasati/pairing/claim'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -477,6 +490,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiMadrasatiLiveSessionRoute: typeof ApiMadrasatiLiveSessionRoute
+  ApiMadrasatiPairingClaimRoute: typeof ApiMadrasatiPairingClaimRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -733,6 +747,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMadrasatiLiveSessionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/madrasati/pairing/claim': {
+      id: '/api/madrasati/pairing/claim'
+      path: '/api/madrasati/pairing/claim'
+      fullPath: '/api/madrasati/pairing/claim'
+      preLoaderRoute: typeof ApiMadrasatiPairingClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -825,6 +846,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiMadrasatiLiveSessionRoute: ApiMadrasatiLiveSessionRoute,
+  ApiMadrasatiPairingClaimRoute: ApiMadrasatiPairingClaimRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
