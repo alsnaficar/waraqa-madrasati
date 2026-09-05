@@ -67,7 +67,7 @@ function ConnectSchoolPage() {
               </p>
 
               <Button asChild variant="outline" className="h-11 w-full font-bold">
-                <Link to="/madrasati-login">تسجيل الدخول إلى مدرستي</Link>
+                <Link to="/settings" hash="madrasati-pairing">تسجيل الدخول إلى مدرستي</Link>
               </Button>
             </div>
           )}

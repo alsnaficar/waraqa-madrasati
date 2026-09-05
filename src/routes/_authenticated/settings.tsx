@@ -439,7 +439,7 @@ function SettingsPage() {
                   variant="outline"
                   className="h-11 font-bold text-xs gap-2 shrink-0 border-amber-200 bg-white"
                 >
-                  <Link to="/madrasati-login">تسجيل الدخول إلى مدرستي</Link>
+                  <Link to="/settings" hash="madrasati-pairing">تسجيل الدخول إلى مدرستي</Link>
                 </Button>
               </div>
 

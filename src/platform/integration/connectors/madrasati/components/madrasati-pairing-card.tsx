@@ -144,7 +144,7 @@ export function MadrasatiPairingCard() {
   const remainingSecondPart = remainingSeconds % 60;
 
   return (
-    <Card className="shadow-sm border-indigo-100 bg-indigo-50/40">
+    <Card id="madrasati-pairing" className="shadow-sm border-indigo-100 bg-indigo-50/40">
       <CardContent className="p-6">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4 flex-wrap">
